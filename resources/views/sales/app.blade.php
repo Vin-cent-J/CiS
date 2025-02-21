@@ -3,7 +3,7 @@
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
   <button type="button" class="btn btn-warning">
-    New Sales +
+    + Sales
   </button>
 </nav>
 @endsection
