@@ -2,9 +2,9 @@
 
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
-  <button type="button" class="btn btn-warning">
+  <a type="button" class="btn btn-warning" href="{{ route('newsales') }}">
     + Sales
-  </button>
+  </a>
 </nav>
 @endsection
 @section("isi")
@@ -27,7 +27,7 @@
         <td>Ex</td>
         <td>0</td>
         <td>Paid</td>
-        <td><button class="btn btn-warning">Detail</button></td>
+        <td><a class="btn btn-warning">Detail</a></td>
       </tr>
     </tbody>
   </table>
