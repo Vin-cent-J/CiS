@@ -2,7 +2,7 @@
 
 @section('nav')
 <nav class="px-3 bg-dark">
-    <p class="text-light py-1"><a href="{{route('sales')}}">sales</a> / 1</p>
+    <p class="text-light py-1"><a href="{{route('purchase')}}">purchase</a> / 1</p>
 </nav>
 @endsection
 
@@ -10,7 +10,7 @@
 <div class="container card p-3" style="min-height: 85vh">
     <div class="row">
         <div class="col-md-6">
-            <h5>Customer</h5>
+            <h5>Supplier</h5>
             <p><strong>Deco Addict</strong><br>
                 77 Santa Barbara Rd<br>
                 Pleasant Hill CA 94523<br>

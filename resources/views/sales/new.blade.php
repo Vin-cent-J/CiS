@@ -1,7 +1,13 @@
 @extends("layout.app")
 
+@section('nav')
+<nav class="px-3 bg-dark">
+    <p class="text-light py-1"><a href="{{route('sales')}}">sales</a> / new</p>
+</nav>
+@endsection
+
 @section("isi")
-<div class="container card p-3" style="min-height: 85vh">
+<div class="container card p-3" style="min-height: 82vh">
     <div class="row">
         <div class="col-md-6">
             <h5>Customer</h5>
@@ -13,8 +19,8 @@
         </div>
         <div class="col-md-6 text-md-end">
             <p><strong>Order Date:</strong> 09/10/2023 19:10:12</p>
-            <p><strong>Recurrence:</strong> -</p>
-            <p><strong>Pricelist:</strong> Benelux (USD)</p>
+            <p><strong>Total Debt:</strong> Rp. 0</p>
+            <p><strong>Pricelist:</strong> Benelux</p>
             <p><strong>Payment Terms:</strong> 30 Days</p>
         </div>
     </div>

@@ -29,17 +29,29 @@ Route::get("/sales/new", function(){
   return view("sales.new");
 })->name("newsales");
 
-Route::get("/sales/detail/{detail}", function(){
+Route::get("/sales/detail/{id}", function(){
   return view("sales.detail");
 })->name("salesdetail");
 
-Route::get("/purchase", function(){
+Route::get("/purchases", function(){
   return view("purchase.app");
 })->name("purchase");
+
+Route::get("/purchases/new", function(){
+  return view("purchase.new");
+})->name("newpurchase");
+
+Route::get("/purchases/detail/{id}", function(){
+  return view("purchase.detail");
+})->name("purchasedetail");
 
 Route::get("/inventory", function(){
   return view("inventory.app");
 })->name("inventory");
+
+Route::get("/inventory/new", function(){
+  return view("inventory.new");
+})->name("newinventory");
 
 Route::get("/report", function(){
   return view("report.app");
@@ -49,3 +61,18 @@ Route::get("/settings", function(){
   return view("setting");
 })->name("setting");
 
+Route::get("/debts", function(){
+  return view("debt.tracker");
+})->name("debt");
+
+Route::get("/customer", function(){
+  return view("customer.app");
+})->name("customer");
+
+Route::get("/customer/new", function(){
+  return view("customer.new");
+})->name("newcustomer");
+
+Route::get("/customer/detail/{id}", function(){
+  return view("customer.detail");
+})->name("customerdetail");

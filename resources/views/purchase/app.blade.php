@@ -2,13 +2,13 @@
 
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
-  <button type="button" class="btn btn-warning">
+  <a type="button" class="btn btn-warning" href="{{route('newpurchase')}}">
     + Purchase
-  </button>
+  </a>
 </nav>
 @endsection
 @section("isi")
-<div class="p-3 container card bg-white" style="min-height: 840px;">
+<div class="p-3 container card bg-white" style="min-height: 85vh;">
   <table class="table">
     <thead>
       <t>
@@ -25,7 +25,7 @@
         <td>2000-01-01</td>
         <td>Ex</td>
         <td>0</td>
-        <td><button class="btn btn-warning">Detail</button></td>
+        <td><a type="button" class="btn btn-warning" href="{{route('purchasedetail', ['id'=>'1'])}}">Detail</a></td>
       </tr>
     </tbody>
   </table>

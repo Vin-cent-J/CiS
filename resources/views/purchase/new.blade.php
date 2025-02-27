@@ -2,15 +2,15 @@
 
 @section('nav')
 <nav class="px-3 bg-dark">
-    <p class="text-light py-1"><a href="{{route('sales')}}">sales</a> / 1</p>
+    <p class="text-light py-1"><a href="{{route('purchase')}}">purchase</a> / new</p>
 </nav>
 @endsection
 
 @section("isi")
-<div class="container card p-3" style="min-height: 85vh">
+<div class="container card p-3" style="min-height: 82vh">
     <div class="row">
         <div class="col-md-6">
-            <h5>Customer</h5>
+            <h5>Supplier</h5>
             <p><strong>Deco Addict</strong><br>
                 77 Santa Barbara Rd<br>
                 Pleasant Hill CA 94523<br>
@@ -20,17 +20,13 @@
         <div class="col-md-6 text-md-end">
             <p><strong>Order Date:</strong> 09/10/2023 19:10:12</p>
             <p><strong>Total Debt:</strong> Rp.0</p>
+            <p><strong>Pricelist:</strong> Benelux</p>
             <p><strong>Payment Terms:</strong> 30 Days</p>
         </div>
     </div>
 
     <hr>
-    <div class="text-end">
-        <p>Reduce Debt by: <input type="number" name="r_debt" style="width: 15%" value="0"></p>
-        <a type="button" class="btn btn-warning">Save</a>
-    </div>
 
-    <hr>
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
             <thead class="table-light">
@@ -40,7 +36,7 @@
                     <th>Unit Price</th>
                     <th>Disc.%</th>
                     <th>Total</th>
-                    <th>Action</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -50,10 +46,15 @@
                     <td>Rp.1350</td>
                     <td>0.00</td>
                     <td>Rp.1350</td>
-                    <td><a type="button" class="btn btn-warning" href="">Refund</a></td>
+                    <td class="text-center"><a href=""><i class="bi bi-trash3-fill"></i></a></td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-warning">Add a product</button>
+        <button class="btn btn-warning">Save</button>
     </div>
 </div>
 
