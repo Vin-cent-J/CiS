@@ -2,7 +2,7 @@
 
 @section('nav')
 <nav class="px-3 bg-dark">
-    <p class="text-light py-1"><a href="{{route('sales')}}">sales</a> / new</p>
+    <a type="button" class="btn-sm btn-warning m-1" href="{{route('sales')}}"><i class="bi bi-arrow-bar-left"></i>sales</a>
 </nav>
 @endsection
 

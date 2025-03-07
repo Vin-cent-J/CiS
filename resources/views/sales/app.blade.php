@@ -27,7 +27,7 @@
         <td>Ex</td>
         <td>0</td>
         <td>Paid</td>
-        <td><a class="btn btn-warning">Detail</a></td>
+        <td><a class="btn btn-warning" href="{{route('salesdetail', ['id'=>'1'])}}">Detail</a></td>
       </tr>
     </tbody>
   </table>

@@ -2,9 +2,9 @@
 
 @section("nav")
 <div class="px-3 py-2 bg-dark">
-  <button class="btn btn-warning">
+  <a type="button" class="btn btn-warning" href="{{route('newinventory')}}">
     <i class="bi bi-plus-lg"></i> Item
-  </button>
+  </a>
 </div>
 @endsection
 

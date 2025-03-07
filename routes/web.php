@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\FeatureController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -57,8 +57,8 @@ Route::get("/report", function(){
   return view("report.app");
 })->name("report");
 
-Route::get("/settings", function(){
-  return view("setting");
+Route::get("/settings/{tab?}", function($tab = 1){
+  return view("setting", ["tab"=>$tab]);
 })->name("setting");
 
 Route::get("/debts", function(){
@@ -76,3 +76,14 @@ Route::get("/customer/new", function(){
 Route::get("/customer/detail/{id}", function(){
   return view("customer.detail");
 })->name("customerdetail");
+
+Route::get("/supplier", function(){
+  return view("supplier.app");
+})->name("supplier");
+
+Route::get("/supplier/new", function(){
+  return view("supplier.new");
+})->name("newsupplier");
+
+
+Route::resource("test", FeatureController::class);
