@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Feature;
+use App\Models\DetailConfiguration;
 use Illuminate\Http\Request;
 
-class FeatureController extends Controller
+class DetailConfigurationsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $features = Feature::get();
-        return view('home', compact('features'));
+        //
     }
 
     /**
@@ -35,7 +34,7 @@ class FeatureController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(feature $feature)
+    public function show(DetailConfiguration $detailConfigurations)
     {
         //
     }
@@ -43,7 +42,7 @@ class FeatureController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(feature $feature)
+    public function edit(DetailConfiguration $detailConfigurations)
     {
         //
     }
@@ -51,7 +50,7 @@ class FeatureController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, feature $feature)
+    public function update(Request $request, DetailConfiguration $detailConfigurations)
     {
         //
     }
@@ -59,7 +58,7 @@ class FeatureController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(feature $feature)
+    public function destroy(DetailConfiguration $detailConfigurations)
     {
         //
     }

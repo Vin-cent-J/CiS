@@ -33,10 +33,10 @@
         <div>
           <ul class="nav col-12 col-lg-auto text-small">
             <li>
-              <a class="nav-link text-white" href="{{ route("home") }}"><i class="bi bi-house-fill text-warning"></i>&nbsp;Home</a>
+              <a class="nav-link text-white" href="{{ url("/") }}"><i class="bi bi-house-fill text-warning"></i>&nbsp;Home</a>
             </li>
             <li>
-              <a class="nav-link text-white" href="{{ route("setting") }}"><i class="bi bi-gear-fill text-warning"></i>&nbsp;Settings</a>
+              <a class="nav-link text-white" href="{{ url("/settings") }}"><i class="bi bi-gear-fill text-warning"></i>&nbsp;Settings</a>
             </li>
           </ul>
         </div>

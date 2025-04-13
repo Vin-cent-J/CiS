@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Feature;
 use Illuminate\Http\Request;
 
-class FeatureController extends Controller
+class ConfigurationsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $features = Feature::get();
-        return view('home', compact('features'));
+        $tab = 'pos';
+        $features = Feature::with("subFeatures.configurations.detailConfigurations")->get();
+        echo "<script>console.log('Debug Objects: " . $features . "' );</script>";
+        return view('setting', compact('features', 'tab'));
     }
 
     /**
@@ -35,15 +37,17 @@ class FeatureController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(feature $feature)
+    public function show($tab)
     {
-        //
+        $features = Feature::with("subFeatures.configurations.detailConfigurations")->get();
+        echo "<script>console.log('Debug Objects: " . $features . "' );</script>";
+        return view('setting', compact('features', 'tab'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(feature $feature)
+    public function edit(Feature $features)
     {
         //
     }
@@ -51,7 +55,7 @@ class FeatureController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, feature $feature)
+    public function update(Request $request, Feature $features)
     {
         //
     }
@@ -59,7 +63,7 @@ class FeatureController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(feature $feature)
+    public function destroy(Feature $features)
     {
         //
     }

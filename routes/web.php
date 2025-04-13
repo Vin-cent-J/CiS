@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeatureController;
+use App\Models\Feature;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ConfigurationsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,13 +15,17 @@ use App\Http\Controllers\FeatureController;
 |
 */
 
-Route::get('/', function () {
-    return view('home');
-})->name("home");
-
 Route::get("/pos", function(){
   return view("pos.app");
 })->name("pos");
+
+Route::get("/pos/detail/{id}", function(){
+  return view("pos.detail");
+})->name("posdetail");
+
+Route::get("/riwayatpos", function(){
+  return view("pos.history");
+})->name("poshistory");
 
 Route::get("/sales", function(){
   return view("sales.app");
@@ -57,10 +63,6 @@ Route::get("/report", function(){
   return view("report.app");
 })->name("report");
 
-Route::get("/settings/{tab?}", function($tab = 1){
-  return view("setting", ["tab"=>$tab]);
-})->name("setting");
-
 Route::get("/debts", function(){
   return view("debt.tracker");
 })->name("debt");
@@ -86,4 +88,5 @@ Route::get("/supplier/new", function(){
 })->name("newsupplier");
 
 
-Route::resource("test", FeatureController::class);
+Route::resource("settings", ConfigurationsController::class);
+Route::resource("/", FeatureController::class);
