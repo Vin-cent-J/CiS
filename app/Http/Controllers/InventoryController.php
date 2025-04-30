@@ -29,7 +29,7 @@ class InventoryController extends Controller
      */
     public function store(Request $request)
     {
-        return Product::create($request->all());
+        Product::create($request->all());
     }
 
     /**

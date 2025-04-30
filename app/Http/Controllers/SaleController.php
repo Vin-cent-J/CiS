@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Configuration;
 use App\Models\DetailConfiguration;
 use App\Models\Sale;
+use App\Models\SalesDetail;
 use App\Models\SubFeature;
 use Illuminate\Http\Request;
 
@@ -48,7 +49,7 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-        return Sale::create([
+        $ins = Sale::create([
             'date' => now(),
             'total' => $request->total,
             'shipping_date' => $request->shipping_date,
@@ -59,6 +60,16 @@ class SaleController extends Controller
             'customers_id' => $request->customers_id,
             'shipping_method' => $request->shipping_method
         ]);
+        foreach ($request->products as $product) {
+            SalesDetail::create([
+                'sales_id' => $ins->id,
+                'products_id' => $product['products_id'],
+                'quantity' => $product['quantity'],
+                'price' => $product['price'],
+                'total' => $product['total']
+            ]);
+        }
+        return redirect()->route('sales.app');
     }
 
     /**

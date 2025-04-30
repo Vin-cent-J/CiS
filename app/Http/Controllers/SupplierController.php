@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
@@ -11,7 +12,8 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        //
+        $suppliers = Supplier::all();
+        return view('suppliers.app', compact('suppliers'));
     }
 
     /**
@@ -19,7 +21,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        //
+        return view('suppliers.new');
     }
 
     /**
@@ -27,7 +29,16 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return Supplier::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
+            'zip_code' => $request->zip_code,
+            'country' => $request->country
+        ]);
     }
 
     /**
@@ -35,7 +46,8 @@ class SupplierController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $supplier = Supplier::find($id);
+        return view('suppliers.detail', compact('supplier'));
     }
 
     /**
@@ -43,7 +55,8 @@ class SupplierController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $supplier = Supplier::find($id);
+        return view('suppliers.edit', compact('supplier'));
     }
 
     /**
@@ -51,7 +64,17 @@ class SupplierController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $supplier = Supplier::find($id);
+        return $supplier->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
+            'zip_code' => $request->zip_code,
+            'country' => $request->country
+        ]);
     }
 
     /**
@@ -59,6 +82,7 @@ class SupplierController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $supplier = Supplier::find($id);
+        return $supplier->delete();
     }
 }
