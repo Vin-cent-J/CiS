@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Configuration extends Model
 {
     use HasFactory;
-
+    public $timestamps = false;
     public function detailConfigurations(): HasMany{
         return $this->hasMany(DetailConfiguration::class, 'configurations_id');
     }

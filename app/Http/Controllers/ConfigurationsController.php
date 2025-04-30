@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Feature;
+use App\Models\SubFeature;
+use App\Models\Configuration;
+use App\Models\DetailConfiguration;
 use Illuminate\Http\Request;
 
 class ConfigurationsController extends Controller
@@ -57,7 +60,28 @@ class ConfigurationsController extends Controller
      */
     public function update(Request $request, Feature $features)
     {
-        //
+        $type = $request->type;
+        $id = $request->id;
+        $isActive = $request->is_active;
+
+        switch ($type) {
+            case 'subFeature':
+                $item = SubFeature::findOrFail($id);
+                break;
+            case 'configuration':
+                $item = Configuration::findOrFail($id);
+                break;
+            case 'detailConfiguration':
+                $item = DetailConfiguration::findOrFail($id);
+                break;
+            default:
+                return response()->json(['message' => 'Invalid type'], 400);
+        }
+
+        $item->is_active = $isActive;
+        $item->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
     }
 
     /**

@@ -135,6 +135,27 @@ class FeatureSeeder extends Seeder
                 'status'=>false,
                 'features_id'=>2
             ],
+            [
+                'id'=>10,
+                'name'=> 'pemberitahuan stok',
+                'mandatory'=>false,
+                'status'=>false,
+                'features_id'=>3
+            ],
+            [
+                'id'=>11,
+                'name'=> 'metode',
+                'mandatory'=>true,
+                'status'=>false,
+                'features_id'=>4
+            ],
+            [
+                'id'=>12,
+                'name'=> 'varian',
+                'mandatory'=>false,
+                'status'=>false,
+                'features_id'=>4
+            ],
         ]);
     }
 }

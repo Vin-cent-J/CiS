@@ -4,6 +4,7 @@ use App\Http\Controllers\FeatureController;
 use App\Models\Feature;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConfigurationsController;
+use App\Http\Controllers\PosController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,10 +15,6 @@ use App\Http\Controllers\ConfigurationsController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get("/pos", function(){
-  return view("pos.app");
-})->name("pos");
 
 Route::get("/pos/detail/{id}", function(){
   return view("pos.detail");
@@ -88,5 +85,6 @@ Route::get("/supplier/new", function(){
 })->name("newsupplier");
 
 
-Route::resource("settings", ConfigurationsController::class);
 Route::resource("/", FeatureController::class);
+Route::resource("settings", ConfigurationsController::class);
+Route::resource("pos", PosController::class);

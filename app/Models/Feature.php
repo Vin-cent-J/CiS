@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Feature extends Model
 {
     use HasFactory;
+    public $timestamps = false;
 
     protected $id = "features_id";
     public function subFeatures()

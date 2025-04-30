@@ -25,14 +25,16 @@
         <div class="text-muted">
           <strong>1 </strong><small>x Rp.1000 / Unit</small>
         </div>
+        @if (in_array(2, $activeConfigs) && $features->contains('id',3))
         <div class="text-muted d-flex justify-content-between">
           <p>Diskon: <input type="number">%</p> 
           <a href="#"><i class="bi bi-trash"></i></a>
         </div>
+        @endif
       </div>
 
-      
       <div class="row card w-100 position-absolute bottom-0 p-1">
+        @if ($features->contains('id',3))
         <div class="diskontotal">
           <div class="m-1">
             Diskon:
@@ -43,9 +45,10 @@
             <hr>
           </div>
         </div>
+        @endif
         <div class="m-2 text-end">
           <a type="button" class="btn btn-warning" href="#">Simpan</a>
-        </div>        
+        </div>
       </div>
     </div>
 
@@ -70,4 +73,10 @@
   </div>
 </div>
 
+<script>
+  let features = @json($activeConfigs);
+  console.log(JSON.stringify(features, null, 2));
+  let details = @json($activeDetails);
+  console.log(JSON.stringify(details, null, 2));
+</script>
 @endsection

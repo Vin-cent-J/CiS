@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Feature;
 use Illuminate\Http\Request;
 
-class FeatureController extends Controller
+class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $features = Feature::get();
-        return view('home', compact('features'));
+        //
     }
 
     /**
@@ -35,7 +33,7 @@ class FeatureController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(feature $feature)
+    public function show(string $id)
     {
         //
     }
@@ -43,23 +41,23 @@ class FeatureController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(feature $feature)
+    public function edit(string $id)
     {
-        
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, feature $feature)
+    public function update(Request $request, string $id)
     {
- 
+        //
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(feature $feature)
+    public function destroy(string $id)
     {
         //
     }

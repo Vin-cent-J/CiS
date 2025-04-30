@@ -119,6 +119,7 @@ class ConfigSeeder extends Seeder
                 'is_active'=> false,
                 'sub_features_id'=>8
             ],
+
             [
                 'id'=> 16,
                 'name'=> 'hutang',
@@ -126,6 +127,21 @@ class ConfigSeeder extends Seeder
                 'is_active'=> false,
                 'sub_features_id'=>8
             ],
+            [
+                'id'=> 17,
+                'name'=> 'perpetual',
+                'mandatory'=>false,
+                'is_active'=> true,
+                'sub_features_id'=>11
+            ],
+            [
+                'id'=> 18,
+                'name'=> 'periodik',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>11
+            ],
+
         ]);
 
         DB::table('detail_configurations')->insert([
@@ -194,27 +210,62 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 10,
+                'name'=> 'tunai',
+                'mandatory'=>false,
+                'is_active'=> true,
+                'configurations_id'=>12
+            ],
+            [
+                'id'=> 11,
+                'name'=> 'persen',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'configurations_id'=>12
+            ],
+            [
+                'id'=> 12,
+                'name'=> 'minimal',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'configurations_id'=>14
+            ],
+            [
+                'id'=> 13,
+                'name'=> 'jenis',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'configurations_id'=>14
+            ],
+            [
+                'id'=> 14,
+                'name'=> 'barang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'configurations_id'=>14
+            ],
+            [
+                'id'=> 15,
                 'name'=> 'ganti barang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>15
             ],
             [
-                'id'=> 11,
+                'id'=> 16,
                 'name'=> 'pengembalian uang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>15
             ],
             [
-                'id'=> 12,
+                'id'=> 17,
                 'name'=> 'pengurangan hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>16
             ],
             [
-                'id'=> 13,
+                'id'=> 18,
                 'name'=> 'ganti barang',
                 'mandatory'=>false,
                 'is_active'=> false,

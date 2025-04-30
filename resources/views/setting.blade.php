@@ -6,50 +6,16 @@
     <div class="card-header">
       <ul class="nav nav-tabs">
         @foreach ($features as $feature)
-          <li class="nav-item"><a class="nav-link @if($tab==$feature->route) active @endif" href="{{url('/settings/'.$feature->route)}}">{{$feature->name}}</a></li>
+        @if ($feature->route != 'customer' && $feature->route != 'supplier' && $feature->route != 'report')
+          <li class="nav-item"><a class="nav-link @if($tab==$feature->route) active @endif" 
+            href="{{url('/settings/'.$feature->route)}}">{{$feature->name}}</a></li>
+        @endif
         @endforeach
       </ul>
     </div>
-<!--
-    @foreach ($features as $feature)
-    @if ($tab==$feature->route)
-    <div class="card-body">
-      <ul class="list-group list-group-flush">
-      @foreach ($feature->subFeatures as $item)
-      <li class="list-group-item">
-        <div>
-          <label for="">{{$item->name}}</label>
-          <input class="mx-2" name="pengembalianLunas" type="checkbox" @if($item->is_active == 1) checked @endif @if($item->mandatory) checked disabled @endif>
-          <ul class="list-group list-group-flush">
-            @foreach ($item->configurations as $config)
-            <li class="list-group-item">
-            <div>
-            <label for="">{{$config->name}}</label>
-            <input class="mx-2" name="pengembalianLunas" type="checkbox" @if($config->is_active == 1) checked @endif @if($config->mandatory) checked disabled @endif>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                  <div>
-                    @foreach ($config->detailConfigurations as $detail)
-                    <input class="mx-2" name="pengembalianLunas" type="checkbox" @if($detail->is_active == 1) checked @endif>
-                    <label for="">{{$detail->name}}</label>
-                    @endforeach
-                  </div>
-                </li>
-              </ul>
-            </div>
-            </li>
-            @endforeach
-          </ul>
-        </div>
-      </li>
-      @endforeach
-      </ul>
-    </div>    
-    @endif
-    @endforeach
-  -->
+    
   @foreach ($features as $feature)
-  @if ($tab == $feature->route)
+  @if ($tab == $feature->route && $tab != 'customer' && $tab != 'supplier')
     <div class="card-body">
       <ul class="list-group list-group-flush">
         @foreach ($feature->subFeatures as $item)
@@ -58,7 +24,9 @@
               <label class="fw-bold me-2">{{ $item->name }}</label>
               <input type="checkbox"
                      name="pengembalianLunas"
-                     class="form-check-input"
+                     data-id="{{ $item->id }}"
+                     data-type="subFeature"
+                     class="form-check-input update-conf"
                      @if($item->is_active) checked @endif
                      @if($item->mandatory) checked disabled @endif>
             </div>
@@ -69,8 +37,11 @@
                     <div class="d-flex align-items-center mb-2">
                       <label class="me-2">{{ $config->name }}</label>
                       <input type="checkbox"
-                             name=""
-                             class="form-check-input"
+                             name="{{ str_replace(' ', '_', "$config->name") }}"
+                             data-id="{{ $config->id }}"
+                             data-type="configuration"
+                             class="form-check-input update-conf"
+                             @if(!$item->is_active && !$item->mandatory) disabled @endif
                              @if($config->is_active) checked @endif
                              @if($config->mandatory) checked disabled @endif>
                     </div>
@@ -80,9 +51,12 @@
                           <li class="list-group-item">
                             <div class="d-flex align-items-center">
                               <input type="checkbox"
-                                     name="pengembalianLunas"
-                                     class="form-check-input me-2"
-                                     @if($detail->is_active) checked @endif>
+                                     name="{{ str_replace(' ', '_', "$detail->name") }}"
+                                     data-id="{{ $detail->id }}"
+                                     data-type="detailConfiguration"
+                                     class="form-check-input me-2 update-conf"
+                                     @if(!$item->is_active || (!$config->is_active && !$config->mandatory)) disabled @endif
+                                     @if($detail->is_active)  checked @endif>
                               <label>{{ $detail->name }}</label>
                             </div>
                           </li>
@@ -98,7 +72,7 @@
       </ul>
     </div>
   @endif
-@endforeach
+  @endforeach
     @if ($tab==1)
     <div class="card-body penjualan">
       <ul class="list-group list-group-flush">
@@ -145,4 +119,33 @@
     @endif
   </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+  $(document).ready(function() {
+    $('.update-conf').on('change', function() {
+      let id = $(this).data('id');
+      let type = $(this).data('type');
+      let isActive = $(this).is(':checked') ? 1 : 0;
+
+      $.ajax({
+        url: '/settings/'+id,
+        method: 'PUT',
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: id,
+          type: type,
+          is_active: isActive
+        },
+        success: function(response) {
+          console.log(response.message);
+        },
+        error: function(xhr) {
+          console.error(xhr.responseText);
+        }
+      });
+    });
+  });
+</script>
 @endsection
