@@ -13,7 +13,7 @@ class CustomerController extends Controller
     public function index()
     {
         $customers = Customer::all();
-        return view('customers.app', compact('customers'));
+        return view('customer.app', compact('customers'));
     }
 
     /**
@@ -21,7 +21,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('customers.new');
+        return view('customer.new');
     }
 
     /**
@@ -29,16 +29,12 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        return Customer::create([
+        Customer::create([
             'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
+            'phone_number' => $request->phone,
             'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-            'zip_code' => $request->zip_code,
-            'country' => $request->country
         ]);
+        return redirect('/customer')->with('success', 'Customer created successfully');
     }
 
     /**
@@ -47,7 +43,7 @@ class CustomerController extends Controller
     public function show(string $id)
     {
         $customer = Customer::find($id);
-        return view('customers.detail', compact('customer'));
+        return view('customer.detail', compact('customer'));
     }
 
     /**
@@ -56,7 +52,7 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $customer = Customer::find($id);
-        return view('customers.edit', compact('customer'));
+        return view('customer.detail', compact('customer'));
     }
 
     /**
@@ -65,7 +61,12 @@ class CustomerController extends Controller
     public function update(Request $request, string $id)
     {
         $customer = Customer::find($id);
-        return $customer->update($request->all());
+        $customer->update([
+            'name' => $request->name,
+            'phone_number' => $request->phone,
+            'address' => $request->address,
+        ]);
+        return redirect('/customer')->with('success', 'Customer created successfully');
     }
 
     /**

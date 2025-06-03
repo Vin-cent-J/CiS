@@ -39,7 +39,7 @@ class ConfigSeeder extends Seeder
                 'id'=> 4,
                 'name'=> 'jenis diskon',
                 'mandatory'=>true,
-                'is_active'=> false,
+                'is_active'=> true,
                 'sub_features_id'=>3
             ],
             [
@@ -61,63 +61,63 @@ class ConfigSeeder extends Seeder
                 'name'=> 'lunas',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>4
+                'sub_features_id'=>5
             ],
             [
                 'id'=> 8,
                 'name'=> 'hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>4
+                'sub_features_id'=>5
             ],
             [
                 'id'=> 9,
                 'name'=> 'tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
-                'sub_features_id'=>5
+                'sub_features_id'=>6
             ],
             [
                 'id'=> 10,
                 'name'=> 'transfer',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>5
+                'sub_features_id'=>6
             ],
             [
                 'id'=> 11,
                 'name'=> 'pajak',
                 'mandatory'=>false,
                 'is_active'=> true,
-                'sub_features_id'=>6
+                'sub_features_id'=>7
             ],
             [
                 'id'=> 12,
                 'name'=> 'jenis diskon',
                 'mandatory'=>true,
-                'is_active'=> false,
-                'sub_features_id'=>7
+                'is_active'=> true,
+                'sub_features_id'=>8
             ],
             [
                 'id'=> 13,
                 'name'=> 'bonus',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>7
+                'sub_features_id'=>8
             ],
             [
                 'id'=> 14,
                 'name'=> 'syarat diskon',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>7
+                'sub_features_id'=>8
             ],
             [
                 'id'=> 15,
                 'name'=> 'lunas',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>8
+                'sub_features_id'=>10
             ],
 
             [
@@ -125,23 +125,29 @@ class ConfigSeeder extends Seeder
                 'name'=> 'hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>8
+                'sub_features_id'=>10
             ],
             [
                 'id'=> 17,
                 'name'=> 'perpetual',
                 'mandatory'=>false,
                 'is_active'=> true,
-                'sub_features_id'=>11
+                'sub_features_id'=>13
             ],
             [
                 'id'=> 18,
                 'name'=> 'periodik',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>11
+                'sub_features_id'=>13
             ],
-
+            [
+                'id'=> 19,
+                'name'=> 'bentuk diskon',
+                'mandatory'=>true,
+                'is_active'=> true,
+                'sub_features_id'=>3
+            ],
         ]);
 
         DB::table('detail_configurations')->insert([
@@ -270,6 +276,20 @@ class ConfigSeeder extends Seeder
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>16
+            ],
+            [
+                'id'=> 19,
+                'name'=> 'per nota',
+                'mandatory'=>false,
+                'is_active'=> true,
+                'configurations_id'=>19
+            ],
+            [
+                'id'=> 20,
+                'name'=> 'per barang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'configurations_id'=>19
             ],
         ]);
     }

@@ -2,7 +2,7 @@
 
 @section('nav')
 <nav class="px-3 py-2 bg-dark">
-  <a type="button" class="btn btn-warning" href="{{route('poshistory')}}">
+  <a type="button" class="btn btn-warning" href="{{url('/pos/riwayat')}}">
     Riwayat
   </a>
 </nav>
@@ -35,7 +35,14 @@
               <td>Rp.1350</td>
               <td>Rp. 0</td>
               <td>Rp.1350</td>
-              <td><a type="button" class="btn btn-warning" href="">Pengembalian</a></td>
+              <td>
+                @if ($features->contains('id',5) && (in_array(7, $activeDetails) || in_array(8, $activeDetails)))
+                <a type="button" class="btn btn-warning" href="">Pengembalian</a>
+                @endif
+                @if ($features->contains('id',4))
+                <a type="button" class="btn btn-warning" href="">Garansi</a>
+                @endif
+              </td>
           </tr>
       </tbody>
   </table>

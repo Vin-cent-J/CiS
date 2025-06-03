@@ -2,8 +2,8 @@
 
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
-  <a type="button" class="btn btn-warning" href="{{ route('newsales') }}">
-    + Sales
+  <a type="button" class="btn btn-warning" href="{{ url('/sales/create') }}">
+    + Penjualan
   </a>
 </nav>
 @endsection
@@ -13,11 +13,11 @@
     <thead>
       <t>
         <th scope="col">#</th>
-        <th scope="col">Date</th>
-        <th scope="col">Customer</th>
+        <th scope="col">Tanggal</th>
+        <th scope="col">Kustomer</th>
         <th scope="col">Total</th>
         <th scope="col">Status</th>
-        <th scope="col">Action</th>
+        <th scope="col">Aksi</th>
       </tr>
     </thead>
     <tbody>
@@ -26,7 +26,7 @@
         <td>2000-01-01</td>
         <td>Ex</td>
         <td>0</td>
-        <td>Paid</td>
+        <td>Lunas</td>
         <td><a class="btn btn-warning" href="{{route('salesdetail', ['id'=>'1'])}}">Detail</a></td>
       </tr>
     </tbody>

@@ -2,13 +2,13 @@
 
 @section('nav')
 <nav class="px-3 py-2 bg-dark">
-  <a type="button" class="btn btn-warning" href="{{route('pos')}}">
-    Penjualan
+  <a type="button" class="btn btn-warning" href="{{url('/pos')}}">
+    <i class="bi bi-arrow-return-left"></i>
   </a>
 </nav>
 @endsection
 
-@section('isi')
+@section("isi")
 <div class="container card">
   <table class="table">
     <thead>
@@ -21,13 +21,17 @@
       </tr>
     </thead>
     <tbody>
+      @foreach ($sales as $sale)
       <tr>
-        <td>1</td>
-        <td>12-03-2025</td>
-        <td>Rp. 1000</td>
-        <td>Tunai</td>
-        <td><a type="button" class="btn btn-warning" href="{{route('posdetail', ['id'=>1])}}">Detail</a></td>
+        <td> {{$sale->id}} </td>
+        <td> {{$sale->date}} </td>
+        <td>Rp. {{$sale->price}} </td>
+        <td> {{$sale->payment_methods}} </td>
+        <td>
+          <a type="button" class="btn btn-warning" href="{{url('/pos/detail/'.$sales->id)}}">Detail</a>
+        </td>
       </tr>
+      @endforeach
     </tbody>
   </table>
 </div>

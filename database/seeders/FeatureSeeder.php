@@ -18,7 +18,7 @@ class FeatureSeeder extends Seeder
                 'id'=>1,
                 'name'=> 'penjualan ditempat',
                 'mandatory'=>true,
-                'status'=> true,
+                'is_active'=> true,
                 'route'=>'pos',
                 'icon'=>'bi bi-shop'
             ],
@@ -26,7 +26,7 @@ class FeatureSeeder extends Seeder
                 'id'=>2,
                 'name'=> 'penjualan',
                 'mandatory'=>true,
-                'status'=> true,
+                'is_active'=> true,
                 'route'=>'sales',
                 'icon'=>'bi bi-cart2'
             ],
@@ -34,7 +34,7 @@ class FeatureSeeder extends Seeder
                 'id'=>3,
                 'name'=> 'pembelian',
                 'mandatory'=>true,
-                'status'=>true,
+                'is_active'=>true,
                 'route'=>'purchase',
                 'icon'=>'bi bi-credit-card'
             ],
@@ -42,7 +42,7 @@ class FeatureSeeder extends Seeder
                 'id'=>4,
                 'name'=> 'inventaris',
                 'mandatory'=>true,
-                'status'=>true,
+                'is_active'=>true,
                 'route'=>'inventory',
                 'icon'=>'bi bi-box-seam'
             ],
@@ -50,7 +50,7 @@ class FeatureSeeder extends Seeder
                 'id'=>5,
                 'name'=> 'laporan',
                 'mandatory'=>true,
-                'status'=>true,
+                'is_active'=>true,
                 'route'=>'report',
                 'icon'=>'bi bi-clipboard-data'
             ],
@@ -58,7 +58,7 @@ class FeatureSeeder extends Seeder
                 'id'=>6,
                 'name'=> 'pelanggan',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'route'=>'customer',
                 'icon'=>'bi bi-cash-coin'
             ],
@@ -66,7 +66,7 @@ class FeatureSeeder extends Seeder
                 'id'=>7,
                 'name'=> 'supplier',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'route'=>'supplier',
                 'icon'=>'bi bi-truck'
             ],
@@ -76,84 +76,98 @@ class FeatureSeeder extends Seeder
                 'id'=>1,
                 'name'=> 'metode pembayaran',
                 'mandatory'=>true,
-                'status'=> true,
+                'is_active'=> true,
                 'features_id'=>1
             ],
             [
                 'id'=>2,
                 'name'=> 'harga',
                 'mandatory'=>true,
-                'status'=> true,
+                'is_active'=> true,
                 'features_id'=>1
             ],
             [
                 'id'=>3,
                 'name'=> 'diskon',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'features_id'=>1
             ],
             [
                 'id'=>4,
-                'name'=> 'pengembalian',
+                'name'=> 'garansi',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'features_id'=>1
             ],
             [
                 'id'=>5,
-                'name'=> 'metode pembayaran',
-                'mandatory'=>true,
-                'status'=> true,
-                'features_id'=>2
+                'name'=> 'pengembalian',
+                'mandatory'=>false,
+                'is_active'=>false,
+                'features_id'=>1
             ],
             [
                 'id'=>6,
-                'name'=> 'harga',
+                'name'=> 'metode pembayaran',
                 'mandatory'=>true,
-                'status'=> true,
+                'is_active'=> true,
                 'features_id'=>2
             ],
             [
                 'id'=>7,
-                'name'=> 'diskon',
-                'mandatory'=>false,
-                'status'=>false,
+                'name'=> 'harga',
+                'mandatory'=>true,
+                'is_active'=> true,
                 'features_id'=>2
             ],
             [
                 'id'=>8,
-                'name'=> 'pengembalian',
+                'name'=> 'diskon',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'features_id'=>2
             ],
             [
                 'id'=>9,
-                'name'=> 'hutang',
+                'name'=> 'garansi',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'features_id'=>2
             ],
             [
                 'id'=>10,
-                'name'=> 'pemberitahuan stok',
+                'name'=> 'pengembalian',
                 'mandatory'=>false,
-                'status'=>false,
-                'features_id'=>3
+                'is_active'=>false,
+                'features_id'=>2
             ],
             [
                 'id'=>11,
-                'name'=> 'metode',
-                'mandatory'=>true,
-                'status'=>false,
-                'features_id'=>4
+                'name'=> 'hutang',
+                'mandatory'=>false,
+                'is_active'=>false,
+                'features_id'=>2
             ],
             [
                 'id'=>12,
+                'name'=> 'pemberitahuan stok',
+                'mandatory'=>false,
+                'is_active'=>false,
+                'features_id'=>3
+            ],
+            [
+                'id'=>13,
+                'name'=> 'metode',
+                'mandatory'=>true,
+                'is_active'=>false,
+                'features_id'=>4
+            ],
+            [
+                'id'=>14,
                 'name'=> 'varian',
                 'mandatory'=>false,
-                'status'=>false,
+                'is_active'=>false,
                 'features_id'=>4
             ],
         ]);

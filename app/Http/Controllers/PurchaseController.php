@@ -16,7 +16,7 @@ class PurchaseController extends Controller
     public function index()
     {
         $purchases = Purchase::with(['purchaseDetails', 'suppliers']);
-        return view('purchases.app', compact('purchases'));
+        return view('purchase.app', compact('purchases'));
     }
 
     /**
@@ -26,7 +26,7 @@ class PurchaseController extends Controller
     {
         $suppliers = Supplier::all();
         $products = Product::all();
-        return view('purchases.new', compact('suppliers', 'products'));
+        return view('purchase.new', compact('suppliers', 'products'));
         
     }
 
@@ -55,7 +55,7 @@ class PurchaseController extends Controller
                 'total' => $product['total']
             ]);
         }
-        return redirect()->route('purchases.app');
+        return redirect()->route('purchase.app');
     }
 
     /**
@@ -64,7 +64,7 @@ class PurchaseController extends Controller
     public function show(Purchase $purchase)
     {
         $purchase = Purchase::with(['purchaseDetails.products', 'suppliers'])->find($purchase->id);
-        return view('purchases.detail', compact('purchase'));
+        return view('purchase.detail', compact('purchase'));
     }
 
     /**
@@ -74,7 +74,7 @@ class PurchaseController extends Controller
     {
         $suppliers = Supplier::all();
         $products = Product::all();
-        return view('purchases.edit', compact('purchase', 'suppliers', 'products'));
+        return view('purchase.edit', compact('purchase', 'suppliers', 'products'));
     }
 
     /**
@@ -93,7 +93,7 @@ class PurchaseController extends Controller
             'suppliers_id' => $request->suppliers_id,
             'shipping_method' => $request->shipping_method
         ]);
-        return redirect()->route('purchases.app');
+        return redirect()->route('purchase.app');
     }
 
     /**
@@ -102,6 +102,6 @@ class PurchaseController extends Controller
     public function destroy(Purchase $purchase)
     {
         $purchase->delete();
-        return redirect()->route('purchases.app');
+        return redirect()->route('purchase.app');
     }
 }

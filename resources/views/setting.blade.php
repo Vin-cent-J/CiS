@@ -140,6 +140,7 @@
         },
         success: function(response) {
           console.log(response.message);
+          location.reload();
         },
         error: function(xhr) {
           console.error(xhr.responseText);

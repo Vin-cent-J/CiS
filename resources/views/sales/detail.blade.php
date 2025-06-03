@@ -2,7 +2,7 @@
 
 @section('nav')
 <nav class="px-3 bg-dark">
-    <a type="button" class="btn-sm btn-warning m-1" href="{{route('sales')}}"><i class="bi bi-arrow-bar-left"></i>sales</a>
+    <a type="button" class="btn btn-warning m-1" href="{{url('/sales')}}"><i class="bi bi-arrow-bar-left"></i>Penjualan</a>
 </nav>
 @endsection
 
@@ -10,7 +10,7 @@
 <div class="container card p-3" style="min-height: 85vh">
     <div class="row">
         <div class="col-md-6">
-            <h5>Customer</h5>
+            <h5>Kustomer</h5>
             <p><strong>Deco Addict</strong><br>
                 77 Santa Barbara Rd<br>
                 Pleasant Hill CA 94523<br>
@@ -18,16 +18,16 @@
             </p>
         </div>
         <div class="col-md-6 text-md-end">
-            <p><strong>Order Date:</strong> 09/10/2023 19:10:12</p>
-            <p><strong>Total Debt:</strong> Rp.0</p>
-            <p><strong>Payment Terms:</strong> 30 Days</p>
+            <p><strong>Tanggal Order:</strong> 09/10/2023 19:10:12</p>
+            <p><strong>Total Hutang:</strong> Rp.0</p>
+            <p><strong>Jangka Pembayaran:</strong> 30 Hari</p>
         </div>
     </div>
 
     <hr>
     <div class="text-end">
-        <p>Reduce Debt by: <input type="number" name="r_debt" style="width: 15%" value="0"></p>
-        <a type="button" class="btn btn-warning">Save</a>
+        <p>Kurangi Hutang: <input type="number" name="r_debt" style="width: 15%" value="0"></p>
+        <a type="button" class="btn btn-warning">Simpan</a>
     </div>
 
     <hr>
@@ -35,12 +35,12 @@
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Disc.%</th>
+                    <th>Produk</th>
+                    <th>Jumlah</th>
+                    <th>Harga Unit</th>
+                    <th>Diskon %</th>
                     <th>Total</th>
-                    <th>Action</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,7 +50,7 @@
                     <td>Rp.1350</td>
                     <td>0.00</td>
                     <td>Rp.1350</td>
-                    <td><a type="button" class="btn btn-warning" href="">Refund</a></td>
+                    <td><a type="button" class="btn btn-warning" href="">Pengembalian</a></td>
                 </tr>
             </tbody>
         </table>

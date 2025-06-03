@@ -16,14 +16,6 @@ use App\Http\Controllers\PosController;
 |
 */
 
-Route::get("/pos/detail/{id}", function(){
-  return view("pos.detail");
-})->name("posdetail");
-
-Route::get("/riwayatpos", function(){
-  return view("pos.history");
-})->name("poshistory");
-
 Route::get("/sales", function(){
   return view("sales.app");
 })->name("sales");
@@ -84,7 +76,18 @@ Route::get("/supplier/new", function(){
   return view("supplier.new");
 })->name("newsupplier");
 
+Route::post("/pos/setSession", [PosController::class, "setSession"])->name("setSession");
+Route::post("/pos/deleteSession", [PosController::class, "deleteSessionProduct"])->name("deleteSession");
+Route::get("/pos/history", [PosController::class, "riwayat"]);
 
 Route::resource("/", FeatureController::class);
 Route::resource("settings", ConfigurationsController::class);
 Route::resource("pos", PosController::class);
+Route::resource("inventory", \App\Http\Controllers\InventoryController::class);
+Route::resource("sales", \App\Http\Controllers\SaleController::class);
+Route::resource("purchase", \App\Http\Controllers\PurchaseController::class);
+Route::resource("customer", \App\Http\Controllers\CustomerController::class);
+Route::resource("supplier", \App\Http\Controllers\SupplierController::class);
+Route::resource("debt", \App\Http\Controllers\DebtController::class);
+Route::resource("report", \App\Http\Controllers\ReportController::class);
+Route::resource("category", \App\Http\Controllers\CategoryController::class);

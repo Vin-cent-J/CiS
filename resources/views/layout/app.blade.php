@@ -28,15 +28,15 @@
     <div class="container-fluid">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
         <div class="me-auto">
-          <p class=" my-auto d-flex flex-wrap justify-content-center justify-content-lg-start"><i class="bi bi-building-fill"></i> Company A</p>
+          <p class=" my-auto d-flex flex-wrap justify-content-center justify-content-lg-start"><i class="bi bi-building-fill"></i></p>
         </div>
         <div>
           <ul class="nav col-12 col-lg-auto text-small">
             <li>
-              <a class="nav-link text-white" href="{{ url("/") }}"><i class="bi bi-house-fill text-warning"></i>&nbsp;Home</a>
+              <a class="nav-link text-white" href="{{ url("/") }}"><i class="bi bi-house-fill text-warning"></i>&nbsp;Beranda</a>
             </li>
             <li>
-              <a class="nav-link text-white" href="{{ url("/settings") }}"><i class="bi bi-gear-fill text-warning"></i>&nbsp;Settings</a>
+              <a class="nav-link text-white" href="{{ url("/settings") }}"><i class="bi bi-gear-fill text-warning"></i>&nbsp;Pengaturan</a>
             </li>
           </ul>
         </div>
