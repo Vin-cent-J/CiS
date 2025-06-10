@@ -170,6 +170,13 @@ class FeatureSeeder extends Seeder
                 'is_active'=>false,
                 'features_id'=>4
             ],
+            [
+                'id'=>15,
+                'name'=> 'hutang',
+                'mandatory'=>false,
+                'is_active'=>false,
+                'features_id'=>1
+            ]
         ]);
     }
 }

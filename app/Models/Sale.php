@@ -9,6 +9,20 @@ class Sale extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+    public $fillable = [
+        'customers_id',
+        'date',
+        'total',
+        'shipping_date',
+        'return_date',
+        'return_type',
+        'total_debt',
+        'payment_methods',
+        'sales_type',
+        'discount',
+        'shipping_method'
+    ];
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customers_id');

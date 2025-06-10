@@ -17,6 +17,7 @@
         <th>Tanggal</th>
         <th>Total</th>
         <th>Metode Pembayaran</th>
+        <th>Status</th>
         <th>Detail</th>
       </tr>
     </thead>
@@ -25,10 +26,17 @@
       <tr>
         <td> {{$sale->id}} </td>
         <td> {{$sale->date}} </td>
-        <td>Rp. {{$sale->price}} </td>
+        <td>Rp. {{number_format($sale->total)}} </td>
         <td> {{$sale->payment_methods}} </td>
         <td>
-          <a type="button" class="btn btn-warning" href="{{url('/pos/detail/'.$sales->id)}}">Detail</a>
+          @if ($sale->total_debt > 0)
+          <span class="badge bg-danger">Belum Lunas</span>
+          @else
+          <span class="badge bg-success">Lunas</span>
+          @endif
+        </td>
+        <td>
+          <a type="button" class="btn btn-warning" href="{{url('/pos/'.$sale->id)}}">Detail</a>
         </td>
       </tr>
       @endforeach

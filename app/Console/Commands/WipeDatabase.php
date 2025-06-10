@@ -13,7 +13,7 @@ class WipeDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'wipe:database';
+    protected $signature = 'db:wipe';
 
     /**
      * The console command description.

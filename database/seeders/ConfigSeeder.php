@@ -148,6 +148,13 @@ class ConfigSeeder extends Seeder
                 'is_active'=> true,
                 'sub_features_id'=>3
             ],
+            [
+                'id'=> 20,
+                'name'=> 'bentuk diskon',
+                'mandatory'=>true,
+                'is_active'=> true,
+                'sub_features_id'=>8
+            ],
         ]);
 
         DB::table('detail_configurations')->insert([
@@ -290,6 +297,20 @@ class ConfigSeeder extends Seeder
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>19
+            ],
+            [
+                'id'=> 21,
+                'name'=> 'per nota',
+                'mandatory'=>false,
+                'is_active'=> true,
+                'configurations_id'=>20
+            ],
+            [
+                'id'=> 22,
+                'name'=> 'per barang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'configurations_id'=>20
             ],
         ]);
     }

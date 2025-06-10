@@ -17,18 +17,26 @@
         <th scope="col">Kustomer</th>
         <th scope="col">Total</th>
         <th scope="col">Status</th>
-        <th scope="col">Aksi</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
+      @foreach ($sales as $sale)
       <tr>
-        <th scope="row">1</th>
-        <td>2000-01-01</td>
-        <td>Ex</td>
-        <td>0</td>
-        <td>Lunas</td>
-        <td><a class="btn btn-warning" href="{{route('salesdetail', ['id'=>'1'])}}">Detail</a></td>
+        <th scope="row">{{$sale->id}}</th>
+        <td>{{$sale->date}}</td>
+        <td>{{$sale->customer->name}}</td>
+        <td>Rp. {{number_format($sale->total, 0, '.')}}</td>
+        <td>
+          @if ($sale->total_debt > 0)
+          <span class="badge bg-danger">Belum Lunas</span>
+          @else
+          <span class="badge bg-success">Lunas</span>
+          @endif
+        </td>
+        <td><a class="btn btn-warning" href="{{url('sales/'.$sale->id)}}">Detail</a></td>
       </tr>
+      @endforeach
     </tbody>
   </table>
 </div>

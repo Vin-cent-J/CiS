@@ -6,9 +6,13 @@ use App\Models\Configuration;
 use App\Models\DetailConfiguration;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\SalesDetail;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Models\SubFeature;
 use Session;
+use Illuminate\Support\Facades\Log;
+use function Symfony\Component\Translation\t;
 
 class PosController extends Controller
 {
@@ -33,9 +37,11 @@ class PosController extends Controller
             }
         }
 
+        $customers = Customer::whereNot('id', 1)->get();
+
         $products = Product::all();
         echo "<script>console.log('Debug Objects: " . $features . "' );</script>";
-        return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products'));
+        return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers'));
     }
 
     public function setSession(Request $request)
@@ -57,6 +63,7 @@ class PosController extends Controller
                 'price' => $request->price,
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
+                'discount_id' => $request->discount_id ?? 1,
             ];
         }
         Session::put('products', $products);
@@ -109,35 +116,35 @@ class PosController extends Controller
         return response()->json(['message' => 'Product deleted from session', 'products' => $updatedProducts]);
     }
 
-    public function updateItemDiscount(Request $request)
+    public function updateDiscount(Request $request)
     {
-        $productId = $request->input('productId');
-        $discount = $request->input('discount');
+        $productId = $request->productId;
+        $discount = $request->discount;
+        $discountId = $request->discount_id ?? 1;
+        $product = '';
 
-        $cart = Session::get('cart', []);
-        $itemFound = false;
+        $cart = Session::get('products', []);
 
         foreach ($cart as $key => &$item) {
-            if ($item['id'] == $productId) {
+            if ((int)$item['id'] == (int)$productId) {
                 $item['discount'] = $discount;
-                $itemFound = true;
-                break;
+                $item['discount_id'] = $discountId;
+                $product = $item;
+
+                Session::put('products', $cart); 
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Discount updated successfully.',
+                    'products' => $cart,
+                    'product' => $product 
+                ]);
             }
         }
 
-        if ($itemFound) {
-            Session::put('cart', $cart); 
-            return response()->json([
-                'success' => true,
-                'message' => 'Discount updated successfully.',
-                'cart' => $cart 
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found in cart.'
-            ], 404);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found in cart.'
+        ], 404);
     }
 
     public function riwayat()
@@ -164,6 +171,24 @@ class PosController extends Controller
         return view('pos.history', compact('sales', 'activeConfigs', 'activeDetails', 'features'));
     }
 
+    public function updateDebt(Request $request)
+    {
+        $saleId = $request->id;
+        $paid = $request->paid;
+
+        $sale = Sale::find($saleId);
+        if ($sale) {
+            $sale->total_debt -= $paid;
+            if ($sale->total_debt < 0) {
+                $sale->total_debt = 0;
+            }
+            $sale->save();
+            return response()->json(['success' => true, 'message' => 'Debt updated successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Sale not found.'], 404);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -177,16 +202,39 @@ class PosController extends Controller
      */
     public function store(Request $request)
     {
-        session('products', []);
-        return $s = Sale::create([
-            'customer_id' => $request->customer_id,
+        $total = 0;
+        foreach(Session::get('products', []) as $product) {
+            if($product['discount_id']== 2){
+                $total += $product['price'] * $product['quantity'] * (1- ($product['discount'] / 100));
+            } else{
+                $total += $product['price'] * $product['quantity'] - $product['discount'];
+            }
+        }
+
+        $s = Sale::create([
+            'customers_id' => $request->customer_id == "" ? 1: $request->customer_id,
             'sales_type' => 'pos',
             'date' => now(),
-            'total' => $request->total,
-            'discount' => $request->discount,
-            'payment_method' => $request->payment_method,
-            'status' => 'completed',
+            'shipping_date' => now(),
+            'total' => $total,
+            'discount' => $request->discount ?? 0,
+            'payment_methods' => $request->payment_method,
+            'total_debt' => $request->debt ?? 0,
         ]);
+        foreach(Session::get('products', []) as $product) {
+            SalesDetail::create([
+                'sales_id' => $s->id,
+                'products_id' => $product['id'],
+                'amount' => $product['quantity'],
+                'price' => $product['price'],
+                'discount' => $product['discount'] ?? 0,
+                'discounts_id' => $product['discount_id'] ?? null,
+            ]
+            );
+        }
+
+        Session::forget('products');
+        redirect()->route('pos.index')->with('success', 'Sale created successfully.');
     }
 
     /**
@@ -209,7 +257,9 @@ class PosController extends Controller
                 $activeDetails[] = $detail->id;
             }
         }
-        $sale = Sale::findOrFail($id);
+        $sale = Sale::with(['customer', 'salesDetails.product'])
+            ->where('id', $id)
+            ->first();
         return view('pos.detail', compact('sale', 'activeConfigs', 'activeDetails', 'features'));
     }
 

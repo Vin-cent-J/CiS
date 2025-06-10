@@ -10,6 +10,15 @@ class SalesDetail extends Model
     use HasFactory;
 
 
+    public $timestamps = false;
+    public $fillable = [
+        'sales_id',
+        'products_id',
+        'amount',
+        'price',
+        'discount',
+        'discounts_id',
+    ];
     public function sales()
     {
         return $this->belongsTo(Sale::class, 'sales_id');

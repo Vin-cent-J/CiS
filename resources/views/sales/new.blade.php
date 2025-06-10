@@ -2,59 +2,211 @@
 
 @section('nav')
 <nav class="px-3 bg-dark">
-    <a type="button" class="btn btn-warning m-1" href="{{url('/sales')}}"><i class="bi bi-arrow-bar-left"></i>Penjualan</a>
+    <a type="button" class="btn btn-warning m-1" href="{{url('/sales')}}">
+        <i class="bi bi-arrow-return-left"></i>
+    </a>
 </nav>
 @endsection
 
 @section("isi")
 <div class="container card p-3" style="min-height: 82vh">
-    <div class="row">
-        <div class="col-md-6">
-            <h5>Kustomer</h5>
-            <p><strong>Deco Addict</strong><br>
-                77 Santa Barbara Rd<br>
-                Pleasant Hill CA 94523<br>
-                United States - US12345673
-            </p>
+    <form action="{{url('/sales')}}" method="post">
+        @csrf
+        <div class="row">
+            <div class="col-md-6">
+                <h5><strong>Kustomer</strong></h5>
+                <select class="form-select" name="kustomer" id="kustomer" style="width: 15rem">
+                    @foreach ($customers as $customer)
+                    <option value="{{ $customer->id }}" data-value="{{$customer->address}}">{{ $customer->name }}</option>
+                    @endforeach
+                </select>
+                <p id="alamat">
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                @if ($features->contains('id',11))
+                <p><strong>Total Hutang:</strong> Rp. <input type="number" name="debt" style="width: 15rem"> </p>
+                <p><strong>Jangka Pembayaran:</strong> <input type="number" name="jangka" style="width: 4rem"> Hari</p>
+                @endif
+                <p>
+                    <strong>Metode: </strong> 
+                    <select class="form-select" name="payment_method" id="metode" style="width: 8rem; display: inline;">
+                        @if (in_array(9, $activeConfigs))
+                        <option value="1">Tunai</option>
+                        @elseif (in_array(10, $activeConfigs))
+                        <option value="2">Transfer</option>
+                        @endif
+                    </select>
+                </p>
+            </div>
         </div>
-        <div class="col-md-6 text-md-end">
-            <p><strong>Tanggal Order:</strong> 09/10/2023 19:10:12</p>
-            <p><strong>Total Hutang:</strong> Rp. 0</p>
-            <p><strong>Jangka Pembayaran:</strong> 30 Hari</p>
+
+        <hr>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produk</th>
+                        <th>Jumlah</th>
+                        <th>Harga Unit</th>
+                        @if ($features->contains('id', 8))
+                        <th>
+                            Diskon
+                        </th>
+                        @endif
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="list">
+                    @foreach (session("sale-products", []) as $item)
+                    <tr>
+                        <td><select class="form-select select-p">
+                            @foreach ($products as $product)
+                            @if (!in_array($product->id, session("added")) || ($product->id == $item['id']))
+                                <option value="{{$product->id}}" <?= $product->id == $item['id'] ? 'selected' : '' ?>>
+                                    {{$product->name}}
+                                </option>
+                            @endif
+                            @endforeach
+                            </select>
+                        </td>
+                        <td> <input class="form-control qty" type="number" id="qty-{{$item['id']}}" data-value="{{$item['id']}}" value="{{$item['quantity']}}"></td>
+                        <td>Rp.{{number_format($item['price'],0, ',', '.')}}</td>
+                        @if ($features->contains('id', 8))
+                        <td>
+                            @if ($item['discount_id'] == 1)
+                                Rp.
+                            @endif
+                            <input class="form-control" style="width:60%; display: inline;" type="number" class="discount" id="disc-{{$item['id']}}" value="{{$item['discount']}}">
+                            @if ($item['discount_id'] == 2)
+                                %
+                            @endif
+                            <select id="type-{{$item['id']}}" class="form-select" style="width: 7rem; display: inline;">
+                                @if (in_array(10, $activeDetails))
+                                <option value="1">Tunai</option>
+                                @elseif (in_array(11, $activeDetails))
+                                <option value="2">Persen</option>
+                                @endif
+                            </select> 
+                        </td>
+                        @endif
+                        <td>
+                            <strong id="total-{{$item['id']}}">
+                                @if ($item['discount_id'] == 1)
+                                Rp.{{ number_format(($item['price'] * $item['quantity']) - $item['discount'], 0, ',', '.') }}
+                                @else
+                                Rp.{{ number_format(($item['price'] * $item['quantity']) - (($item['price'] * $item['quantity']) * ($item['discount'] / 100)), 0, ',', '.') }}
+                                @endif
+                            </strong>
+                        </td>
+                        <td class="text-center"><a href=""><i class="bi bi-trash3-fill"></i></a></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    </div>
 
-    <hr>
-
-    <div class="table-responsive mt-3">
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>Produk</th>
-                    <th>Jumlah</th>
-                    <th>Harga Unit</th>
-                    <th>Diskon %</th>
-                    <th>Total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Lampu Taman</td>
-                    <td>1.00</td>
-                    <td>Rp.135000</td>
-                    <td>0.00</td>
-                    <td>Rp.135000</td>
-                    <td class="text-center"><a href=""><i class="bi bi-trash3-fill"></i></a></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mt-3">
-        <button class="btn btn-warning">Tambah produk</button>
-        <button class="btn btn-warning">Simpan</button>
-    </div>
+        <div class="mt-3">
+            <select name="" id="add-produk" class="form-select m-1" style="width: 12rem; display: inline;">
+                @foreach ($products as $product)
+                    <option data-value="{{$product}}">{{$product->name}}</option>
+                @endforeach
+            </select>
+            <button class="btn btn-warning" id="tambah">Tambah produk</button>
+            <input class="btn btn-warning mx-2" type="submit" style="float: right" value="Simpan" <?= session('sale-products') == [] ? 'disabled' : '' ?>>
+        </div>
+    </form>
 </div>
 
+@endsection
+
+@section("js")
+<script>
+    const products = @json($products);
+    $(document).ready(function() {
+        let address = $('#kustomer option:selected').data('value');
+        $('#alamat').text(address);
+    });
+
+    $('#kustomer').change(function() {
+        let address = $('#kustomer option:selected').data('value');
+        $('#alamat').text(address);
+    });
+
+    $('#tambah').click(function() {
+        let product = $('#add-produk option:selected').data('value');
+        $(this).prop('disabled', true).text('Menambahkan...');
+        $.ajax({
+            url: '/sales/setSession',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            contentType: 'application/json',
+            data: JSON.stringify({
+                'id': product.id,
+                'name': product.name,
+                'price': product.price,
+                'quantity': 1
+            }),
+            success: function(data) {
+                location.reload();
+            },
+            complete: function() {
+                $(this).prop('disabled', false).text('+ Tambah');
+            }
+        });
+    });
+
+    var idBefore = 0;
+    $('.select-p').on('focus', function(){
+        idBefore = $(this).val();
+    }).change(function(){
+        $.ajax({
+            url: '/sales/changeProduct',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            contentType: 'application/json',
+            data: JSON.stringify({
+                'productId': idBefore,
+                'newId': $(this).val(),
+                'quantity': $('#qty-' + idBefore).val(),
+                'discount': $('#disc-'+ idBefore).val(),
+                'discount_id': $('#type-'+ idBefore).val()
+            }),
+            success: function(data) {
+                location.reload();
+            }
+        })
+    })
+
+    $('.qty').keyup(function(){
+        const id = $(this).data('value')
+        const qty = $(this).val()
+        
+        $.ajax({
+            url: '/sales/updateQty/',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            contentType: 'application/json',
+            data: JSON.stringify({
+                'id': id,
+                'quantity': qty
+            }),
+            success: function(data){
+                location.reload();
+            }
+        })
+        
+    })
+</script>
 @endsection

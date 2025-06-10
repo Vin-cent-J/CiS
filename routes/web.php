@@ -16,18 +16,6 @@ use App\Http\Controllers\PosController;
 |
 */
 
-Route::get("/sales", function(){
-  return view("sales.app");
-})->name("sales");
-
-Route::get("/sales/new", function(){
-  return view("sales.new");
-})->name("newsales");
-
-Route::get("/sales/detail/{id}", function(){
-  return view("sales.detail");
-})->name("salesdetail");
-
 Route::get("/purchases", function(){
   return view("purchase.app");
 })->name("purchase");
@@ -78,7 +66,12 @@ Route::get("/supplier/new", function(){
 
 Route::post("/pos/setSession", [PosController::class, "setSession"])->name("setSession");
 Route::post("/pos/deleteSession", [PosController::class, "deleteSessionProduct"])->name("deleteSession");
-Route::get("/pos/history", [PosController::class, "riwayat"]);
+Route::get("/pos/riwayat", [PosController::class, "riwayat"]);
+Route::post("/pos/updateDiscount", [PosController::class, "updateDiscount"]);
+
+Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "setSession"]);
+Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);
+Route::post("/sales/changeProduct", [\App\Http\Controllers\SaleController::class, "changeProduct"]);
 
 Route::resource("/", FeatureController::class);
 Route::resource("settings", ConfigurationsController::class);

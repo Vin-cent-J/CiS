@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Configuration;
+use App\Models\Customer;
 use App\Models\DetailConfiguration;
+use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SalesDetail;
 use App\Models\SubFeature;
 use Illuminate\Http\Request;
+use Session;
 
 class SaleController extends Controller
 {
@@ -16,7 +19,7 @@ class SaleController extends Controller
      */
     public function index()
     {
-        $sales = Sale::with(['salesDetails', 'customers']);
+        $sales = Sale::with(['salesDetails', 'customer'])->where('sales_type', 'sales')->get();
         return view('sales.app', compact( 'sales'));
     }
 
@@ -40,8 +43,10 @@ class SaleController extends Controller
                 $activeDetails[] = $detail->id;
             }
         }
+        $products = Product::all();
+        $customers = Customer::whereNot('id', 1)->get();
         
-        return view('sales.new', compact('features','activeConfigs', 'activeDetails'));
+        return view('sales.new', compact('features','activeConfigs', 'activeDetails', 'customers', 'products'));
     }
 
     /**
@@ -49,27 +54,158 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-        $ins = Sale::create([
+        $total = 0;
+        foreach(Session::get('sale-products', []) as $product) {
+            if($product['discount_id']== 2){
+                $total += $product['price'] * $product['quantity'] * (1- ($product['discount'] / 100));
+            } else{
+                $total += $product['price'] * $product['quantity'] - $product['discount'];
+            }
+        }
+
+        $sale = Sale::create([
+            'customers_id' => $request->customer_id == "" ? 1: $request->customer_id,
+            'sales_type' => 'sales',
             'date' => now(),
-            'total' => $request->total,
-            'shipping_date' => $request->shipping_date,
-            'payment_method' => $request->payment_method,
-            'return_date' => $request->return_date,
-            'return_type' => $request->return_type,
-            'total_debt' => $request->total_debt,
-            'customers_id' => $request->customers_id,
-            'shipping_method' => $request->shipping_method
+            'shipping_date' => now(),
+            'total' => $total,
+            'discount' => $request->discount ?? 0,
+            'payment_methods' => $request->payment_method,
+            'total_debt' => isset($request->paid) ? $total - $request->paid : 0,
         ]);
-        foreach ($request->products as $product) {
+        foreach (Session::get('sale-products', []) as $product) {
             SalesDetail::create([
-                'sales_id' => $ins->id,
-                'products_id' => $product['products_id'],
-                'quantity' => $product['quantity'],
+                'sales_id' => $sale->id,
+                'products_id' => $product['id'],
+                'amount' => $product['quantity'],
                 'price' => $product['price'],
-                'total' => $product['total']
+                'discount' => $product['discount'] ?? 0,
+                'discounts_id' => $product['discount_id'] ?? null,
             ]);
         }
-        return redirect()->route('sales.app');
+        return redirect()->route('sales.index');
+    }
+
+    public function setSession(Request $request)
+    {
+        $productFound = false;
+        $products = Session::get('sale-products', []);
+        $added = Session::get('added', []);
+        foreach ($products as &$product) {
+            if (isset($product['id']) && $product['id'] === $request->id) {
+                $product['quantity'] += $request->quantity;
+                $productFound = true;
+                break;
+            }
+        }
+
+        if (!$productFound) {
+            $products[] = [
+                'id' => $request->id,
+                'name' => $request->name,
+                'price' => $request->price,
+                'quantity' => $request->quantity,
+                'discount' => $request->discount ?? 0,
+                'discount_id' => $request->discount_id ?? 1,
+            ];
+            $added[] = $request->id;
+        }
+        Session::put('added', $added);
+        Session::put('sale-products', $products);
+        return response()->json(['message' => 'Session set', 'products' => Session('sale-products')]);
+    }
+
+    public function updateDiscount(Request $request)
+    {
+        $productId = $request->productId;
+        $discount = $request->discount;
+        $discountId = $request->discount_id ?? 1;
+        $product = '';
+
+        $cart = Session::get('sale-products', []);
+
+        foreach ($cart as $key => &$item) {
+            if ((int)$item['id'] == (int)$productId) {
+                $item['discount'] = $discount;
+                $item['discount_id'] = $discountId;
+                $product = $item;
+
+                Session::put('sale-products', $cart); 
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Discount updated successfully.',
+                    'products' => $cart,
+                    'product' => $product 
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found in cart.'
+        ], 404);
+    }
+
+    public function changeProduct(Request $request){
+        $cart = Session::get('sale-products', []);
+        foreach ($cart as $key => &$item) {
+            if ((int)$item['id'] == (int)$request->productId) {
+                $product = Product::find($request->newId);
+                $item['id'] = $product->id;
+                $item['name'] = $product->name;
+                $item['price'] = $product->price;
+                $item['quantity'] = 1; 
+                $item['discount'] = 0; 
+
+                Session::put('sale-products', $cart); 
+            }
+        }
+
+        $added = collect($cart)->pluck('id')->all();
+
+        Session::put('added', $added);
+        return response()->json([
+            'success' => true,
+            'message' => $added
+        ]);
+    }
+
+    public function updateQuantity(Request $request)
+    {
+        if ($request->quantity <= 0) {
+            $this->deleteSessionProduct($request);
+            return response()->json(['success' => true]);
+        }
+
+        $products = Session::get('sale-products', []);
+
+        foreach ($products as &$product) {
+            if ($product['id'] == $request->id) {
+                $product['quantity'] = (int)$request->quantity;
+                break;
+            }
+        }
+
+        Session::put('sale-products', $products);
+        return response()->json(['success' => true, 'products' => Session::get('sale-products')]);
+    }
+
+    public function updateDebt(Request $request)
+    {
+        $saleId = $request->id;
+        $paid = $request->paid;
+
+        $sale = Sale::find($saleId);
+        if ($sale) {
+            $sale->total_debt -= $paid;
+            if ($sale->total_debt < 0) {
+                $sale->total_debt = 0;
+            }
+            $sale->save();
+            return response()->json(['success' => true, 'message' => 'Debt updated successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Sale not found.'], 404);
+        }
     }
 
     /**
@@ -77,8 +213,23 @@ class SaleController extends Controller
      */
     public function show($id)
     {
-        $sale = Sale::where('id', $id)->get();
-        return view('pos.detail', compact('sale'));        
+        $features = SubFeature::where('features_id', 2)->where('is_active', 1)->get();
+        $activeConfigs = [];  
+        foreach($features as $key=>$feature){
+            $configurations = Configuration::where('sub_features_id', $feature->id)->where('is_active', 1)->get();
+            foreach($configurations as $key=>$config){
+                $activeConfigs[]=$config->id;
+            }
+        }
+        $activeDetails = [];
+        foreach($activeConfigs as $configId){
+            $details = DetailConfiguration::where('configurations_id', $configId)->where('is_active', 1)->get();
+            foreach($details as $key=>$detail){
+                $activeDetails[] = $detail->id;
+            }
+        }
+        $sale = Sale::with(['salesDetails.product', 'customer'])->find($id);
+        return view('sales.detail', compact('sale', 'features', 'activeConfigs', 'activeDetails'));        
     }
 
     /**
@@ -86,7 +237,7 @@ class SaleController extends Controller
      */
     public function edit($id)
     {
-        $sale = Sale::find($id);
+        $sale = Sale::with(['salesDetails.product', 'customer'])->find($id);
         return view('sales.detail', compact('sale'));
     }
 

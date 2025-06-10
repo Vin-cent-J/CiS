@@ -13,8 +13,12 @@
   <div class="m-1">
     <strong>Nota: </strong>1 <br>
     <strong>Tanggal: </strong>12-03-2025 <br>
-    <strong>Total: </strong>Rp. 1000 <br>
+    <strong>Total: </strong>Rp. {{number_format($sale->total, 0, ',', '.')}} <br>
     <strong>Metode Pembayaran: </strong>Tunai <br>
+    @if ($features->contains('id',15) || $sale->total_debt > 0)
+    <strong>Hutang: </strong>Rp. {{ number_format($sale->total_debt, 0, ',', '.') }} <br>
+    <button class="btn btn-warning" id="btn-hutang">Kurangi hutang</button>
+    @endif
 
     <hr>
     <table class="table table-bordered">
@@ -25,25 +29,46 @@
               <th>Harga</th>
               <th>Diskon</th>
               <th>Total</th>
-              <th>Aksi</th>
+              @if ($features->contains('id',4) && $features->contains('id',5) && (in_array(7, $activeDetails) || in_array(8, $activeDetails)))
+              <th>Garansi & Pengembalian</th>
+              @endif
           </tr>
       </thead>
       <tbody>
-          <tr>
-              <td>Garden Lamp</td>
-              <td>1.00</td>
-              <td>Rp.1350</td>
-              <td>Rp. 0</td>
-              <td>Rp.1350</td>
-              <td>
-                @if ($features->contains('id',5) && (in_array(7, $activeDetails) || in_array(8, $activeDetails)))
-                <a type="button" class="btn btn-warning" href="">Pengembalian</a>
-                @endif
-                @if ($features->contains('id',4))
-                <a type="button" class="btn btn-warning" href="">Garansi</a>
-                @endif
-              </td>
-          </tr>
+        @foreach ($sale->salesDetails as $detail)
+        <tr>
+            <td>{{ $detail->product->name }}</td>
+            <td>{{ $detail->amount }}</td>
+            <td>Rp.{{ number_format($detail->price, 0, ',', '.') }}</td>
+            <td>
+              @if ($detail->discounts_id == 1)
+                Rp.
+              @endif
+              {{ number_format($detail->discount, 0, ',', '.') }}
+              @if ($detail->discounts_id == 2)
+              %
+              @endif
+            </td>
+            <td>
+              @if ($detail->discounts_id == 1)
+              Rp.{{ number_format(($detail->price * $detail->amount) - $detail->discount, 0, ',', '.') }}
+              @else
+              Rp.{{ number_format(($detail->price * $detail->amount) - (($detail->price * $detail->amount) * ($detail->discount / 100)), 0, ',', '.') }}
+              @endif
+            </td>
+
+            @if ($features->contains('id',4) || ($features->contains('id',5) && (in_array(7, $activeDetails) || in_array(8, $activeDetails))))
+                <td>
+                    @if ($features->contains('id',5) && (in_array(7, $activeDetails) || in_array(8, $activeDetails)))
+                        <a type="button" class="btn btn-warning" href="">Pengembalian</a>
+                    @endif
+                    @if ($features->contains('id',4))
+                        <a type="button" class="btn btn-warning" href="">Garansi</a>
+                    @endif
+                </td>
+            @endif
+        </tr>
+    @endforeach
       </tbody>
   </table>
   </div>
