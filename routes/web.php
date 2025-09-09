@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FeatureController;
 use App\Models\Feature;
+use App\Models\Sale;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConfigurationsController;
 use App\Http\Controllers\PosController;
@@ -65,13 +66,16 @@ Route::get("/supplier/new", function(){
 })->name("newsupplier");
 
 Route::post("/pos/setSession", [PosController::class, "setSession"])->name("setSession");
-Route::post("/pos/deleteSession", [PosController::class, "deleteSessionProduct"])->name("deleteSession");
-Route::get("/pos/riwayat", [PosController::class, "riwayat"]);
+Route::get("/pos/deleteSession/{id}", [PosController::class, "deleteSessionProduct"])->name("deleteSession");
+Route::get("/pos/riwayat", [PosController::class, "riwayat"])->name("pos.riwayat");
+Route::post("/pos/updateDebt", [PosController::class, "updateDebt"]);
 Route::post("/pos/updateDiscount", [PosController::class, "updateDiscount"]);
+Route::post("/pos/setSaleTotalDisc", [PosController::class, "setSaleTotalDisc"]);
 
 Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "setSession"]);
 Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);
 Route::post("/sales/changeProduct", [\App\Http\Controllers\SaleController::class, "changeProduct"]);
+Route::post("/sales/updateDiscount", [\App\Http\Controllers\SaleController::class, "updateDiscount"]);
 
 Route::resource("/", FeatureController::class);
 Route::resource("settings", ConfigurationsController::class);

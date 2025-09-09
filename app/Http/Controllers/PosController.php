@@ -63,11 +63,35 @@ class PosController extends Controller
                 'price' => $request->price,
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
-                'discount_id' => $request->discount_id ?? 1,
+                'discount_type' => $request->discount_type ?? 1,
             ];
         }
+
+        if (!Session::has('saleTotalDisc')) {
+            Session::put('saleTotalDisc', 0);
+        }
+        
         Session::put('products', $products);
-        return response()->json(['message' => 'Session set', 'products' => Session('products')]);
+        return response()->json([
+            'message'=>'Session set', 
+            'products'=>Session('products'), 
+            'saleTotalDisc'=>Session('saleTotalDisc', 0)
+        ]);
+    }
+
+    public function setSaleTotalDisc(Request $request)
+    {
+        if($request->saleTotalDisc) {
+            Session::put('saleTotalDisc', $request->saleTotalDisc);
+        } elseif (!Session::has('saleTotalDisc')) {
+            Session::put('saleTotalDisc', 0);
+        }
+
+        return response()->json([
+            'message'=>'Session set', 
+            'products'=>Session('products'), 
+            'saleTotalDisc'=>Session('saleTotalDisc',0)
+        ]);
     }
 
     public function updateQuantity(Request $request)
@@ -92,7 +116,11 @@ class PosController extends Controller
 
         if ($productFound) {
             Session::put('products', $products);
-            return response()->json(['message' => 'Product quantity increased.', 'products' => $products]);
+            return response()->json([
+                'message' => 'Product quantity increased.', 
+                'products' => $products, 
+                'saleTotalDisc'=>Session('saleTotalDisc',0)
+            ]);
         } else {
             return response()->json(['message' => 'Product not found in session.'], 404);
         }
@@ -133,21 +161,18 @@ class PosController extends Controller
 
                 Session::put('products', $cart); 
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Discount updated successfully.',
-                    'products' => $cart,
-                    'product' => $product 
+                    'message' => 'Discount updated successfully.', 
+                    'products' => $cart, 
+                    'product' => $product,
+                    'saleTotalDisc'=>Session('saleTotalDisc',0)
                 ]);
             }
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Product not found in cart.'
-        ], 404);
+        return response()->json(['success' => false, 'message' => 'Product not found in cart.'], 404);
     }
 
-    public function riwayat()
+    public function riwayat(Request $request)
     {
         $features = SubFeature::where('features_id', 1)->where('is_active', 1)->get();
         $activeConfigs = [];  
@@ -165,10 +190,28 @@ class PosController extends Controller
             }
         }
 
-        echo "<script>console.log('Debug Objects: " . $features . "' );</script>";
-
-        $sales = Sale::where('sales_type', 'pos')->orderBy('date')->get();
-        return view('pos.history', compact('sales', 'activeConfigs', 'activeDetails', 'features'));
+        $status = "";
+        $sales = Sale::where('sales_type', 'pos')->orderBy('id', 'desc');
+        if($request->has('status')){
+            $status = $request->query('status');
+            if ($status == 'lunas') {
+                $sales = $sales->where('total_debt', 0);
+            } elseif($status == 'belum') {
+                $sales = $sales->where('total_debt', '>', 0);
+            }
+        }
+        
+        $startDate = "";
+        $endDate = "";
+       
+        if($request->has('start_date') && $request->has('end_date')) {
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+            $sales = $sales->whereBetween('date', [$startDate, $endDate]);
+        }
+        $sales = $sales->orderBy('date', 'desc')->get();
+        
+        return view('pos.history', compact('sales', 'activeConfigs', 'activeDetails', 'features', 'status', 'startDate', 'endDate'));
     }
 
     public function updateDebt(Request $request)
@@ -183,7 +226,7 @@ class PosController extends Controller
                 $sale->total_debt = 0;
             }
             $sale->save();
-            return response()->json(['success' => true, 'message' => 'Debt updated successfully.']);
+            return response()->json(['success' => true, 'debt'=>$sale->total_debt, 'message' => 'Debt updated successfully.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Sale not found.'], 404);
         }
@@ -202,8 +245,9 @@ class PosController extends Controller
      */
     public function store(Request $request)
     {
+        $discount = Session("saleTotalDisc", 0); 
         $total = 0;
-        foreach(Session::get('products', []) as $product) {
+        foreach(Session('products', []) as $product) {
             if($product['discount_id']== 2){
                 $total += $product['price'] * $product['quantity'] * (1- ($product['discount'] / 100));
             } else{
@@ -217,9 +261,9 @@ class PosController extends Controller
             'date' => now(),
             'shipping_date' => now(),
             'total' => $total,
-            'discount' => $request->discount ?? 0,
+            'discount' => $discount ?? 0,
             'payment_methods' => $request->payment_method,
-            'total_debt' => $request->debt ?? 0,
+            'total_debt' => $request->payment_method == "piutang" ? $total : 0,
         ]);
         foreach(Session::get('products', []) as $product) {
             SalesDetail::create([
@@ -228,13 +272,14 @@ class PosController extends Controller
                 'amount' => $product['quantity'],
                 'price' => $product['price'],
                 'discount' => $product['discount'] ?? 0,
-                'discounts_id' => $product['discount_id'] ?? null,
+                'discount_type' => $product['discount_type'] ?? null,
+                'discount_id'=> $product['discount_id'] ?? null
             ]
             );
         }
 
         Session::forget('products');
-        redirect()->route('pos.index')->with('success', 'Sale created successfully.');
+        redirect()->route('pos.index');
     }
 
     /**

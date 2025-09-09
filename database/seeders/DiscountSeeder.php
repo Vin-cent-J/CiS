@@ -13,19 +13,42 @@ class DiscountSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('discounts')->insert([
+        // DB::table('discounts_rules')->insert([
+        //     [
+        //         'id' => 1,
+        //         'name' => 'tunai',
+        //         'minimum' => 1,
+        //     ],
+        //     [
+        //         'id' => 2,
+        //         'name' => 'persen',
+        //         'minimum' => 1,
+        //     ],
+        // ]);
+        DB::table('categories')->insert([
+            [
+                'name' => 'Lampu',
+            ],
+            [
+                'name' => 'Kabel',
+            ],
+            [
+                'name' => 'Steker',
+            ],
+            [
+                'name' => 'Saklar',
+            ],
+            [
+                'name' => 'Stop Kontak',
+            ],
+            ]);
+        DB::table('customers')->insert([
             [
                 'id' => 1,
-                'name' => 'tunai',
-                'discount' => 0,
-                'minimum' => 1,
-            ],
-            [
-                'id' => 2,
-                'name' => 'persen',
-                'discount' => 0,
-                'minimum' => 1,
-            ],
-        ]);
+                'name' => 'pos',
+                'phone_number' => 0,
+                'address' => '-',
+            ]
+            ]);
     }
 }

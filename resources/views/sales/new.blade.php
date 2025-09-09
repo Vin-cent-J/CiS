@@ -79,7 +79,7 @@
                             @if ($item['discount_id'] == 1)
                                 Rp.
                             @endif
-                            <input class="form-control" style="width:60%; display: inline;" type="number" class="discount" id="disc-{{$item['id']}}" value="{{$item['discount']}}">
+                            <input class="form-control discount" style="width:60%; display: inline;" type="number" data-value="{{$item['id']}}" id="disc-{{$item['id']}}" value="{{$item['discount']}}">
                             @if ($item['discount_id'] == 2)
                                 %
                             @endif
@@ -106,6 +106,22 @@
                     @endforeach
                 </tbody>
             </table>
+            <table class="float-end">
+                <tr>
+                    @php
+                        $total = 0;
+                        foreach (session("sale-products", []) as $item) {
+                            if ($item['discount_id'] == 2) {
+                                $total += ($item['price'] * $item['quantity']) * (1 - $item['discount'] / 100);
+                            } else {
+                                $total += ($item['price'] * $item['quantity']) - $item['discount'];
+                            }
+                        }
+                    @endphp
+                    <th>Total: </th>
+                    <td id="total-o">Rp. {{$total}}</td>
+                </tr>
+            </table>
         </div>
 
         <div class="mt-3">
@@ -124,6 +140,10 @@
 
 @section("js")
 <script>
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('id-ID').format(amount);
+    }
+
     const products = @json($products);
     $(document).ready(function() {
         let address = $('#kustomer option:selected').data('value');
@@ -206,7 +226,100 @@
                 location.reload();
             }
         })
-        
+    });
+
+    $('.discount').on('keyup',function(){
+        const id = $(this).data('value')
+        const discount = $(this).val()
+        const type = $('#type-' + id).val()
+
+        $.ajax({
+            url: '/sales/updateDiscount/',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            contentType: 'application/json',
+            data: JSON.stringify({
+                productId: id,
+                discount: discount,
+                discount_id: type
+            }),
+            success: function(data){
+                const product = data.product;
+                const products = data.products;
+                if (type == 1) {
+                    $('#total-' + id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount));
+                } else {
+                    $('#total-' + id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
+                }
+
+                let total = 0;
+                for (const item of products) {
+                    if(item.discount_id == 2) {
+                        total += (item.price * item.quantity) * (1-item.discount/100);
+                    } else {
+                        total += (item.price * item.quantity) - item.discount;
+                    }
+                }
+                
+                $('#total-o').text('Rp.' + formatCurrency(total));
+            },
+        })
+    });
+
+    $('.type').change(function(){
+    const id = this.getAttribute('data-value');
+    let discount = $("#discount-"+id).val();
+    const type = this.value;
+
+    if(type==2 & discount>100){
+        discount = 100;
+    }
+
+    fetch('/sales/updateDiscount', { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      },
+      body: JSON.stringify({
+        productId: id,
+        discount: discount,
+        discount_id: type
+      })
     })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const product = data.product;
+
+        if(type == 1){
+          $('#total-'+id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount ));
+        } else {
+          $('#total-'+id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
+        }
+
+        let total = 0;
+        for (const item of data.products) {
+          if(item.discount_id == 2) {
+            total += (item.price * item.quantity) * (1-item.discount/100);
+          } else {
+            total += (item.price * item.quantity) - item.discount;
+          }
+        }
+        
+        $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
+        $('#total').text('Rp.' + formatCurrency(total));
+        
+      } else {
+        alert('Gagal memperbarui diskon: ' + data.message);
+      }
+    })
+    .catch(error => {
+      alert('Terjadi kesalahan. '+error);
+    });
+  });
 </script>
 @endsection

@@ -71,6 +71,13 @@ class ConfigSeeder extends Seeder
                 'sub_features_id'=>5
             ],
             [
+                'id'=> 23,
+                'name'=> 'garansi',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>5
+            ],
+            [
                 'id'=> 9,
                 'name'=> 'tunai',
                 'mandatory'=>true,
@@ -119,10 +126,16 @@ class ConfigSeeder extends Seeder
                 'is_active'=> false,
                 'sub_features_id'=>10
             ],
-
             [
                 'id'=> 16,
                 'name'=> 'hutang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>10
+            ],
+            [
+                'id'=>24,
+                'name'=> 'garansi',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>10
@@ -132,14 +145,14 @@ class ConfigSeeder extends Seeder
                 'name'=> 'perpetual',
                 'mandatory'=>false,
                 'is_active'=> true,
-                'sub_features_id'=>13
+                'sub_features_id'=>11
             ],
             [
                 'id'=> 18,
                 'name'=> 'periodik',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>13
+                'sub_features_id'=>11
             ],
             [
                 'id'=> 19,
@@ -155,13 +168,27 @@ class ConfigSeeder extends Seeder
                 'is_active'=> true,
                 'sub_features_id'=>8
             ],
+            [
+                'id'=> 21,
+                'name'=> 'piutang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>1
+            ],
+            [
+                'id'=> 22,
+                'name'=> 'piutang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>6
+            ],
         ]);
 
         DB::table('detail_configurations')->insert([
             [
                 'id'=> 1,
                 'name'=> 'tunai',
-                'mandatory'=>false,
+                'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>4
             ],
@@ -175,8 +202,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 3,
                 'name'=> 'minimal',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>6
             ],
             [
@@ -224,7 +251,7 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 10,
                 'name'=> 'tunai',
-                'mandatory'=>false,
+                'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>12
             ],
@@ -238,8 +265,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 12,
                 'name'=> 'minimal',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>14
             ],
             [
@@ -259,8 +286,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 15,
                 'name'=> 'ganti barang',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>15
             ],
             [
@@ -280,8 +307,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 18,
                 'name'=> 'ganti barang',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>16
             ],
             [

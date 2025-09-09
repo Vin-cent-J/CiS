@@ -17,10 +17,46 @@ class SaleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with(['salesDetails', 'customer'])->where('sales_type', 'sales')->get();
-        return view('sales.app', compact( 'sales'));
+        $features = SubFeature::where('features_id', 1)->where('is_active', 1)->get();
+        $activeConfigs = [];  
+        foreach($features as $key=>$feature){
+            $configurations = Configuration::where('sub_features_id', $feature->id)->where('is_active', 1)->get();
+            foreach($configurations as $key=>$config){
+                $activeConfigs[] = $config->id;
+            }
+        }
+        $activeDetails = [];
+        foreach($activeConfigs as $configId){
+            $details = DetailConfiguration::where('configurations_id', $configId)->where('is_active', 1)->get();
+            foreach($details as $key=>$detail){
+                $activeDetails[] = $detail->id;
+            }
+        }
+
+        $status = "";
+        $sales = Sale::where('sales_type', 'sales');
+        if($request->has('status')){
+            $status = $request->query('status');
+            if ($status == 'lunas') {
+                $sales = $sales->where('total_debt', 0);
+            } elseif($status == 'belum') {
+                $sales = $sales->where('total_debt', '>', 0);
+            }
+        }
+        
+        $startDate = "";
+        $endDate = "";
+       
+        if($request->has('start_date') && $request->has('end_date')) {
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+            $sales = $sales->whereBetween('date', [$startDate, $endDate]);
+        }
+        $sales = $sales->orderBy('date', 'desc')->get();
+        
+        return view('sales.app', compact( 'sales', 'activeConfigs', 'activeDetails', 'features', 'status', 'startDate', 'endDate'));
     }
 
     /**
@@ -128,14 +164,13 @@ class SaleController extends Controller
             if ((int)$item['id'] == (int)$productId) {
                 $item['discount'] = $discount;
                 $item['discount_id'] = $discountId;
-                $product = $item;
 
                 Session::put('sale-products', $cart); 
                 return response()->json([
                     'success' => true,
                     'message' => 'Discount updated successfully.',
                     'products' => $cart,
-                    'product' => $product 
+                    'product' => $item 
                 ]);
             }
         }

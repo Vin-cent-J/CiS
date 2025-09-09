@@ -39,7 +39,7 @@
           <div class="text-gray-600 flex justify-between items-center mt-1">
             @if (in_array(20, $activeDetails) && $features->contains('id',3))
             <p class="text-sm">
-          Diskon: <input type="number" class="w-16 p-1 border border-gray-300 rounded-md text-sm discount" data-value="{{$product['id']}}" id="discount-{{$product['id']}}" min="0" value="{{$product['discount']}}">
+            Diskon: <input type="number" class="w-16 p-1 border border-gray-300 rounded-md text-sm discount" data-value="{{$product['id']}}" id="discount-{{$product['id']}}" min="0" value="{{$product['discount']}}">
               <select name="discount_id" class="type-{{$product['id']}} type" data-value="{{$product['id']}}">
                 @if (in_array(2, $activeDetails))
                 <option value="2">%</option>
@@ -50,7 +50,7 @@
               </select>
             </p>
             @endif
-            <a class="btn btn-danger text-red-500 hover:text-red-700 focus:outline-none float-right" href="{{ url('/pos/deleteSession', $product['id']) }}">
+            <a class="btn btn-danger text-red-500 hover:text-red-700 focus:outline-none float-right deleteButton" data-value="{{$product['id']}}">
               <i class="bi bi-trash"></i> 
             </a>
           </div>
@@ -65,7 +65,7 @@
         $total += $product['price'] * $product['quantity'];
         if($product['discount_id'] == 2) {
           $diskon = ($product['price'] * $product['quantity']) * ($product['discount'] / 100);
-          $total -= $diskon;
+          $total -= $diskon - session('saleTotalDisc', 0);
         } else{
           $total -= $product['discount'];
         }
@@ -77,7 +77,7 @@
           @if (in_array(19, $activeDetails) && $features->contains('id',3))
           <div class="m-1">
             Diskon:
-            <input type="number" class="form-control" id="diskon-nota">
+            <input id="totalDisc" type="number" class="form-control totalDisc" id="diskon-nota">
           </div>
           @endif
           <div class="text-end">
@@ -133,7 +133,7 @@
         <h5 class="modal-title">Pembayaran</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{url('/pos')}}" method="post">
+      <form action="{{route('pos.index')}}" method="post">
         <div class="modal-body">
           @csrf
           <label for="cust">Kustomer:</label>
@@ -144,13 +144,15 @@
             @endforeach
           </select>
           <p>Total: <strong id="total-m">Rp. {{$total}} </strong></p>
-          @if ($features->contains('id',15))
-          <input type="number" name="paid" placeholder="Jumlah Yang Dibayarkan" class="form-control"><br>
-          @endif
           <label for="metode">Metode Pembayaran:</label>
           <select class="form-select" name="payment_method" id="metode">
             <option value="tunai">Tunai</option>
+            @if(in_array(2, $activeConfigs))
             <option value="transfer">Transfer</option>
+            @endif
+            @if(in_array(21, $activeConfigs))
+            <option value="piutang">Piutang</option>
+            @endif
           </select>
         </div>
         <div class="modal-footer">
@@ -242,7 +244,7 @@
           name: productData.name,
           price: productData.price,
           quantity: productData.quantity,
-          discount_id: type,
+          discount_type: type,
         };
 
         const updatedCartItems = data.products;
@@ -252,9 +254,9 @@
             productList.append('<br><div class="text-muted text-center">Keranjang masih kosong</div>');
           } else {
             location.reload();
-            updatedCartItems.forEach(item => {
-              productList.append(createProductElement(item));
-            });
+            // updatedCartItems.forEach(item => {
+            //   productList.append(createProductElement(item));
+            // });
           }
         }
       },
@@ -262,6 +264,39 @@
         $(this).prop('disabled', false).text('+ Tambah');
       }
     });
+  });
+
+  $('.totalDisc').on('keyup', function() {
+    const totalDisc = this.value;
+
+    $.ajax({
+      url: '/pos/setSaleTotalDisc',
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      },
+      contentType: 'application/json',
+      data: JSON.stringify({
+        saleTotalDisc: totalDisc
+      }),
+      success: function(data) {
+        const products = data.products;
+        let total = 0;
+        for (const item of products) {
+          if(item.discount_id == 2) {
+            total += (item.price * item.quantity) * (1-item.discount/100);
+          } else {
+            total += (item.price * item.quantity) - item.discount;
+          }
+        }
+        totalF = total - totalDisc;
+        if(totalF < 0){
+          totalF = 0;
+        }
+        $('#pembayaran #total-m').text('Rp.' + formatCurrency(totalF));
+        $('#total').text('Rp.' + formatCurrency(totalF));
+      },
+    })
   });
 
   $('.discount').on('keyup', function() {
@@ -282,29 +317,30 @@
         discount_id: type
       }),
       success: function(data) {
-        if (data.success) {
-          const product = data.product;
-          console.log('Diskon diperbarui:', product);
+        const product = data.product;
+        const disc = data.saleTotalDisc;
 
-          if (type == 1) {
-            $('#total-' + id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount));
-          } else {
-            $('#total-' + id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
-          }
-
-          let total = 0;
-          for (const item of data.products) {
-            if (item.discount_id == 2) {
-              total += (item.price * item.quantity) * (1 - item.discount / 100);
-            } else {
-              total += (item.price * item.quantity) - item.discount;
-            }
-          }
-          $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
-          $('#total').text('Rp.' + formatCurrency(total));
+        if (type == 1) {
+          $('#total-' + id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount));
         } else {
-          alert('Gagal memperbarui diskon: ' + data.message);
+          $('#total-' + id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
         }
+
+        let total = 0;
+        for (const item of data.products) {
+          if (item.discount_id == 2) {
+            total += (item.price * item.quantity) * (1 - item.discount / 100) - disc;
+          } else {
+            total += (item.price * item.quantity) - item.discount - disc;
+          }
+        }
+
+        if(total < 0){
+          total = 0;
+        }
+
+        $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
+        $('#total').text('Rp.' + formatCurrency(total));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         alert('Terjadi kesalahan. ' + errorThrown);
@@ -359,6 +395,25 @@
     })
     .catch(error => {
       alert('Terjadi kesalahan. '+error);
+    });
+  });
+
+  $('.deleteButton').click(function() {
+    const productId = $(this).data('value');
+    $.ajax({
+      url: '/pos/deleteSession/'+productId,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      },
+      contentType: 'application/json',
+      success: function(data) {
+        location.reload();
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert('Terjadi kesalahan. ' + errorThrown);
+      }
     });
   });
 </script>

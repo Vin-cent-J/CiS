@@ -48,14 +48,6 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>5,
-                'name'=> 'laporan',
-                'mandatory'=>true,
-                'is_active'=>true,
-                'route'=>'report',
-                'icon'=>'bi bi-clipboard-data'
-            ],
-            [
-                'id'=>6,
                 'name'=> 'pelanggan',
                 'mandatory'=>false,
                 'is_active'=>false,
@@ -63,13 +55,21 @@ class FeatureSeeder extends Seeder
                 'icon'=>'bi bi-cash-coin'
             ],
             [
-                'id'=>7,
+                'id'=>6,
                 'name'=> 'supplier',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'route'=>'supplier',
                 'icon'=>'bi bi-truck'
             ],
+            [
+                'id'=>7,
+                'name'=> 'laporan',
+                'mandatory'=>false,
+                'is_active'=>false,
+                'route'=>'report',
+                'icon'=>'bi bi-graph-up'
+            ]
         ]);
         DB::table("sub_features")->insert([
             [
@@ -89,13 +89,6 @@ class FeatureSeeder extends Seeder
             [
                 'id'=>3,
                 'name'=> 'diskon',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'features_id'=>1
-            ],
-            [
-                'id'=>4,
-                'name'=> 'garansi',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>1
@@ -129,13 +122,6 @@ class FeatureSeeder extends Seeder
                 'features_id'=>2
             ],
             [
-                'id'=>9,
-                'name'=> 'garansi',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'features_id'=>2
-            ],
-            [
                 'id'=>10,
                 'name'=> 'pengembalian',
                 'mandatory'=>false,
@@ -144,39 +130,18 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>11,
-                'name'=> 'hutang',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'features_id'=>2
-            ],
-            [
-                'id'=>12,
-                'name'=> 'pemberitahuan stok',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'features_id'=>3
-            ],
-            [
-                'id'=>13,
                 'name'=> 'metode',
                 'mandatory'=>true,
                 'is_active'=>false,
                 'features_id'=>4
             ],
             [
-                'id'=>14,
+                'id'=>12,
                 'name'=> 'varian',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>4
             ],
-            [
-                'id'=>15,
-                'name'=> 'hutang',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'features_id'=>1
-            ]
         ]);
     }
 }
