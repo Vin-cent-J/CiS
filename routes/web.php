@@ -71,6 +71,7 @@ Route::get("/pos/riwayat", [PosController::class, "riwayat"])->name("pos.riwayat
 Route::post("/pos/updateDebt", [PosController::class, "updateDebt"]);
 Route::post("/pos/updateDiscount", [PosController::class, "updateDiscount"]);
 Route::post("/pos/setSaleTotalDisc", [PosController::class, "setSaleTotalDisc"]);
+Route::post("/pos/return", [PosController::class, "returnProduct"])->name("pos.return");
 
 Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "setSession"]);
 Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);

@@ -21,6 +21,7 @@ class Sale extends Model
         'payment_methods',
         'sales_type',
         'discount',
+        'discount_type',
         'shipping_method'
     ];
     public function customer()

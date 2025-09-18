@@ -11,6 +11,8 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Models\SubFeature;
 use Session;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use function Symfony\Component\Translation\t;
 
@@ -72,6 +74,7 @@ class PosController extends Controller
         }
         
         Session::put('products', $products);
+
         return response()->json([
             'message'=>'Session set', 
             'products'=>Session('products'), 
@@ -148,7 +151,7 @@ class PosController extends Controller
     {
         $productId = $request->productId;
         $discount = $request->discount;
-        $discountId = $request->discount_id ?? 1;
+        $discountType = $request->discount_type ?? 1;
         $product = '';
 
         $cart = Session::get('products', []);
@@ -156,7 +159,7 @@ class PosController extends Controller
         foreach ($cart as $key => &$item) {
             if ((int)$item['id'] == (int)$productId) {
                 $item['discount'] = $discount;
-                $item['discount_id'] = $discountId;
+                $item['discount_type'] = $discountType;
                 $product = $item;
 
                 Session::put('products', $cart); 
@@ -168,7 +171,7 @@ class PosController extends Controller
                 ]);
             }
         }
-
+        
         return response()->json(['success' => false, 'message' => 'Product not found in cart.'], 404);
     }
 
@@ -240,20 +243,70 @@ class PosController extends Controller
         //
     }
 
+    public function returnProduct(Request $request)
+    {
+        $id = $request->sale_id;
+        $productId = $request->product_id;
+        $returnAmount = $request->amount ?? 0;
+        $returnType = $request->type;
+        $today = Carbon::now()->format('Y-m-d');
+
+        $sql1= "SELECT * FROM sales_details 
+        WHERE sales_id = ? AND products_id = ?";
+        $detail = DB::select($sql1, [$id, $productId])[0];
+        $returnAmount = $detail->return_amount + $returnAmount;
+
+        if(!$detail) {
+            return response()->json('Sale detail not found. sale_id: '.$id.' product_id: '.$productId, 200);
+        }
+
+        if($detail->return_amount >= $detail->amount) {
+            return response()->json('All products have been returned.', 200);
+        }
+
+        if(!isset($returnAmount) && ($returnAmount <= 0 || $returnAmount > $detail->amount)) {
+            return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
+        }
+        
+        $sql2 = "UPDATE sales_details 
+        SET return_date = ?, return_amount = ?, return_type = ? 
+        WHERE sales_id = ? AND products_id = ?";
+
+        $updated = DB::update($sql2, [$today, $returnAmount, $returnType, $id, $productId]);
+
+        if($updated){
+            $product = Product::find($productId);
+            $sale = Sale::find($id);
+            if($product) {
+                if($returnType == 'Ganti barang') {
+                    $product->stock -= $returnAmount;
+                    $product->save();
+                }
+                else if($returnType == 'Kurangi hutang') {
+                    $sale->total_debt -= $detail->price * $returnAmount;
+                    $sale->save();
+                }
+            }
+        }
+        return response()->json('Product returned successfully.', 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $discount = Session("saleTotalDisc", 0); 
+        $products = Session('products', []);
         $total = 0;
-        foreach(Session('products', []) as $product) {
-            if($product['discount_id']== 2){
+        foreach($products as $product) {
+            if($product['discount_type']== 2){
                 $total += $product['price'] * $product['quantity'] * (1- ($product['discount'] / 100));
             } else{
                 $total += $product['price'] * $product['quantity'] - $product['discount'];
             }
         }
+        $total -= $discount;
 
         $s = Sale::create([
             'customers_id' => $request->customer_id == "" ? 1: $request->customer_id,
@@ -262,24 +315,35 @@ class PosController extends Controller
             'shipping_date' => now(),
             'total' => $total,
             'discount' => $discount ?? 0,
+            'discount_type' => $request->discount_type ?? 1,
             'payment_methods' => $request->payment_method,
             'total_debt' => $request->payment_method == "piutang" ? $total : 0,
         ]);
-        foreach(Session::get('products', []) as $product) {
+        foreach($products as $product) {
             SalesDetail::create([
                 'sales_id' => $s->id,
                 'products_id' => $product['id'],
                 'amount' => $product['quantity'],
                 'price' => $product['price'],
                 'discount' => $product['discount'] ?? 0,
-                'discount_type' => $product['discount_type'] ?? null,
-                'discount_id'=> $product['discount_id'] ?? null
+                'discount_type' => $product['discount_type'] ?? null
             ]
             );
         }
+        foreach($products as $product) {
+            $p = Product::find($product['id']);
+            if($p) {
+                $p->stock -= $product['quantity'];
+                if($p->stock < 0) {
+                    $p->stock = 0;
+                }
+                $p->save();
+            }
+        }
 
         Session::forget('products');
-        redirect()->route('pos.index');
+        Session::forget('saleTotalDisc');
+        return redirect()->route('pos.index')->with('success', 'Sale recorded successfully.');
     }
 
     /**

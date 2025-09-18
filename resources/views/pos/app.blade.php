@@ -24,7 +24,7 @@
             </div>
             <div>
               <strong id="total-{{$product['id']}}">
-                @if ($product['discount_id'] == 1)
+                @if ($product['discount_type'] == 1)
                 Rp.{{number_format($product['price'] * $product['quantity'] - $product['discount'])}}
                 @else
                 Rp.{{number_format($product['price'] * $product['quantity'] * (1-$product['discount']/100))}} 
@@ -40,12 +40,12 @@
             @if (in_array(20, $activeDetails) && $features->contains('id',3))
             <p class="text-sm">
             Diskon: <input type="number" class="w-16 p-1 border border-gray-300 rounded-md text-sm discount" data-value="{{$product['id']}}" id="discount-{{$product['id']}}" min="0" value="{{$product['discount']}}">
-              <select name="discount_id" class="type-{{$product['id']}} type" data-value="{{$product['id']}}">
-                @if (in_array(2, $activeDetails))
-                <option value="2">%</option>
-                @endif
+              <select name="discount_type" class="type-{{$product['id']}} type" data-value="{{$product['id']}}">
                 @if (in_array(1, $activeDetails))
-                <option value="1">Tunai</option>
+                <option value="1" <?= $product['discount_type'] == 1 ? 'selected' : ''; ?> >Tunai</option>
+                @endif
+                @if (in_array(2, $activeDetails))
+                <option value="2" <?= $product['discount_type'] == 2 ? 'selected': ''; ?> >%</option>
                 @endif
               </select>
             </p>
@@ -63,7 +63,8 @@
       $total = 0;
       foreach (session('products', []) as $product) {
         $total += $product['price'] * $product['quantity'];
-        if($product['discount_id'] == 2) {
+        echo "<script>console.log(".json_encode($product).")</script>";
+        if($product['discount_type'] == 2) {
           $diskon = ($product['price'] * $product['quantity']) * ($product['discount'] / 100);
           $total -= $diskon - session('saleTotalDisc', 0);
         } else{
@@ -126,14 +127,14 @@
 </div>
 
 
-<div class="modal fade" id="pembayaran" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="pembayaran" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Pembayaran</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{route('pos.index')}}" method="post">
+      <form action="{{route('pos.store')}}" method="post">
         <div class="modal-body">
           @csrf
           <label for="cust">Kustomer:</label>
@@ -217,6 +218,7 @@
   $('.addToCart').click(function() {
     const productData = JSON.parse(this.getAttribute('data-value'));
     const type = $('.type-' + productData.id).val();
+
     if (!productData || typeof productData.id === 'undefined') {
       console.error('Product data is missing or invalid.');
       return;
@@ -236,17 +238,9 @@
         'id': productData.id,
         'name': productData.name,
         'price': productData.price,
-        'quantity': productData.quantity
+        'quantity': productData.quantity,
       }),
       success: function(data) {
-        const newProduct = {
-          id: productData.id,
-          name: productData.name,
-          price: productData.price,
-          quantity: productData.quantity,
-          discount_type: type,
-        };
-
         const updatedCartItems = data.products;
         if (productList && productList.length) {
           productList.empty();
@@ -254,9 +248,6 @@
             productList.append('<br><div class="text-muted text-center">Keranjang masih kosong</div>');
           } else {
             location.reload();
-            // updatedCartItems.forEach(item => {
-            //   productList.append(createProductElement(item));
-            // });
           }
         }
       },
@@ -283,7 +274,7 @@
         const products = data.products;
         let total = 0;
         for (const item of products) {
-          if(item.discount_id == 2) {
+          if(item.discount_type == 2) {
             total += (item.price * item.quantity) * (1-item.discount/100);
           } else {
             total += (item.price * item.quantity) - item.discount;
@@ -314,7 +305,7 @@
       data: JSON.stringify({
         productId: id,
         discount: newDiscount,
-        discount_id: type
+        discount_type: type
       }),
       success: function(data) {
         const product = data.product;
@@ -328,7 +319,7 @@
 
         let total = 0;
         for (const item of data.products) {
-          if (item.discount_id == 2) {
+          if (item.discount_type == 2) {
             total += (item.price * item.quantity) * (1 - item.discount / 100) - disc;
           } else {
             total += (item.price * item.quantity) - item.discount - disc;
@@ -353,21 +344,20 @@
     const newDiscount = $("#discount-"+id).val();
     const type = this.value;
 
-    fetch('/pos/updateDiscount', { 
+    $.ajax({
+      url: '/pos/updateDiscount',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRF-TOKEN': '{{ csrf_token() }}',
       },
-      body: JSON.stringify({
+      contentType: 'application/json',
+      data: JSON.stringify({
         productId: id,
         discount: newDiscount,
-        discount_id: type
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
+        discount_type: type
+      }),
+      success: function(data) {
         const product = data.product;
         console.log('Diskon diperbarui:', product);
 
@@ -379,7 +369,7 @@
 
         let total = 0;
         for (const item of data.products) {
-          if(item.discount_id == 2) {
+          if(item.discount_type == 2) {
             total += (item.price * item.quantity) * (1-item.discount/100);
           } else {
             total += (item.price * item.quantity) - item.discount;
@@ -388,14 +378,8 @@
         
         $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
         $('#total').text('Rp.' + formatCurrency(total));
-        
-      } else {
-        alert('Gagal memperbarui diskon: ' + data.message);
-      }
+      },
     })
-    .catch(error => {
-      alert('Terjadi kesalahan. '+error);
-    });
   });
 
   $('.deleteButton').click(function() {

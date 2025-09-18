@@ -11,13 +11,17 @@ class SalesDetail extends Model
 
 
     public $timestamps = false;
+    protected $primaryKey = 'sales_id';
     public $fillable = [
         'sales_id',
         'products_id',
         'amount',
         'price',
         'discount',
-        'discounts_id',
+        'discount_type',
+        'return_date',
+        'return_type',
+        'return_amount'
     ];
     public function sales()
     {
@@ -27,10 +31,5 @@ class SalesDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'products_id');
-    }
-
-    public function discount()
-    {
-        return $this->belongsTo(Discount::class, 'discounts_id');
     }
 }

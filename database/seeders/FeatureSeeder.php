@@ -62,15 +62,8 @@ class FeatureSeeder extends Seeder
                 'route'=>'supplier',
                 'icon'=>'bi bi-truck'
             ],
-            [
-                'id'=>7,
-                'name'=> 'laporan',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'route'=>'report',
-                'icon'=>'bi bi-graph-up'
-            ]
         ]);
+        
         DB::table("sub_features")->insert([
             [
                 'id'=>1,
