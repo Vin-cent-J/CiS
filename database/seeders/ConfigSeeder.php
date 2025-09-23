@@ -71,13 +71,6 @@ class ConfigSeeder extends Seeder
                 'sub_features_id'=>5
             ],
             [
-                'id'=> 23,
-                'name'=> 'garansi',
-                'mandatory'=>false,
-                'is_active'=> false,
-                'sub_features_id'=>5
-            ],
-            [
                 'id'=> 9,
                 'name'=> 'tunai',
                 'mandatory'=>true,
@@ -129,13 +122,6 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 16,
                 'name'=> 'hutang',
-                'mandatory'=>false,
-                'is_active'=> false,
-                'sub_features_id'=>10
-            ],
-            [
-                'id'=>24,
-                'name'=> 'garansi',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>10

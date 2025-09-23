@@ -393,7 +393,7 @@
       },
       contentType: 'application/json',
       success: function(data) {
-        location.reload();
+        //location.reload();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         alert('Terjadi kesalahan. ' + errorThrown);

@@ -73,6 +73,8 @@ Route::post("/pos/updateDiscount", [PosController::class, "updateDiscount"]);
 Route::post("/pos/setSaleTotalDisc", [PosController::class, "setSaleTotalDisc"]);
 Route::post("/pos/return", [PosController::class, "returnProduct"])->name("pos.return");
 
+Route::post("/discounts/update", [\App\Http\Controllers\DiscountRuleController::class, "updateRule"]);
+
 Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "setSession"]);
 Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);
 Route::post("/sales/changeProduct", [\App\Http\Controllers\SaleController::class, "changeProduct"]);
@@ -89,3 +91,4 @@ Route::resource("supplier", \App\Http\Controllers\SupplierController::class);
 Route::resource("debt", \App\Http\Controllers\DebtController::class);
 Route::resource("report", \App\Http\Controllers\ReportController::class);
 Route::resource("category", \App\Http\Controllers\CategoryController::class);
+Route::resource("discounts", \App\Http\Controllers\DiscountRuleController::class);

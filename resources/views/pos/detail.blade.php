@@ -55,7 +55,6 @@
             <td>
               {{ $detail->amount }}  
               @if ($detail->return_amount > 0)
-              <span class="fw-light">(Dikembalikan: {{+$detail->return_amount}})</span>
               @endif
             </td>
             <td>Rp.{{ number_format($detail->price, 0, ',', '.') }}</td>
@@ -70,14 +69,14 @@
             </td>
             <td>
               @if ($detail->discount_type == 1)
-              Rp.{{ number_format((($detail->price * ($detail->amount - $detail->return_amount)) - $detail->discount), 0, ',', '.') }}
+              Rp.{{ number_format((($detail->price * $detail->amount) - $detail->discount), 0, ',', '.') }}
               @else
-              Rp.{{ number_format(($detail->price * ($detail->amount - $detail->return_amount)) - (($detail->price * ($detail->amount - $detail->return_amount)) * ($detail->discount / 100)), 0, ',', '.') }}
+              Rp.{{ number_format((($detail->price * $detail->amount) - ($detail->price * $detail->amount) * ($detail->discount / 100)), 0, ',', '.') }}
               @endif
             </td>
             @if ($features->contains('id',5))
               <td>
-                <a class="btn-pengembalian btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#pengembalian" data-value="{{ $detail }}" <?= ($detail->amount - $detail->return_amount == 0) ? 'disabled' : '' ?>>Pengembalian</a>
+                <button class="btn-pengembalian btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#pengembalian" data-value="{{ $detail }}" <?= ($detail->amount - $detail->total_return == 0) ? 'disabled' : '' ?>>Pengembalian</button>
               </td>
             @endif
           </tr>
@@ -105,6 +104,21 @@
   </div>
 </div>
 
+<div class="container card">
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">
+      <h4>Pengembalian</h4>
+    </li>
+    @foreach ($returns as $return)
+    @if ($return->amount > 0)
+    <li class="list-group-item fw-bold">
+      {{ $return->product->name }}: {{ $return->amount }}  <span class="fw-light">({{ $return->type }})</span> <span style="float: right">{{$return->date}}</span>
+    </li>
+    @endif
+    @endforeach
+  </ul>
+</div>
+
 {{-- Modal --}}
 <div class="modal fade" id="pengembalian" tabindex="-1">
   <div class="modal-dialog">
@@ -120,14 +134,14 @@
             <input type="number" class="form-control" id="jumlah" name="jumlah" min="1" pattern="[0-9]" required>
         </div>
         <div class="modal-footer">
-          @if (in_array(7, $activeDetails))
+          @if (in_array(7, $activeDetails) && $sale->total_debt == 0)
           <input type="submit" value="Kembalikan uang" class="btn btn-sm btn-warning btn-kembalian"></input>
           @endif
           @if (in_array(6, $activeDetails) || in_array(9, $activeDetails))
           <input type="submit" value="Ganti barang" class="btn btn-sm btn-warning btn-kembalian"></input>
           @endif
-          @if (in_array(8, $activeDetails) && $detail->total_debt > 0)
-          <input type="submit" value="Kurangi hutang" class="btn btn-sm btn-warning btn-kembalian"></input>
+          @if (in_array(8, $activeDetails ) && $sale->total_debt > 0)
+          <input type="submit" value="Kurangi piutang" class="btn btn-sm btn-warning btn-kembalian"></input>
           @endif
         </div>
     </div>
@@ -220,7 +234,7 @@
         type: type,
       }),
       success: function(data) {
-        alert(data);
+        location.reload();
       },
       error: function(xhr, status, error) {
         alert("Terjadi kesalahan saat membuat pengembalian.");

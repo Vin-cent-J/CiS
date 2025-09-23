@@ -33,4 +33,9 @@ class Sale extends Model
     {
         return $this->hasMany(SalesDetail::class, 'sales_id');
     }
+
+    public function productReturns()
+    {
+        return $this->hasMany(ProductReturn::class, 'sales_id');
+    }
 }

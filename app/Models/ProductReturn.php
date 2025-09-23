@@ -5,23 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SalesDetail extends Model
+class ProductReturn extends Model
 {
     use HasFactory;
 
-
     public $timestamps = false;
-    protected $primaryKey = 'sales_id';
+
     public $fillable = [
         'sales_id',
         'products_id',
         'amount',
-        'price',
-        'discount',
-        'discount_type',
-        'total_return'
+        'date',
+        'type',
     ];
-    public function sales()
+
+    public function sale()
     {
         return $this->belongsTo(Sale::class, 'sales_id');
     }

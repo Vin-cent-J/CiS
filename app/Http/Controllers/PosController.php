@@ -6,6 +6,7 @@ use App\Models\Configuration;
 use App\Models\DetailConfiguration;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\ProductReturn;
 use App\Models\SalesDetail;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -249,32 +250,35 @@ class PosController extends Controller
         $productId = $request->product_id;
         $returnAmount = $request->amount ?? 0;
         $returnType = $request->type;
-        $today = Carbon::now()->format('Y-m-d');
 
         $sql1= "SELECT * FROM sales_details 
         WHERE sales_id = ? AND products_id = ?";
         $detail = DB::select($sql1, [$id, $productId])[0];
-        $returnAmount = $detail->return_amount + $returnAmount;
 
         if(!$detail) {
-            return response()->json('Sale detail not found. sale_id: '.$id.' product_id: '.$productId, 200);
+            return response()->json('Sale details not found. sale_id: '.$id.' product_id: '.$productId, 200);
         }
 
-        if($detail->return_amount >= $detail->amount) {
+        if($detail->total_return >= $detail->amount) {
             return response()->json('All products have been returned.', 200);
         }
 
-        if(!isset($returnAmount) && ($returnAmount <= 0 || $returnAmount > $detail->amount)) {
+        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_retun >= $detail->amount)) {
             return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
         }
         
+        $returned = ProductReturn::create([
+            'sales_id' => $id,
+            'products_id' => $productId,
+            'amount' => $returnAmount,
+            'type' => $returnType,
+        ]);
+
         $sql2 = "UPDATE sales_details 
-        SET return_date = ?, return_amount = ?, return_type = ? 
+        SET total_return = total_return + ? 
         WHERE sales_id = ? AND products_id = ?";
 
-        $updated = DB::update($sql2, [$today, $returnAmount, $returnType, $id, $productId]);
-
-        if($updated){
+        if($returned) {
             $product = Product::find($productId);
             $sale = Sale::find($id);
             if($product) {
@@ -282,9 +286,13 @@ class PosController extends Controller
                     $product->stock -= $returnAmount;
                     $product->save();
                 }
-                else if($returnType == 'Kurangi hutang') {
+                else if($returnType == 'Kurangi piutang') {
+                    DB::update($sql2, [$returnAmount, $id, $productId]);
                     $sale->total_debt -= $detail->price * $returnAmount;
                     $sale->save();
+                }
+                else{
+                    DB::update($sql2, [$returnAmount, $id, $productId]);
                 }
             }
         }
@@ -366,10 +374,14 @@ class PosController extends Controller
                 $activeDetails[] = $detail->id;
             }
         }
+        
         $sale = Sale::with(['customer', 'salesDetails.product'])
             ->where('id', $id)
             ->first();
-        return view('pos.detail', compact('sale', 'activeConfigs', 'activeDetails', 'features'));
+
+        $returns = ProductReturn::where('sales_id', $id)->get();
+
+        return view('pos.detail', compact('sale', 'activeConfigs', 'activeDetails', 'features', 'returns'));
     }
 
     /**

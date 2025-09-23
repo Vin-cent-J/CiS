@@ -2,30 +2,28 @@
 
 namespace App\Models;
 
+use Carbon\Traits\Timestamp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SalesDetail extends Model
+class DiscountRule extends Model
 {
     use HasFactory;
 
-
     public $timestamps = false;
-    protected $primaryKey = 'sales_id';
-    public $fillable = [
-        'sales_id',
-        'products_id',
-        'amount',
-        'price',
-        'discount',
-        'discount_type',
-        'total_return'
-    ];
-    public function sales()
-    {
-        return $this->belongsTo(Sale::class, 'sales_id');
-    }
 
+    protected $fillable = [
+        'name',
+        'minimum',
+        'sales_type',
+        'products_id',
+        'categories_id'
+    ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'categories_id');
+    }
     public function product()
     {
         return $this->belongsTo(Product::class, 'products_id');
