@@ -13,9 +13,6 @@ use Illuminate\Http\Request;
 use App\Models\SubFeature;
 use Session;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use function Symfony\Component\Translation\t;
 
 class PosController extends Controller
 {
@@ -236,14 +233,6 @@ class PosController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     public function returnProduct(Request $request)
     {
         $id = $request->sale_id;
@@ -382,29 +371,5 @@ class PosController extends Controller
         $returns = ProductReturn::where('sales_id', $id)->get();
 
         return view('pos.detail', compact('sale', 'activeConfigs', 'activeDetails', 'features', 'returns'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        
     }
 }

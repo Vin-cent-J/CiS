@@ -6,6 +6,8 @@ use App\Models\DiscountRule;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use PDOException;
+use PhpParser\Node\Stmt\TryCatch;
 
 class DiscountRuleController extends Controller
 {
@@ -34,24 +36,41 @@ class DiscountRuleController extends Controller
      */
     public function store(Request $request)
     {
-        $minimum = $request->minimum;
-        $saleType = $request->sale_type;
-        $categoryIds = $request->category_ids;
-        $productIds = $request->product_ids;
+        try {
+            $minimum = $request->minimum;
+            $saleType = $request->sale_type;
+            $categoryIds = $request->category_ids;
+            $productIds = $request->product_ids;
 
-        $rule = DiscountRule::create([
-            'minimum' => $minimum,
-            'sales_type' => $saleType,
-            'products_id' => $productIds,
-            'categories_id' => $categoryIds
-        ]);
-
-        if($rule){
-            return response()->json(['success' => true, 'message' => 'Discount rule created successfully!', 'data'=>[$categoryIds, $productIds]]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Cant create discount rule']);
+            if($categoryIds == null and $productIds == null){
+                $rule = DiscountRule::where('minimum', $minimum)
+                    ->whereNull('products_id')
+                    ->whereNull('categories_id')
+                    ->first();
+                if ($rule) {
+                    return response()->json(['errCode'=>1062, 'message' => 'Duplicate Entry'], 409);
+                }
+            }
+    
+            $rule = DiscountRule::create([
+                'minimum' => $minimum,
+                'sales_type' => $saleType,
+                'products_id' => $productIds,
+                'categories_id' => $categoryIds
+            ]);
+            
+    
+            if($rule){
+                return response()->json(['message' => 'Discount rule created successfully!', 'data'=>[$categoryIds, $productIds]]);
+            } else {
+                return response()->json(['message' => 'Cant create discount rule']);
+            }   
         }
-        
+        catch (PDOException $e){
+            if ($e->errorInfo[1] === 1062) {
+                return response()->json(['errCode'=>$e->errorInfo[1], 'message' => 'Error: ' . $e->getMessage()], 409);
+            }
+        }
     }
 
     public function updateRule(Request $request)
@@ -81,9 +100,8 @@ class DiscountRuleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request)
+    public function destroy(string $id)
     {
-        $id = $request->id;
         $discountRule = DiscountRule::findOrFail($id);
         $discountRule->delete();
         return redirect()->route('discounts.index')->with('success', 'Discount rule deleted successfully!');

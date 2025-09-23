@@ -49,7 +49,12 @@
                                     Ubah
                                 </button>
 
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                <form class="d-inline" action="/discounts/{{ $rule->id }}" method="post">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" data-id="{{ $rule->id }}" id="btnDelete" onclick="return confirm('Apakah anda ingin menghapus syarat ini?');">Hapus</button>
+                                </form>
+                                
                             </td>
                         </tr>
                         @empty
@@ -75,7 +80,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="minimum_purchase" class="form-label">Minimal pembelian</label>
+                        <label for="minimum_purchase" class="form-label" value="0" min="0" required>Minimal pembelian</label>
                         <input type="number" class="form-control" id="minimum_purchase" name="minimum_purchase" min="0">
                     </div>
                 </div>
@@ -175,7 +180,11 @@ $('#saveBtn').on('click', function() {
                 location.reload();
             },
             error: function(xhr) {
-                alert('Terjadi kesalahan. Silakan coba lagi.');
+                if (xhr.status === 409) {
+                    alert('Syarat diskon dengan kategori atau produk yang sama sudah ada.');
+                } else {
+                    alert('Terjadi kesalahan. Silakan coba lagi.');
+                }
             }
         });
     } else {
@@ -196,8 +205,12 @@ $('#saveBtn').on('click', function() {
             success: function(response) {
                 location.reload();
             },
-            error: function(xhr) {
-                alert('Terjadi kesalahan. Silakan coba lagi.');
+            error: function(xhr, status) {
+                if (xhr.status === 409) {
+                    alert('Syarat diskon dengan kategori atau produk yang sama sudah ada.');
+                } else {
+                    alert('Terjadi kesalahan. Silakan coba lagi.');
+                }
             }
         });
     }
