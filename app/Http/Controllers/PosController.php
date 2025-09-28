@@ -11,6 +11,7 @@ use App\Models\SalesDetail;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Models\SubFeature;
+use App\Models\DiscountRule;
 use Session;
 use Illuminate\Support\Facades\DB;
 
@@ -37,11 +38,13 @@ class PosController extends Controller
             }
         }
 
+        $discountRules = DiscountRule::all();
+
         $customers = Customer::whereNot('id', 1)->get();
 
         $products = Product::all();
         echo "<script>console.log('Debug Objects: " . $features . "' );</script>";
-        return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers'));
+        return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers', 'discountRules'));
     }
 
     public function setSession(Request $request)

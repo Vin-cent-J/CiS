@@ -39,6 +39,7 @@ class DiscountRuleController extends Controller
         try {
             $minimum = $request->minimum;
             $saleType = $request->sale_type;
+            $lineDiscount = $request->line_discount;
             $categoryIds = $request->category_ids;
             $productIds = $request->product_ids;
 
@@ -54,6 +55,7 @@ class DiscountRuleController extends Controller
     
             $rule = DiscountRule::create([
                 'minimum' => $minimum,
+                'line_discount' => $lineDiscount,
                 'sales_type' => $saleType,
                 'products_id' => $productIds,
                 'categories_id' => $categoryIds
@@ -78,6 +80,7 @@ class DiscountRuleController extends Controller
         $id = $request->id;
         $minimum = $request->minimum;
         $saleType = $request->sale_type;
+        $lineDiscount = $request->line_discount;
         $categoryId = $request->category_ids;
         $productId = $request->product_ids;
 
@@ -85,6 +88,7 @@ class DiscountRuleController extends Controller
 
         $rule->update([
             'minimum' => $minimum,
+            'line_discount' => $lineDiscount,
             'sales_type' => $saleType,
             'products_id' => $productId,
             'categories_id' => $categoryId

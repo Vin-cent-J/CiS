@@ -84,6 +84,12 @@
                         <input type="number" class="form-control" id="minimum_purchase" name="minimum_purchase" min="0">
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="line_discount" class="form-label">Diskon</label>
+                        <input type="text" class="form-control" id="line_discount" name="line_discount" required>
+                    </div>
+                </div>
                 <hr>
 
                 <div class="mb-3">
@@ -153,14 +159,6 @@ $('input[name="discount_type"]').on('change', function() {
 var methods = "add";
 var ruleId = 0;
 $('#saveBtn').on('click', function() {
-    const form = $('#ruleForm');
-    const data = {
-        minimum: $('#minimum_purchase').val(),
-        category_ids: $('#category_ids').val(),
-        product_ids: $('#product_ids').val(),
-        discount_type: $('input[name="discount_type"]:checked').val(),
-        sale_type: 'pos',
-    };
 
     if(methods == 'add') {
         $.ajax({
@@ -175,6 +173,7 @@ $('#saveBtn').on('click', function() {
                 minimum: $('#minimum_purchase').val(),
                 category_ids: $('#category_ids').val(),
                 product_ids: $('#product_ids').val(),
+                line_discount: $('#line_discount').val(),
             }),
             success: function(response) {
                 location.reload();
@@ -188,8 +187,9 @@ $('#saveBtn').on('click', function() {
             }
         });
     } else {
+        alert('update');
         $.ajax({
-            url: '/discounts/update',
+            url: '/discounts/updateRule',
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -201,6 +201,7 @@ $('#saveBtn').on('click', function() {
                 minimum: $('#minimum_purchase').val(),
                 category_ids: $('#category_ids').val(),
                 product_ids: $('#product_ids').val(),
+                line_discount: $('#line_discount').val(),
             }),
             success: function(response) {
                 location.reload();

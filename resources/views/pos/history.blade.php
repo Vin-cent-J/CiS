@@ -59,7 +59,7 @@
       <tr>
         <td> {{$sale->id}} </td>
         <td> {{$sale->date}} </td>
-        <td>Rp. {{number_format(($sale->total - $sale->discount))}} </td>
+        <td>Rp. {{number_format(($sale->total))}} </td>
         <td> {{$sale->payment_methods}} </td>
         <td>
           @if ($sale->total_debt > 0)

@@ -167,6 +167,109 @@
 
 @section("js")
 <script>
+  const discountRules = @json($discountRules);
+
+  $(document).ready(function () {
+    @foreach (session('products', []) as $product)
+      (function () {
+        const productId = {{ $product['id'] }};
+        const categoryId = {{ $product['category_id'] ?? 'null' }};
+        const quantity = {{ $product['quantity'] ?? 1 }};
+
+        let bestRule = null;
+        let bestPriority = 0;
+
+        for (let rule of discountRules) {
+          const matchesProduct = rule.products_id !== null && rule.products_id === productId;
+          const matchesCategory = rule.categories_id !== null && rule.categories_id === categoryId;
+          const isGlobal = rule.products_id === null && rule.categories_id === null;
+
+          const matchesQuantity = quantity >= rule.minimum;
+          if (!matchesQuantity) continue;
+
+          if (matchesProduct && bestPriority < 3) {
+            bestRule = rule;
+            bestPriority = 3;
+          } else if (matchesCategory && bestPriority < 2) {
+            bestRule = rule;
+            bestPriority = 2;
+          } else if (isGlobal && bestPriority < 1) {
+            bestRule = rule;
+            bestPriority = 1;
+          }
+        }
+
+        if (bestRule) {
+          const discountInput = $('#discount-' + productId);
+          const typeSelect = $('.type-' + productId);
+
+          let discountValue = 0;
+          let discountType = 1;
+
+          if (bestRule.line_discount !== null) {
+            discountValue = bestRule.line_discount;
+          } else {
+            discountValue = 0;
+          }
+
+          discountType = (discountValue < 100) ? 2 : 1;
+
+          discountInput.val(discountValue).prop('disabled', true);
+          typeSelect.val(discountType).prop('disabled', true);
+
+          $('#product-' + productId).append(`
+            <div class="text-info small mt-1">Diskon otomatis dari aturan</div>
+          `);
+
+          $.ajax({
+            url: '/pos/updateDiscount',
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            contentType: 'application/json',
+            data: JSON.stringify({
+              productId: productId,
+              discount: discountValue,
+              discount_type: discountType
+            }),
+            success: function(data) {
+              const product = data.product;
+              const disc = data.saleTotalDisc;
+
+              if (type == 1) {
+                $('#total-' + id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount));
+              } else {
+                $('#total-' + id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
+              }
+
+              let total = 0;
+              for (const item of data.products) {
+                if (item.discount_type == 2) {
+                  total += (item.price * item.quantity) * (1 - item.discount / 100) - disc;
+                } else {
+                  total += (item.price * item.quantity) - item.discount - disc;
+                }
+              }
+
+              if(total < 0){
+                total = 0;
+              }
+
+              $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
+              $('#total').text('Rp.' + formatCurrency(total));
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              alert('Terjadi kesalahan. ' + errorThrown);
+            }
+          });
+        }
+      })();
+    @endforeach
+  });
+</script>
+
+<script>
   let features = @json($features);
   let activeConfigs = {{json_encode($activeDetails)}};
   const productList = $('#keranjang-products');
