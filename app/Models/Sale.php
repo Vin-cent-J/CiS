@@ -14,7 +14,8 @@ class Sale extends Model
         'customers_id',
         'date',
         'total',
-        'shipping_date',
+        'shipping',
+        'shipping_fee',
         'return_date',
         'return_type',
         'total_debt',
@@ -22,7 +23,6 @@ class Sale extends Model
         'sales_type',
         'discount',
         'discount_type',
-        'shipping_method'
     ];
     public function customer()
     {
