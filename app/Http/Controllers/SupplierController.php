@@ -29,27 +29,16 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        return Supplier::create([
+        Supplier::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-            'zip_code' => $request->zip_code,
-            'country' => $request->country
+            'address' => $request->address
         ]);
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $supplier = Supplier::find($id);
-        return view('suppliers.detail', compact('supplier'));
+        return redirect('/supplier');
     }
-
+    
     /**
      * Show the form for editing the specified resource.
      */
@@ -65,16 +54,14 @@ class SupplierController extends Controller
     public function update(Request $request, string $id)
     {
         $supplier = Supplier::find($id);
-        return $supplier->update([
+        $supplier->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-            'zip_code' => $request->zip_code,
-            'country' => $request->country
+            'address' => $request->address
         ]);
+
+        return redirect('/supplier');
     }
 
     /**
@@ -83,6 +70,8 @@ class SupplierController extends Controller
     public function destroy(string $id)
     {
         $supplier = Supplier::find($id);
-        return $supplier->delete();
+        if($supplier->delete()){
+            return redirect('/supplier');
+        }
     }
 }
