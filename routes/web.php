@@ -33,18 +33,20 @@ Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "
 Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);
 Route::post("/sales/changeProduct", [\App\Http\Controllers\SaleController::class, "changeProduct"]);
 Route::post("/sales/updateDiscount", [\App\Http\Controllers\SaleController::class, "updateDiscount"]);
+Route::post("/sales/updateDebt", [\App\Http\Controllers\SaleController::class, "updateDebt"]);
 
-Route::resource("purchase", \App\Http\Controllers\PurchaseController::class);
 Route::post("/purchases/setSession", [\App\Http\Controllers\PurchaseController::class, "setSession"]);
 Route::post("/purchases/updateQty", [\App\Http\Controllers\PurchaseController::class, "updateQuantity"]);
 Route::post("/purchases/changeProduct", [\App\Http\Controllers\PurchaseController::class, "changeProduct"]);
 Route::post("/purchases/updatePrice", [\App\Http\Controllers\PurchaseController::class, "updatePrice"]);
+Route::post("/purchases/updateDebt", [\App\Http\Controllers\PurchaseController::class, "updateDebt"]);
 
 Route::resource("/", FeatureController::class);
 Route::resource("settings", ConfigurationsController::class);
 Route::resource("pos", PosController::class);
 Route::resource("inventory", \App\Http\Controllers\InventoryController::class);
 Route::resource("sales", \App\Http\Controllers\SaleController::class);
+Route::resource("purchase", \App\Http\Controllers\PurchaseController::class);
 
 Route::resource("customer", \App\Http\Controllers\CustomerController::class);
 Route::resource("supplier", \App\Http\Controllers\SupplierController::class);

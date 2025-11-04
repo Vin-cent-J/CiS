@@ -5,25 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PurchaseDetail extends Model
+class PurchaseReturn extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
 
     public $fillable = [
-        'purchases_id',
+        'sales_id',
         'products_id',
         'amount',
-        'price',
+        'date',
+        'type',
     ];
 
-    public function products()
+    public function purchase()
+    {
+        return $this->belongsTo(Sale::class, 'sales_id');
+    }
+
+    public function product()
     {
         return $this->belongsTo(Product::class, 'products_id');
-    }
-    public function purchases()
-    {
-        return $this->belongsTo(Purchase::class, 'purchases_id');
     }
 }

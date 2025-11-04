@@ -14,16 +14,18 @@
 @section("isi")
 <div class="col-2 p-2 m-2 card" style="min-height: 80vh; width: 99%;">
   <Strong><i class="bi bi-box-seam-fill"></i>Katalog:</Strong>
-  <div class="row">
+  <hr>
+  <div class="row px-2">
   @foreach ($products as $product)
-    <div class="card col-1 p-2 m-1">
-      <a href="{{url('inventory/'.$product->id.'/edit')}}">
+    <div class="card col-1 p-2 mx-1">
+      <a href="{{url('inventory/'.$product->id.'/edit')}}" class="text-decoration-none text-dark">
         <img src="/storage/{{$product->photo}}" style="max-height: 60%; max-width: 7vw;">
         <div>
           <strong>{{$product->name}}</strong>
         </div>
-        <div class="text-muted">
-          Rp. {{$product->price}}
+        <div class="fw-bold text-secondary">
+          Rp. {{$product->price}} <br>
+          Stok: {{ $product->stock }}
         </div>
         <form action="{{ route('inventory.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Apakah yakin ingin menghapus {{$product->name}}?');">
           @csrf

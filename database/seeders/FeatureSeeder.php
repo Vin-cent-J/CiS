@@ -122,6 +122,20 @@ class FeatureSeeder extends Seeder
                 'features_id'=>2
             ],
             [
+                'id'=>13,
+                'name'=>'metode pembayaran',
+                'mandatory'=>true,
+                'is_active'=>true,
+                'features_id'=>3
+            ],
+            [
+                'id'=>14,
+                'name'=>'diskon',
+                'mandatory'=>false,
+                'is_active'=>false,
+                'features_id'=>3
+            ],
+            [
                 'id'=>11,
                 'name'=> 'metode',
                 'mandatory'=>true,

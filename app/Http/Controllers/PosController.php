@@ -60,6 +60,7 @@ class PosController extends Controller
         }
 
         if (!$productFound) {
+            $p = Product::find($request->id); 
             $products[] = [
                 'id' => $request->id,
                 'name' => $request->name,
@@ -67,6 +68,7 @@ class PosController extends Controller
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
                 'discount_type' => $request->discount_type ?? 1,
+                'categories_id' => $p ? $p->categories_id : null
             ];
         }
 
@@ -255,7 +257,7 @@ class PosController extends Controller
             return response()->json('All products have been returned.', 200);
         }
 
-        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_retun >= $detail->amount)) {
+        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_return >= $detail->amount)) {
             return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
         }
         

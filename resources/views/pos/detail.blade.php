@@ -16,21 +16,20 @@
     <strong>Metode Pembayaran: </strong>{{$sale->payment_methods}} <br>
     @if (in_array('21', $activeConfigs) || $sale->total_debt > 0)
     <strong>Piutang: </strong> <span id="hutang">Rp. {{ number_format($sale->total_debt, 0, ',', '.') }}</span> <br>
-    @if($sale->total_debt > 0)
+      @if($sale->total_debt > 0)
+      <button class="btn btn-warning" id="btn-hutang">Kurangi piutang</button>
 
-    <button class="btn btn-warning" id="btn-hutang">Kurangi piutang</button>
-
-    {{-- Container Hutang --}}
-    <div class="p-2 bg-light fadein" style="display: none;">
-      <div id="form-hutang" >
-        <div class="mb-3">
-          <label for="jumlah_bayar" class="form-label">Jumlah Bayar</label>
-          <input type="number" class="form-control" id="jumlahBayar" name="jumlahBayar" required>
+      {{-- Container Hutang --}}
+      <div class="p-2 bg-light fadein" style="display: none;">
+        <div id="form-hutang" >
+          <div class="mb-3">
+            <label for="jumlah_bayar" class="form-label">Jumlah Bayar</label>
+            <input type="number" class="form-control" id="jumlahBayar" name="jumlahBayar" required>
+          </div>
+          <button class="btn btn-warning" id="btnBayar">Bayar</button>
         </div>
-        <button class="btn btn-warning" id="btnBayar">Bayar</button>
       </div>
-    </div>
-    @endif
+      @endif
     @endif
     
     {{-- Detail --}}

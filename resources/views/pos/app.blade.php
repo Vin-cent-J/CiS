@@ -5,6 +5,9 @@
   <a type="button" class="btn btn-warning" href="{{url('/pos/riwayat')}}">
     riwayat
   </a>
+  <a class="btn btn-warning" href="{{ url('/discounts') }}">
+    Syarat Diskon
+  </a>
 </nav>
 @endsection
 @section("isi")
@@ -98,7 +101,7 @@
     <div class="col-8 bg-light p-2">
       <!-- Todo: Filter barang -->
       <Strong><i class="bi bi-box-seam-fill"></i>Katalog:</Strong>
-      <div class="row p-2">
+      <div class="row p-2" style="overflow-y: scroll;">
         @foreach ($products as $product)
         @php
         $p = [
@@ -173,7 +176,7 @@
     @foreach (session('products', []) as $product)
       (function () {
         const productId = {{ $product['id'] }};
-        const categoryId = {{ $product['category_id'] ?? 'null' }};
+        const categoryId = {{ $product['categories_id'] ?? 'null' }};
         const quantity = {{ $product['quantity'] ?? 1 }};
 
         let bestRule = null;
@@ -185,7 +188,9 @@
           const isGlobal = rule.products_id === null && rule.categories_id === null;
 
           const matchesQuantity = quantity >= rule.minimum;
-          if (!matchesQuantity) continue;
+          if (!matchesQuantity) {
+            continue
+          };
 
           if (matchesProduct && bestPriority < 3) {
             bestRule = rule;
@@ -216,10 +221,6 @@
 
           discountInput.val(discountValue).prop('disabled', true);
           typeSelect.val(discountType).prop('disabled', true);
-
-          $('#product-' + productId).append(`
-            <div class="text-info small mt-1">Diskon otomatis dari aturan</div>
-          `);
 
           $.ajax({
             url: '/pos/updateDiscount',
@@ -258,6 +259,8 @@
 
               $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
               $('#total').text('Rp.' + formatCurrency(total));
+
+              location.reload();
             },
             error: function(jqXHR, textStatus, errorThrown) {
               alert('Terjadi kesalahan. ' + errorThrown);

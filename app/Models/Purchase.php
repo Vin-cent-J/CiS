@@ -16,6 +16,10 @@ class Purchase extends Model
         'total',
         'date',
         'discount',
+        'shipping',
+        'shipping_fee',
+        'total',
+        'payment_methods'
     ];
 
     public function supplier()

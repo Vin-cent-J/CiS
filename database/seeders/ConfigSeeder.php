@@ -29,6 +29,13 @@ class ConfigSeeder extends Seeder
                 'sub_features_id'=>1
             ],
             [
+                'id'=> 21,
+                'name'=> 'piutang',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>1
+            ],
+            [
                 'id'=> 3,
                 'name'=> 'pajak',
                 'mandatory'=>false,
@@ -57,10 +64,17 @@ class ConfigSeeder extends Seeder
                 'sub_features_id'=>3
             ],
             [
+                'id'=> 19,
+                'name'=> 'bentuk diskon',
+                'mandatory'=>true,
+                'is_active'=> true,
+                'sub_features_id'=>3
+            ],
+            [
                 'id'=> 7,
                 'name'=> 'lunas',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'sub_features_id'=>5
             ],
             [
@@ -80,6 +94,13 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 10,
                 'name'=> 'transfer',
+                'mandatory'=>false,
+                'is_active'=> false,
+                'sub_features_id'=>6
+            ],
+            [
+                'id'=> 22,
+                'name'=> 'piutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>6
@@ -106,17 +127,17 @@ class ConfigSeeder extends Seeder
                 'sub_features_id'=>8
             ],
             [
-                'id'=> 14,
-                'name'=> 'syarat diskon',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'id'=> 20,
+                'name'=> 'bentuk diskon',
+                'mandatory'=>true,
+                'is_active'=> true,
                 'sub_features_id'=>8
             ],
             [
                 'id'=> 15,
                 'name'=> 'lunas',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'sub_features_id'=>10
             ],
             [
@@ -141,32 +162,25 @@ class ConfigSeeder extends Seeder
                 'sub_features_id'=>11
             ],
             [
-                'id'=> 19,
-                'name'=> 'bentuk diskon',
+                'id'=> 23,
+                'name'=> 'tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
-                'sub_features_id'=>3
+                'sub_features_id'=>13
             ],
             [
-                'id'=> 20,
-                'name'=> 'bentuk diskon',
-                'mandatory'=>true,
-                'is_active'=> true,
-                'sub_features_id'=>8
-            ],
-            [
-                'id'=> 21,
-                'name'=> 'piutang',
+                'id'=> 24,
+                'name'=> 'transfer',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>1
+                'sub_features_id'=>13
             ],
             [
-                'id'=> 22,
-                'name'=> 'piutang',
+                'id'=> 25,
+                'name'=> 'hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
-                'sub_features_id'=>6
+                'sub_features_id'=>13
             ],
         ]);
 
@@ -209,8 +223,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 6,
                 'name'=> 'ganti barang',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>7
             ],
             [
@@ -223,8 +237,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 8,
                 'name'=> 'pengurangan hutang',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>8
             ],
             [
@@ -247,27 +261,6 @@ class ConfigSeeder extends Seeder
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>12
-            ],
-            [
-                'id'=> 12,
-                'name'=> 'minimal',
-                'mandatory'=>true,
-                'is_active'=> true,
-                'configurations_id'=>14
-            ],
-            [
-                'id'=> 13,
-                'name'=> 'jenis',
-                'mandatory'=>false,
-                'is_active'=> false,
-                'configurations_id'=>14
-            ],
-            [
-                'id'=> 14,
-                'name'=> 'barang',
-                'mandatory'=>false,
-                'is_active'=> false,
-                'configurations_id'=>14
             ],
             [
                 'id'=> 15,

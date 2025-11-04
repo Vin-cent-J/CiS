@@ -40,7 +40,13 @@
   </select>
 
   <label for="DateO">Rentang hari:</label>
-  <input type="date" id="DateO" value="{{ $startDate }}"> - <input type="date" id="DateMaxO" value="{{ $endDate }}"> 
+  <input type="date" id="DateO" value="{{ $startDate }}"> - <input type="date" id="DateMaxO" value="{{ $endDate }}">
+  
+  <div class="float-end">
+    <input type="text" id="monthPicker">
+    <button id="downloadLaporan" class="btn btn-warning btn-sm">Laporan</button>
+  </div>
+  
 </div>
 <div class="container card">
   <table class="table">
@@ -76,9 +82,12 @@
     </tbody>
   </table>
 </div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endsection
 
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
 <script>
   $('#statusO, #DateO, #DateMaxO').change(function() {
     const status = $('#statusO').val();
@@ -86,6 +95,23 @@
     const endDate = $('#DateMaxO').val();
 
     window.location.replace(`/pos/riwayat?status=${status}&start_date=${startDate}&end_date=${endDate}`);
+  });
+
+  $('#monthPicker').datepicker({
+    format: "yyyy-mm",
+    startView: "months", 
+    minViewMode: "months",
+    autoclose: true
+  });
+
+  $('#downloadLaporan').click(function() {
+    const date = $('#monthPicker').val();
+    if (!date) {
+      alert('Pilih bulan terlebih dahulu.');
+      return;
+    }
+
+    window.open(`/report/sales/${date}`, '_blank');
   });
 </script>
 @endsection

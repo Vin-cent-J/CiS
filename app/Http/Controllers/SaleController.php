@@ -10,6 +10,8 @@ use App\Models\Sale;
 use App\Models\SalesDetail;
 use App\Models\SubFeature;
 use Illuminate\Http\Request;
+use App\Models\ProductReturn;
+use Illuminate\Support\Facades\DB;
 use Session;
 
 class SaleController extends Controller
@@ -92,7 +94,7 @@ class SaleController extends Controller
     {
         $total = 0;
         foreach(Session::get('sale-products', []) as $product) {
-            if($product['discount_id']== 2){
+            if($product['discount_type']== 2){
                 $total += $product['price'] * $product['quantity'] * (1- ($product['discount'] / 100));
             } else{
                 $total += $product['price'] * $product['quantity'] - $product['discount'];
@@ -100,14 +102,16 @@ class SaleController extends Controller
         }
 
         $sale = Sale::create([
-            'customers_id' => $request->customer_id == "" ? 1: $request->customer_id,
+            'customers_id' => $request->customer == "" ? 1: $request->customer,
             'sales_type' => 'sales',
             'date' => now(),
-            'shipping_date' => now(),
+            'shipping' => $request->shipping ?? '',
+            'shipping_fee' => $request->shipping_fee ?? 0,
             'total' => $total,
             'discount' => $request->discount ?? 0,
+            'discount_type' => $request->discount_type ?? 1,
             'payment_methods' => $request->payment_method,
-            'total_debt' => isset($request->paid) ? $total - $request->paid : 0,
+            'total_debt' => $request->payment_method == "piutang" ? $total : 0,
         ]);
         foreach (Session::get('sale-products', []) as $product) {
             SalesDetail::create([
@@ -116,9 +120,24 @@ class SaleController extends Controller
                 'amount' => $product['quantity'],
                 'price' => $product['price'],
                 'discount' => $product['discount'] ?? 0,
-                'discounts_id' => $product['discount_id'] ?? null,
+                'discount_type' => $product['discount_type'] ?? null,
+                'total_return' => 0
             ]);
         }
+
+        foreach(Session::get('sale-products', []) as $product) {
+            $p = Product::find($product['id']);
+            if($p) {
+                $p->stock -= $product['quantity'];
+                if($p->stock < 0) {
+                    $p->stock = 0;
+                }
+                $p->save();
+            }
+        }
+
+        Session::forget('sale-products');
+        
         return redirect()->route('sales.index');
     }
 
@@ -142,7 +161,7 @@ class SaleController extends Controller
                 'price' => $request->price,
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
-                'discount_id' => $request->discount_id ?? 1,
+                'discount_type' => $request->discount_type ?? 1,
             ];
             $added[] = $request->id;
         }
@@ -155,7 +174,7 @@ class SaleController extends Controller
     {
         $productId = $request->productId;
         $discount = $request->discount;
-        $discountId = $request->discount_id ?? 1;
+        $discountId = $request->discount_type ?? 1;
         $product = '';
 
         $cart = Session::get('sale-products', []);
@@ -163,7 +182,7 @@ class SaleController extends Controller
         foreach ($cart as $key => &$item) {
             if ((int)$item['id'] == (int)$productId) {
                 $item['discount'] = $discount;
-                $item['discount_id'] = $discountId;
+                $item['discount_type'] = $discountId;
 
                 Session::put('sale-products', $cart); 
                 return response()->json([
@@ -264,7 +283,10 @@ class SaleController extends Controller
             }
         }
         $sale = Sale::with(['salesDetails.product', 'customer'])->find($id);
-        return view('sales.detail', compact('sale', 'features', 'activeConfigs', 'activeDetails'));        
+
+        $returns = ProductReturn::where('sales_id', $id)->get();
+
+        return view('sales.detail', compact('sale', 'features', 'activeConfigs', 'activeDetails', 'returns'));        
     }
 
     /**
@@ -292,5 +314,60 @@ class SaleController extends Controller
     {
         $s = Sale::find($id);
         return $s->delete();
+    }
+
+    public function returnProduct(Request $request)
+    {
+        $id = $request->sale_id;
+        $productId = $request->product_id;
+        $returnAmount = $request->amount ?? 0;
+        $returnType = $request->type;
+
+        $sql1= "SELECT * FROM sales_details 
+        WHERE sales_id = ? AND products_id = ?";
+        $detail = DB::select($sql1, [$id, $productId])[0];
+
+        if(!$detail) {
+            return response()->json('Sale details not found. sale_id: '.$id.' product_id: '.$productId, 200);
+        }
+
+        if($detail->total_return >= $detail->amount) {
+            return response()->json('All products have been returned.', 200);
+        }
+
+        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_retun >= $detail->amount)) {
+            return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
+        }
+        
+        $returned = ProductReturn::create([
+            'sales_id' => $id,
+            'products_id' => $productId,
+            'amount' => $returnAmount,
+            'type' => $returnType,
+        ]);
+
+        $sql2 = "UPDATE sales_details 
+        SET total_return = total_return + ? 
+        WHERE sales_id = ? AND products_id = ?";
+
+        if($returned) {
+            $product = Product::find($productId);
+            $sale = Sale::find($id);
+            if($product) {
+                if($returnType == 'Ganti barang') {
+                    $product->stock -= $returnAmount;
+                    $product->save();
+                }
+                else if($returnType == 'Kurangi piutang') {
+                    DB::update($sql2, [$returnAmount, $id, $productId]);
+                    $sale->total_debt -= $detail->price * $returnAmount;
+                    $sale->save();
+                }
+                else{
+                    DB::update($sql2, [$returnAmount, $id, $productId]);
+                }
+            }
+        }
+        return response()->json('Product returned successfully.', 200);
     }
 }

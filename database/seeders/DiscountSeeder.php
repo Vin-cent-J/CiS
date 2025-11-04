@@ -41,7 +41,7 @@ class DiscountSeeder extends Seeder
             [
                 'name' => 'Stop Kontak',
             ],
-            ]);
+        ]);
         DB::table('customers')->insert([
             [
                 'id' => 1,
@@ -49,6 +49,46 @@ class DiscountSeeder extends Seeder
                 'phone_number' => 0,
                 'address' => '-',
             ]
-            ]);
+        ]);
+        DB::table('suppliers')->insert([
+            [
+                'name' => 'umum',
+                'phone' => 0,
+                'address' => '-',
+            ]
+        ]);
+        DB::table('products')->insert([
+            [
+                'name' => 'Lampu LED',
+                'categories_id' => 1,
+                'price' => 15000,
+                'stock' => 100,
+            ],
+            [
+                'name' => 'Kabel Listrik',
+                'categories_id' => 2,
+                'price' => 20000,
+                'stock' => 50,
+            ],
+            [
+                'name' => 'Steker Listrik',
+                'categories_id' => 3,
+                'price' => 5000,
+                'stock' => 200,
+            ],
+            [
+                'name' => 'Saklar Tunggal',
+                'categories_id' => 4,
+                'price' => 8000,
+                'stock' => 150,
+            ],
+            [
+                'name' => 'Stop Kontak Ganda',
+                'categories_id' => 5,
+                'price' => 12000,
+                'stock' => 80,
+            ],
+        ]);
+
     }
 }

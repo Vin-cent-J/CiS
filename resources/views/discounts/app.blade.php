@@ -2,7 +2,9 @@
 
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
-
+    <a type="button" class="btn btn-warning" href="{{url('/pos')}}">
+        PoS
+    </a>
 </nav>
 @endsection
 @section("isi")
@@ -22,6 +24,7 @@
                         <tr>
                             <th>Berlaku Untuk</th>
                             <th>Minimal Pembelian</th>
+                            <th>Diskon</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -40,6 +43,7 @@
                                 @endif
                             </td>
                             <td>{{ $rule->minimum }}</td>
+                            <td>{{ $rule->line_discount }}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-secondary edit-btn"
                                         data-bs-toggle="modal"
@@ -187,7 +191,6 @@ $('#saveBtn').on('click', function() {
             }
         });
     } else {
-        alert('update');
         $.ajax({
             url: '/discounts/updateRule',
             method: 'POST',

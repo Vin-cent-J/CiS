@@ -2,7 +2,7 @@
 
 @section('nav')
 <div class="px-3 py-2 bg-dark">
-  <a type="button" class="btn btn-warning" href="{{route('newcustomer')}}">
+  <a type="button" class="btn btn-warning" href="{{url('/customer/create')}}">
     <i class="bi bi-plus-lg"></i>Customer 
   </a>
 </div>

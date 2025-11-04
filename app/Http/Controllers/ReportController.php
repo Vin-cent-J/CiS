@@ -8,7 +8,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
-    public function salesReport($type, $date)
+    public function salesReport($date)
     {
         [$year, $month] = explode('-', $date);
 
@@ -61,12 +61,11 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('report.sales', [
             'reports' => $reports,
             'date'   => $date,
-            'type'   => $type,
             'month'  => $month,
             'year'   => $year,
             'discountTotal' => $discountTotal
         ]);
 
-        return $pdf->download("sales-report-$date-$type.pdf");
+        return $pdf->download("sales-report-$date.pdf");
     }
 }

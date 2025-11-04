@@ -2,33 +2,98 @@
 
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
-  <a type="button" class="btn btn-warning" href="{{route('newpurchase')}}">
-    + Purchase
+  <a type="button" class="btn btn-warning" href="{{url('/purchase/create')}}">
+    + Pembelian
   </a>
 </nav>
 @endsection
 @section("isi")
-<div class="p-3 container card bg-white" style="min-height: 85vh;">
+@php
+  use Carbon\Carbon;
+  $status = request('status', '');
+  $startDate = request('start_date', Carbon::now()->subDays()->format('Y-m-d'));
+  $endDate = request('end_date', date('Y-m-d'));
+
+  if ($startDate) {
+    try {
+      $startDate = Carbon::parse($startDate)->format('Y-m-d');
+    } catch (\Exception $e) {
+      $startDate = Carbon::now()->subDays()->format('Y-m-d');
+    }
+  }
+
+  if ($endDate) {
+    try {
+      $endDate = Carbon::parse($endDate)->format('Y-m-d');
+    } catch (\Exception $e) {
+      $endDate = Carbon::now()->format('Y-m-d');
+    }
+  }
+@endphp
+<div class="container">
+  <div class="float-end mb-2">
+    <input type="text" id="monthPicker">
+    <button id="downloadLaporan" class="btn btn-warning btn-sm">Laporan</button>
+  </div>
+</div>
+<div class="p-3 container card bg-white" style="min-height: 840px;">
   <table class="table">
     <thead>
       <t>
         <th scope="col">#</th>
-        <th scope="col">Date</th>
+        <th scope="col">Tanggal</th>
         <th scope="col">Supplier</th>
         <th scope="col">Total</th>
-        <th scope="col">Action</th>
+        <th scope="col">Status</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
+      @if ($purchases)
+        Empty
+      @endif
+      @foreach ($purchases as $purchase)
       <tr>
-        <th scope="row">1</th>
-        <td>2000-01-01</td>
-        <td>Ex</td>
-        <td>0</td>
-        <td><a type="button" class="btn btn-warning" href="{{route('purchasedetail', ['id'=>'1'])}}">Detail</a></td>
+        <th scope="row">{{$purchase->id}}</th>
+        <td>{{$purchase->date}}</td>
+        <td>{{$purchase->supplier->name}}</td>
+        <td>Rp. {{number_format($purchase->total, 0, '.')}}</td>
+        <td>
+          @if ($purchase->total_debt > 0)
+          <span class="badge bg-danger">Belum Lunas</span>
+          @else
+          <span class="badge bg-success">Lunas</span>
+          @endif
+        </td>
+        <td><a class="btn btn-warning" href="{{url('purchase/'.$purchase->id)}}">Detail</a></td>
       </tr>
+      @endforeach
     </tbody>
   </table>
+
 </div>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+@endsection
+
+@section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+<script>
+  $('#monthPicker').datepicker({
+    format: "yyyy-mm",
+    startView: "months", 
+    minViewMode: "months",
+    autoclose: true
+  });
+
+  $('#downloadLaporan').click(function() {
+    const date = $('#monthPicker').val();
+    if (!date) {
+      alert('Pilih bulan terlebih dahulu.');
+      return;
+    }
+
+    window.open(`/report/sales/${date}`, '_blank');
+  });
+</script>
 @endsection
