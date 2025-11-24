@@ -1,9 +1,11 @@
 @extends('layout.app')
 
+@section("title", "PoS")
+
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
   <a type="button" class="btn btn-warning" href="{{url('/pos/riwayat')}}">
-    riwayat
+    Laporan
   </a>
   <a class="btn btn-warning" href="{{ url('/discounts') }}">
     Syarat Diskon

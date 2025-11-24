@@ -1,4 +1,7 @@
 @extends("layout.app")
+
+@section('title', 'Beranda')
+
 @section("isi")
 <div class="row px-4 my-4 d-flex">
   @foreach ($features as $feature)

@@ -16,7 +16,7 @@ class FeatureSeeder extends Seeder
         DB::table("features")->insert([
             [
                 'id'=>1,
-                'name'=> 'penjualan ditempat',
+                'name'=> 'PoS - Penjualan Ditempat',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'route'=>'pos',
@@ -24,7 +24,7 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>2,
-                'name'=> 'penjualan',
+                'name'=> 'Penjualan',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'route'=>'sales',
@@ -32,7 +32,7 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>3,
-                'name'=> 'pembelian',
+                'name'=> 'Pembelian',
                 'mandatory'=>true,
                 'is_active'=>true,
                 'route'=>'purchase',
@@ -40,7 +40,7 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>4,
-                'name'=> 'inventaris',
+                'name'=> 'Inventaris',
                 'mandatory'=>true,
                 'is_active'=>true,
                 'route'=>'inventory',
@@ -48,17 +48,17 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>5,
-                'name'=> 'pelanggan',
-                'mandatory'=>false,
-                'is_active'=>false,
+                'name'=> 'Pelanggan',
+                'mandatory'=>true,
+                'is_active'=>true,
                 'route'=>'customer',
                 'icon'=>'bi bi-cash-coin'
             ],
             [
                 'id'=>6,
-                'name'=> 'supplier',
-                'mandatory'=>false,
-                'is_active'=>false,
+                'name'=> 'Pemasok',
+                'mandatory'=>true,
+                'is_active'=>true,
                 'route'=>'supplier',
                 'icon'=>'bi bi-truck'
             ],
@@ -67,84 +67,84 @@ class FeatureSeeder extends Seeder
         DB::table("sub_features")->insert([
             [
                 'id'=>1,
-                'name'=> 'metode pembayaran',
+                'name'=> 'Metode pembayaran',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'features_id'=>1
             ],
             [
                 'id'=>2,
-                'name'=> 'harga',
+                'name'=> 'Kebijakan harga',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'features_id'=>1
             ],
             [
                 'id'=>3,
-                'name'=> 'diskon',
+                'name'=> 'Diskon',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>1
             ],
             [
                 'id'=>5,
-                'name'=> 'pengembalian',
+                'name'=> 'Pengembalian',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>1
             ],
             [
                 'id'=>6,
-                'name'=> 'metode pembayaran',
+                'name'=> 'Metode pembayaran',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'features_id'=>2
             ],
             [
                 'id'=>7,
-                'name'=> 'harga',
+                'name'=> 'Kebijakan harga',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'features_id'=>2
             ],
             [
                 'id'=>8,
-                'name'=> 'diskon',
+                'name'=> 'Diskon',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>2
             ],
             [
                 'id'=>10,
-                'name'=> 'pengembalian',
+                'name'=> 'Pengembalian',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>2
             ],
             [
                 'id'=>13,
-                'name'=>'metode pembayaran',
+                'name'=>'Metode pembayaran',
                 'mandatory'=>true,
                 'is_active'=>true,
                 'features_id'=>3
             ],
             [
                 'id'=>14,
-                'name'=>'diskon',
+                'name'=>'Diskon',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>3
             ],
             [
                 'id'=>11,
-                'name'=> 'metode',
+                'name'=> 'Metode',
                 'mandatory'=>true,
                 'is_active'=>false,
                 'features_id'=>4
             ],
             [
                 'id'=>12,
-                'name'=> 'varian',
+                'name'=> 'Varian',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>4

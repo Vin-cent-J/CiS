@@ -29,15 +29,19 @@
     <div class="container-fluid">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
         <div class="me-auto">
-          <p class=" my-auto d-flex flex-wrap justify-content-center justify-content-lg-start"><i class="bi bi-building-fill"></i></p>
+          <strong>
+            @yield("title")
+          </strong>
         </div>
         <div>
           <ul class="nav col-12 col-lg-auto text-small">
+            @if (!Request::is('/'))
             <li>
-              <a class="nav-link text-white" href="{{ url("/") }}"><i class="bi bi-house-fill text-warning"></i>&nbsp;Beranda</a>
+              <a class="nav-link text-decoration-underline text-warning fw-bold" href="{{ url("/") }}"><i class="bi bi-house-fill"></i>&nbsp;Beranda</a>
             </li>
+            @endif
             <li>
-              <a class="nav-link text-white" href="{{ url("/settings") }}"><i class="bi bi-gear-fill text-warning"></i>&nbsp;Pengaturan</a>
+              <a class="nav-link text-decoration-underline text-warning fw-bold" href="{{ url("/settings") }}"><i class="bi bi-gear-fill"></i>&nbsp;Konfigurasi</a>
             </li>
           </ul>
         </div>

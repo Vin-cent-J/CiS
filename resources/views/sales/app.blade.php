@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', 'Penjualan')
+
 @section("nav")
 <nav class="px-3 py-2 bg-dark">
   <a type="button" class="btn btn-warning" href="{{ url('/sales/create') }}">
@@ -41,10 +43,10 @@
   <label for="DateO">Rentang hari:</label>
   <input type="date" id="DateO" value="{{ $startDate }}"> - <input type="date" id="DateMaxO" value="{{ $endDate }}">
 
-  <div class="float-end">
+  {{-- <div class="float-end">
     <input type="text" id="monthPicker" placeholder="yyyy-mm">
     <button id="downloadLaporan" class="btn btn-warning btn-sm">Laporan</button>
-  </div>
+  </div> --}}
 </div>
 <div class="p-3 container card bg-white" style="min-height: 840px;">
   <table class="table">

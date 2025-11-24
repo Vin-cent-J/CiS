@@ -1,4 +1,7 @@
 @extends('layout.app')
+
+@section('title', 'Pelanggan | Detail')
+
 @section("nav")
 <div class="px-3 py-2 bg-dark">
   <a type="button" class="btn btn-warning" href="{{url('customer')}}">

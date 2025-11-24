@@ -1,5 +1,7 @@
 @extends("layout.app")
 
+@section('title', 'Pembelian | Detail')
+
 @section('nav')
 <nav class="px-3 bg-dark">
     <a type="button" class="btn btn-warning m-1" href="{{url('/purchase')}}"><i class="bi bi-arrow-return-left"></i></a>
@@ -18,11 +20,11 @@
                     {{$purchase->supplier->phone_number}}
                 </p>
                 <h6 class="fw-bold text-primary mb-3">📦 Detail Pengiriman</h6>
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex mb-1">
                   <span class="text-muted">Ditanggung:</span>
                   <span class="fw-semibold text-dark">{{ ucfirst($purchase->shipping) }}</span>
                 </div>
-                <div class="d-flex justify-content-between">
+                <div class="d-flex">
                   <span class="text-muted">Ongkos Kirim:</span>
                   <span class="fw-semibold">Rp{{ number_format($purchase->shipping_fee, 0, ',', '.') }}</span>
                 </div>

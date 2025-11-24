@@ -1,5 +1,7 @@
 @extends("layout.app")
 
+@section('title', 'Pengaturan')
+
 @section("isi")
 <div class="my-1 card" style="min-height: 100vh;">
   <div class="m-2 card">

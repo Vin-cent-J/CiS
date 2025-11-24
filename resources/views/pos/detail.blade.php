@@ -1,9 +1,11 @@
 @extends('layout.app')
 
+@section("title", "PoS | Detail Penjualan")
+
 @section('nav')
 <nav class="px-3 py-2 bg-dark">
   <a type="button" class="btn btn-warning" href="{{url('/pos/riwayat')}}">
-    Riwayat
+    Laporan
   </a>
 </nav>
 @endsection

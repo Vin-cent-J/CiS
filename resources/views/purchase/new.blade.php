@@ -1,5 +1,7 @@
 @extends("layout.app")
 
+@section('title', 'Pembelian | Tambah Baru')
+
 @section('nav')
 <nav class="px-3 bg-dark">
     <a class="btn btn-warning m-1" href="{{url('/purchase')}}"><i class="bi bi-arrow-return-left"></i></a>
@@ -23,20 +25,6 @@
                     {{$suppliers->first()->address}}
                 </p>
                 @endif
-            </div>
-            <div class="col-md-6 text-md-end">
-                <p>
-                    <strong>Metode: </strong> 
-                    <select class="form-select" name="payment_method" id="metode" style="width: 8rem; display: inline;">
-                        <option value="tunai">Tunai</option>
-                        @if(in_array(24, $activeConfigs))
-                        <option value="transfer">Transfer</option>
-                        @endif
-                        @if(in_array(25, $activeConfigs))
-                        <option value="hutang">Hutang</option>
-                        @endif
-                    </select>
-                </p>
             </div>
         </div>
 
@@ -100,8 +88,8 @@
                     }
                 @endphp
                 <div class="col-7">
-                    <p class="fw-bold">Ditanggung:</p>
-                    <p>
+                    <p> 
+                        <strong>Ditanggung:</strong>
                         <input type="radio" name="shipping" value="pembeli" checked> Pembeli &nbsp; 
                         <input type="radio" name="shipping" value="penjual"> Penjual
                     </p>
@@ -119,6 +107,18 @@
                     @endphp
                     <p class="fw-bold" id="total-o">Rp. {{ number_format($grandTotal, 0) }}</p>
                 </div>
+            </div>
+            <div>
+                <strong>Metode: </strong> 
+                <select class="form-select" name="payment_method" id="metode" style="width: 8rem; display: inline;">
+                    <option value="tunai">Tunai</option>
+                    @if(in_array(24, $activeConfigs))
+                    <option value="transfer">Transfer</option>
+                    @endif
+                    @if(in_array(25, $activeConfigs))
+                    <option value="hutang">Hutang</option>
+                    @endif
+                </select>
             </div>
         </div>
 

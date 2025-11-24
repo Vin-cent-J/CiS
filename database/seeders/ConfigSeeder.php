@@ -16,168 +16,168 @@ class ConfigSeeder extends Seeder
         DB::table("configurations")->insert([
             [
                 'id'=> 1,
-                'name'=> 'tunai',
+                'name'=> 'Tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>1
             ],
             [
                 'id'=> 2,
-                'name'=> 'transfer',
+                'name'=> 'Transfer',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>1
             ],
             [
                 'id'=> 21,
-                'name'=> 'piutang',
+                'name'=> 'Piutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>1
             ],
             [
                 'id'=> 3,
-                'name'=> 'pajak',
+                'name'=> 'Termasuk pajak',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'sub_features_id'=>2
             ],
             [
                 'id'=> 4,
-                'name'=> 'jenis diskon',
+                'name'=> 'Jenis diskon',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>3
             ],
             [
                 'id'=> 5,
-                'name'=> 'bonus',
+                'name'=> 'Bonus',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>3
             ],
             [
                 'id'=> 6,
-                'name'=> 'syarat diskon',
+                'name'=> 'Diskon otomatis',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>3
             ],
             [
                 'id'=> 19,
-                'name'=> 'bentuk diskon',
+                'name'=> 'Bentuk diskon',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>3
             ],
             [
                 'id'=> 7,
-                'name'=> 'lunas',
+                'name'=> 'Lunas',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>5
             ],
             [
                 'id'=> 8,
-                'name'=> 'hutang',
+                'name'=> 'Hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>5
             ],
             [
                 'id'=> 9,
-                'name'=> 'tunai',
+                'name'=> 'Tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>6
             ],
             [
                 'id'=> 10,
-                'name'=> 'transfer',
+                'name'=> 'Transfer',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>6
             ],
             [
                 'id'=> 22,
-                'name'=> 'piutang',
+                'name'=> 'Piutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>6
             ],
             [
                 'id'=> 11,
-                'name'=> 'pajak',
+                'name'=> 'Pajak',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'sub_features_id'=>7
             ],
             [
                 'id'=> 12,
-                'name'=> 'jenis diskon',
+                'name'=> 'Jenis diskon',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>8
             ],
             [
                 'id'=> 13,
-                'name'=> 'bonus',
+                'name'=> 'Bonus',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>8
             ],
             [
                 'id'=> 20,
-                'name'=> 'bentuk diskon',
+                'name'=> 'Bentuk diskon',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>8
             ],
             [
                 'id'=> 15,
-                'name'=> 'lunas',
+                'name'=> 'Lunas',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>10
             ],
             [
                 'id'=> 16,
-                'name'=> 'hutang',
+                'name'=> 'Hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>10
             ],
             [
                 'id'=> 17,
-                'name'=> 'perpetual',
+                'name'=> 'Perpetual',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'sub_features_id'=>11
             ],
             [
                 'id'=> 18,
-                'name'=> 'periodik',
+                'name'=> 'Periodik',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>11
             ],
             [
                 'id'=> 23,
-                'name'=> 'tunai',
+                'name'=> 'Tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>13
             ],
             [
                 'id'=> 24,
-                'name'=> 'transfer',
+                'name'=> 'Transfer',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>13
             ],
             [
                 'id'=> 25,
-                'name'=> 'hutang',
+                'name'=> 'Hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>13
@@ -187,133 +187,133 @@ class ConfigSeeder extends Seeder
         DB::table('detail_configurations')->insert([
             [
                 'id'=> 1,
-                'name'=> 'tunai',
+                'name'=> 'Tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>4
             ],
             [
                 'id'=> 2,
-                'name'=> 'persen',
+                'name'=> 'Persen',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>4
             ],
             [
                 'id'=> 3,
-                'name'=> 'minimal',
+                'name'=> 'Minimal',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>6
             ],
             [
                 'id'=> 4,
-                'name'=> 'jenis',
+                'name'=> 'Jenis',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>6
             ],
             [
                 'id'=> 5,
-                'name'=> 'barang',
+                'name'=> 'Barang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>6
             ],
             [
                 'id'=> 6,
-                'name'=> 'ganti barang',
+                'name'=> 'Ganti barang',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>7
             ],
             [
                 'id'=> 7,
-                'name'=> 'pengembalian uang',
+                'name'=> 'Pengembalian uang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>7
             ],
             [
                 'id'=> 8,
-                'name'=> 'pengurangan hutang',
+                'name'=> 'Pengurangan hutang',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>8
             ],
             [
                 'id'=> 9,
-                'name'=> 'ganti barang',
+                'name'=> 'Ganti barang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>8
             ],
             [
                 'id'=> 10,
-                'name'=> 'tunai',
+                'name'=> 'Tunai',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>12
             ],
             [
                 'id'=> 11,
-                'name'=> 'persen',
+                'name'=> 'Persen',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>12
             ],
             [
                 'id'=> 15,
-                'name'=> 'ganti barang',
+                'name'=> 'Ganti barang',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>15
             ],
             [
                 'id'=> 16,
-                'name'=> 'pengembalian uang',
+                'name'=> 'Pengembalian uang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>15
             ],
             [
                 'id'=> 17,
-                'name'=> 'pengurangan hutang',
+                'name'=> 'Pengurangan hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>16
             ],
             [
                 'id'=> 18,
-                'name'=> 'ganti barang',
+                'name'=> 'Ganti barang',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>16
             ],
             [
                 'id'=> 19,
-                'name'=> 'per nota',
+                'name'=> 'Per nota',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'configurations_id'=>19
             ],
             [
                 'id'=> 20,
-                'name'=> 'per barang',
+                'name'=> 'Per barang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>19
             ],
             [
                 'id'=> 21,
-                'name'=> 'per nota',
+                'name'=> 'Per nota',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'configurations_id'=>20
             ],
             [
                 'id'=> 22,
-                'name'=> 'per barang',
+                'name'=> 'Per barang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>20
