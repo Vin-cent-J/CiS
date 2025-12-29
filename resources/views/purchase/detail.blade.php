@@ -55,9 +55,7 @@
                     <th>Jumlah</th>
                     <th>Harga Unit</th>
                     <th>Total</th>
-                    @if ($features->contains('id',9) || $features->contains('id',10))
                     <th>Garansi & Pengembalian</th>
-                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -69,11 +67,9 @@
                     <td>
                         {{ number_format(($detail->price * $detail->amount) - $detail->discount, 0, ',', '.') }}
                     </td>
-                    @if ($features->contains('id',9) || $features->contains('id',10))
                     <td>
                         <button class="btn-pengembalian btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#pengembalian" data-value="{{ $detail }}" <?= ($detail->amount - $detail->total_return == 0) ? 'disabled' : '' ?>>Pengembalian</button>
                     </td>
-                    @endif
                 </tr>
                 @endforeach
             </tbody>
@@ -110,15 +106,9 @@
                   <input type="number" class="form-control" id="jumlah" name="jumlah" min="1" pattern="[0-9]" required>
               </div>
               <div class="modal-footer">
-                @if (in_array(16, $activeDetails) && $purchase->total_debt == 0)
                 <input type="submit" value="Kembalikan uang" class="btn btn-sm btn-warning btn-kembalian"></input>
-                @endif
-                @if (in_array(15, $activeDetails) || in_array(18, $activeDetails))
                 <input type="submit" value="Ganti barang" class="btn btn-sm btn-warning btn-kembalian"></input>
-                @endif
-                @if (in_array(17, $activeDetails ) && $purchase->total_debt > 0)
                 <input type="submit" value="Kurangi piutang" class="btn btn-sm btn-warning btn-kembalian"></input>
-                @endif
               </div>
           </div>
         </div>
@@ -186,13 +176,13 @@
     const detail = $(this).data('value');
     detailBarang = detail;
     $('#jumlah').attr('max', detail.amount);
-    $('#pJumlah').text(detail.product.name);
+    $('#pJumlah').text(detail.products.name);
     $('#labelJumlah').text('Jumlah Pengembalian (Maks: ' + detail.amount + ')');
   })
 
   $('.btn-kembalian').click(function() {
     const productId = detailBarang.products_id;
-    const jumlah = $('#jumlah').val() 
+    const amount = $('#jumlah').val() 
     const type = $(this).val();
     const purchaseId = {{ $purchase->id }};
 
@@ -206,7 +196,7 @@
       data: JSON.stringify({
         purchase_id: purchaseId,
         product_id: productId,
-        amount: jumlah,
+        amount: amount,
         type: type,
       }),
       success: function(data) {

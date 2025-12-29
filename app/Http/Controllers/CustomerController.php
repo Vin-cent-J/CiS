@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Str;
+use Stringable;
+use function Laravel\Prompts\alert;
 
 class CustomerController extends Controller
 {
@@ -74,7 +77,8 @@ class CustomerController extends Controller
      */
     public function destroy(string $id)
     {
-        $customer = Customer::find($id);
-        return $customer->delete();
+        $customer = Customer::findOrFail($id);
+        $customer->delete();
+        return redirect('/customer');
     }
 }

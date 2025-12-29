@@ -38,6 +38,7 @@ class PurchaseController extends Controller
         }
 
         $purchases = Purchase::with(['supplier'])->get();
+
         return view('purchase.app', compact('purchases', 'features', 'activeConfigs', 'activeDetails'));
     }
 
@@ -259,32 +260,17 @@ class PurchaseController extends Controller
         $returnAmount = $request->amount ?? 0;
         $returnType = $request->type;
 
-        $sql1= "SELECT * FROM purchase_details 
-        WHERE purchases_id = ? AND products_id = ?";
-        $detail = DB::select($sql1, [$id, $productId])[0];
-
-        if(!$detail) {
-            return response()->json('Sale details not found. sale_id: '.$id.' product_id: '.$productId, 200);
-        }
-
-        if($detail->total_return >= $detail->amount) {
-            return response()->json('All products have been returned.', 200);
-        }
-
-        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_return >= $detail->amount)) {
-            return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
-        }
+        $detail = DB::table('purchase_details')
+            ->where('purchases_id', $id)
+            ->where('products_id', $productId)
+            ->first();
         
         $returned = PurchaseReturn::create([
-            'sales_id' => $id,
+            'purchases_id' => $id,
             'products_id' => $productId,
             'amount' => $returnAmount,
             'type' => $returnType,
         ]);
-
-        $sql2 = "UPDATE sales_details 
-        SET total_return = total_return + ? 
-        WHERE sales_id = ? AND products_id = ?";
 
         if($returned) {
             $product = Product::find($productId);
@@ -295,12 +281,18 @@ class PurchaseController extends Controller
                     $product->save();
                 }
                 else if($returnType == 'Kurangi piutang') {
-                    DB::update($sql2, [$returnAmount, $id, $productId]);
+                    DB::table('purchase_details')
+                        ->where('purchases_id', $id)
+                        ->where('products_id', $productId)
+                        ->increment('total_return', $returnAmount);
                     $purchase->total_debt -= $detail->price * $returnAmount;
                     $purchase->save();
                 }
                 else{
-                    DB::update($sql2, [$returnAmount, $id, $productId]);
+                    DB::table('purchase_details')
+                        ->where('purchases_id', $id)
+                        ->where('products_id', $productId)
+                        ->increment('total_return', $returnAmount);
                 }
             }
         }

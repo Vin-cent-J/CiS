@@ -63,7 +63,7 @@ class InventoryController extends Controller
      */
     public function edit(string $id)
     {
-        $product = Product::find($id);
+        $product = Product::with('variants')->find($id);
         $categories = Category::all();
         return view('inventory.edit', compact('product', 'categories'));
     }

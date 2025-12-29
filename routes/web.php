@@ -40,6 +40,7 @@ Route::post("/purchases/updateQty", [\App\Http\Controllers\PurchaseController::c
 Route::post("/purchases/changeProduct", [\App\Http\Controllers\PurchaseController::class, "changeProduct"]);
 Route::post("/purchases/updatePrice", [\App\Http\Controllers\PurchaseController::class, "updatePrice"]);
 Route::post("/purchases/updateDebt", [\App\Http\Controllers\PurchaseController::class, "updateDebt"]);
+Route::post("/purchases/return", [\App\Http\Controllers\PurchaseController::class, "returnProduct"]);
 
 Route::resource("/", FeatureController::class);
 Route::resource("settings", ConfigurationsController::class);
@@ -50,6 +51,5 @@ Route::resource("purchase", \App\Http\Controllers\PurchaseController::class);
 
 Route::resource("customer", \App\Http\Controllers\CustomerController::class);
 Route::resource("supplier", \App\Http\Controllers\SupplierController::class);
-Route::resource("debt", \App\Http\Controllers\DebtController::class);
 Route::resource("category", \App\Http\Controllers\CategoryController::class);
 Route::resource("discounts", \App\Http\Controllers\DiscountRuleController::class);

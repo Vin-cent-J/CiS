@@ -32,12 +32,6 @@
     }
   }
 @endphp
-<div class="container">
-  <div class="float-end mb-2">
-    <input type="text" id="monthPicker">
-    <button id="downloadLaporan" class="btn btn-warning btn-sm">Laporan</button>
-  </div>
-</div>
 <div class="p-3 container card bg-white" style="min-height: 840px;">
   <table class="table">
     <thead>
@@ -51,9 +45,6 @@
       </tr>
     </thead>
     <tbody>
-      @if ($purchases)
-        Empty
-      @endif
       @foreach ($purchases as $purchase)
       <tr>
         <th scope="row">{{$purchase->id}}</th>
@@ -86,16 +77,6 @@
     startView: "months", 
     minViewMode: "months",
     autoclose: true
-  });
-
-  $('#downloadLaporan').click(function() {
-    const date = $('#monthPicker').val();
-    if (!date) {
-      alert('Pilih bulan terlebih dahulu.');
-      return;
-    }
-
-    window.open(`/report/sales/${date}`, '_blank');
   });
 </script>
 @endsection

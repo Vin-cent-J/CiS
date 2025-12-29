@@ -51,7 +51,8 @@
                 <tbody id="list">
                     @foreach (session("sale-products", []) as $item)
                     <tr>
-                        <td><select class="form-select select-p">
+                        <td>
+                            <select class="form-select select-p">
                             @foreach ($products as $product)
                             @if (!in_array($product->id, session("added")) || ($product->id == $item['id']))
                                 <option value="{{$product->id}}" <?= $product->id == $item['id'] ? 'selected' : '' ?>>
@@ -169,7 +170,17 @@
         <div class="mt-3">
             <select name="" id="add-produk" class="form-select m-1" style="width: 12rem; display: inline;">
                 @foreach ($products as $product)
+                    @if ($product->variants->count())
+                    <optgroup label="{{ $product->name }}">
+                        @foreach ($product->variants as $variant)
+                            <option value="{{ $variant->id }}">
+                                {{ $product->name }} - {{ $variant->name }}
+                            </option>
+                        @endforeach
+                    </optgroup>
+                    @else
                     <option data-value="{{$product}}">{{$product->name}}</option>
+                    @endif
                 @endforeach
             </select>
             <button class="btn btn-warning" id="tambah">Tambah produk</button>

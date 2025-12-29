@@ -9,7 +9,7 @@
 @endsection
 
 @section("isi")
-<div class="container card p-2" style="height: 25vh; width: 30%;">
+<div class="container card p-3" style="height: 25vh; width: 30%;">
     <form action="{{url('/category/'.$category->id)}}" method="post">
       @method('PUT')
       @csrf

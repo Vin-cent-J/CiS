@@ -28,15 +28,15 @@
         <input type="text" class="form-control" id="prodName" name="name">
       </div>
       <div class="form-group">
-        <label for="prodPrice">Price: </label>
+        <label for="prodPrice">Harga: </label>
         <input type="text" class="form-control" id="prodPrice" name="price">
       </div>
       <div class="form-group">
-        <label for="prodStock">stock: </label>
+        <label for="prodStock">Stok: </label>
         <input type="number" class="form-control" id="prodStock" name="stock">
       </div>
       <div class="form-group m-2">
-        <label for="prodPhoto">Photo:</label>
+        <label for="prodPhoto">Foto:</label>
         <input type="file" class="form-control-file" id="prodPhoto" name="photo">
       </div>
       <input type="submit" value="Tambah" class="btn btn-primary">

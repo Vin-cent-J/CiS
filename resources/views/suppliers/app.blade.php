@@ -11,7 +11,7 @@
 @endsection
 @section('isi')
 <div class="container card p-2" style="min-height: 80vh">
-  <p><i class="bi bi-person-fill"></i>Supplier:</p>
+  <p><i class="bi bi-person-fill"> </i>Supplier:</p>
   <ul class="list-group list-group-flush">
     @foreach ($suppliers as $supplier)
     <li class="list-group-item">
@@ -23,7 +23,7 @@
         </button>
       </form>
       <a href="{{ url("/supplier/$supplier->id/edit") }}">
-        <i class="bi bi-truck"></i>{{ $supplier->name }}
+        <i class="bi bi-truck"> </i>{{ $supplier->name }}
       </a>
     </li>
     @endforeach

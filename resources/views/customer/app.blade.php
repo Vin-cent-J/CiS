@@ -14,7 +14,20 @@
   <p><i class="bi bi-person-fill"></i>Customer:</p>
   <ul class="list-group list-group-flush">
     @foreach ($customers as $customer)
-    <li class="list-group-item"><a href="{{url('/customer/'.$customer->id.'/edit')}}"><i class="bi bi-person-fill"></i>{{$customer->name}}</a></li>
+    @if (!$customer->deleted_at)
+    <li class="list-group-item">
+      <form action="{{ route('customer.destroy', $customer->id) }}" method="POST" style="display:inline;">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash-fill"></i>
+        </button>
+      </form>
+      <a href="{{url('/customer/'.$customer->id.'/edit')}}">
+        <i class="bi bi-person-fill"> </i>{{$customer->name}}
+      </a>
+    </li>
+    @endif
     @endforeach
   </ul>
 </div>

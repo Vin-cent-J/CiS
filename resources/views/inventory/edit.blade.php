@@ -46,4 +46,17 @@
     </div>
   </form>
 </div>
+
+<div class="container p-3 card">
+  <h4><strong>Varian</strong></h4>
+  <hr>
+  <a class="btn btn-primary">+ Tambah</a>
+  <ul>
+    @foreach ($product->variants as $variant )
+      <li>
+        {{ $product->name }} - {{ $variant->name }} : Rp.{{ $variant->price }}
+      </li>
+    @endforeach
+  </ul>
+</div>
 @endsection

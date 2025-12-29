@@ -81,7 +81,7 @@ class SaleController extends Controller
                 $activeDetails[] = $detail->id;
             }
         }
-        $products = Product::all();
+        $products = Product::with("variants")->get();
         $customers = Customer::whereNot('id', 1)->get();
         
         return view('sales.new', compact('features','activeConfigs', 'activeDetails', 'customers', 'products'));
@@ -157,6 +157,7 @@ class SaleController extends Controller
         if (!$productFound) {
             $products[] = [
                 'id' => $request->id,
+                'variants_id' => $request->variants_id ?? null,
                 'name' => $request->name,
                 'price' => $request->price,
                 'quantity' => $request->quantity,

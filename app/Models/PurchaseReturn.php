@@ -12,7 +12,7 @@ class PurchaseReturn extends Model
     public $timestamps = false;
 
     public $fillable = [
-        'sales_id',
+        'purchases_id',
         'products_id',
         'amount',
         'date',
