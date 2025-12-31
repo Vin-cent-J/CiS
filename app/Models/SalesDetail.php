@@ -19,7 +19,8 @@ class SalesDetail extends Model
         'price',
         'discount',
         'discount_type',
-        'total_return'
+        'total_return',
+        'variants_id',
     ];
     public function sales()
     {
@@ -29,5 +30,9 @@ class SalesDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'products_id');
+    }
+
+    public function variant(){
+        return $this->belongsTo(Variant::class, 'variants_id');
     }
 }

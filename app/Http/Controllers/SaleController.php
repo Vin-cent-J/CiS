@@ -115,25 +115,38 @@ class SaleController extends Controller
             'total_debt' => $request->payment_method == "piutang" ? $total : 0,
         ]);
         foreach (Session::get('sale-products', []) as $product) {
+        
+            // Determine variant ID based on the 'type' we fixed in the previous step
+            $variantId = null;
+            $productId = $product['id'];
+    
+            if (isset($product['type']) && $product['type'] == 'variant') {
+                $variantId = $product['id']; 
+            }
+    
             SalesDetail::create([
                 'sales_id' => $sale->id,
-                'products_id' => $product['id'],
+                'products_id' => $productId, 
+                'variants_id' => $variantId, 
                 'amount' => $product['quantity'],
                 'price' => $product['price'],
                 'discount' => $product['discount'] ?? 0,
                 'discount_type' => $product['discount_type'] ?? null,
                 'total_return' => 0
             ]);
-        }
-
-        foreach(Session::get('sale-products', []) as $product) {
-            $p = Product::find($product['id']);
-            if($p) {
-                $p->stock -= $product['quantity'];
-                if($p->stock < 0) {
-                    $p->stock = 0;
-                }
-                $p->save();
+            
+            if ($variantId) {
+                 $v = Variant::find($variantId);
+                 if($v) {
+                     $v->stock -= $product['quantity'];
+                     $v->save();
+                 }
+            } else {
+                 $p = Product::find($productId);
+                 if($p) {
+                     $p->stock -= $product['quantity'];
+                     $p->save();
+                 }
             }
         }
 
@@ -339,54 +352,70 @@ class SaleController extends Controller
     {
         $id = $request->sale_id;
         $productId = $request->product_id;
+        $variantId = $request->variant_id;
         $returnAmount = $request->amount ?? 0;
         $returnType = $request->type;
 
-        $sql1= "SELECT * FROM sales_details 
-        WHERE sales_id = ? AND products_id = ?";
-        $detail = DB::select($sql1, [$id, $productId])[0];
+        $query = SalesDetail::where('sales_id', $id)->where('products_id', $productId);
 
-        if(!$detail) {
-            return response()->json('Sale details not found. sale_id: '.$id.' product_id: '.$productId, 200);
+        if ($variantId) {
+            $query->where('variants_id', $variantId);
+        } else {
+            $query->whereNull('variants_id');
         }
 
-        if($detail->total_return >= $detail->amount) {
+        $detail = $query->first();
+
+        if (!$detail) {
+            return response()->json('Sale details not found.', 404);
+        }
+
+        if ($detail->total_return >= $detail->amount) {
             return response()->json('All products have been returned.', 200);
         }
 
-        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_retun >= $detail->amount)) {
-            return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
+        if ($returnAmount <= 0 || ($detail->total_return + $returnAmount) > $detail->amount) {
+            return response()->json('Return amount invalid or exceeds purchased amount.', 400);
         }
-        
+
         $returned = ProductReturn::create([
             'sales_id' => $id,
             'products_id' => $productId,
+            'variants_id' => $variantId,
             'amount' => $returnAmount,
             'type' => $returnType,
+            'date' => now(),
         ]);
 
-        $sql2 = "UPDATE sales_details 
-        SET total_return = total_return + ? 
-        WHERE sales_id = ? AND products_id = ?";
+        if ($returned) {
+            $detail->total_return += $returnAmount;
+            $detail->save();
 
-        if($returned) {
-            $product = Product::find($productId);
-            $sale = Sale::find($id);
-            if($product) {
-                if($returnType == 'Ganti barang') {
-                    $product->stock -= $returnAmount;
-                    $product->save();
+            if ($returnType == 'Ganti barang') {
+                if ($variantId) {
+                    $variant = Variant::find($variantId);
+                    if ($variant) {
+                        $variant->stock -= $returnAmount;
+                        $variant->save();
+                    }
+                } else {
+                    $product = Product::find($productId);
+                    if ($product) {
+                        $product->stock -= $returnAmount;
+                        $product->save();
+                    }
                 }
-                else if($returnType == 'Kurangi piutang') {
-                    DB::update($sql2, [$returnAmount, $id, $productId]);
-                    $sale->total_debt -= $detail->price * $returnAmount;
+            } 
+            elseif ($returnType == 'Kurangi piutang') {
+                $sale = Sale::find($id);
+                if ($sale) {
+                    $refundValue = $detail->price * $returnAmount;
+                    $sale->total_debt -= $refundValue;
                     $sale->save();
-                }
-                else{
-                    DB::update($sql2, [$returnAmount, $id, $productId]);
                 }
             }
         }
+
         return response()->json('Product returned successfully.', 200);
     }
 }

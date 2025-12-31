@@ -16,6 +16,7 @@ class PurchaseDetail extends Model
         'products_id',
         'amount',
         'price',
+        'variants_id',
     ];
 
     public function products()
@@ -25,5 +26,9 @@ class PurchaseDetail extends Model
     public function purchases()
     {
         return $this->belongsTo(Purchase::class, 'purchases_id');
+    }
+
+    public function variant(){
+        return $this->belongsTo(Variant::class, 'variants_id');
     }
 }

@@ -17,6 +17,7 @@ class ProductReturn extends Model
         'amount',
         'date',
         'type',
+        'variants_id',
     ];
 
     public function sale()
@@ -27,5 +28,9 @@ class ProductReturn extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'products_id');
+    }
+
+    public function variant(){
+        return $this->belongsTo(Variant::class, 'variants_id');
     }
 }

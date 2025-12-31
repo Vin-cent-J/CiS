@@ -75,15 +75,20 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($sale->salesDetails as $detail)
+              @foreach ($sale->salesDetails as $detail)
                 <tr>
-                    <td>{{$detail->product->name}}</td>
+                    <td>
+                      {{ $detail->product->name }}
+                      @if($detail->variant)
+                        - {{ $detail->variant->name }}
+                      @endif
+                    </td>
                     <td>{{$detail->amount}}</td>
                     <td>Rp.{{ number_format($detail->price, 0, ',', '.') }}</td>
                     @if ($features->contains('id',8) || $detail->discount > 0)
                     <td>
                     @if ($detail->discount_type == 1)
-                        Rp.
+                      Rp.
                     @endif
                     {{ number_format($detail->discount, 0, ',', '.') }}
                     @if ($detail->discount_type == 2)
@@ -119,8 +124,12 @@
             @foreach ($returns as $return)
             @if ($return->amount > 0)
             <li class="list-group-item fw-bold">
-            {{ $return->product->name }}: {{ $return->amount }}  <span class="fw-light">({{ $return->type }})</span> <span style="float: right">{{$return->date}}</span>
-            </li>
+              {{ $return->product->name }}
+              {{ $return->variant ? '- ' . $return->variant->name : '' }}: 
+              {{ $return->amount }}  
+              <span class="fw-light">({{ $return->type }})</span> 
+              <span style="float: right">{{$return->date}}</span>
+          </li>
             @endif
             @endforeach
         </ul>
@@ -223,7 +232,8 @@
 
   $('.btn-kembalian').click(function() {
     const productId = detailBarang.products_id;
-    const jumlah = $('#jumlah').val() 
+    const variantId = detailBarang.variants_id;
+    const jumlah = $('#jumlah').val();
     const type = $(this).val();
     const saleId = {{ $sale->id }};
 
@@ -237,6 +247,7 @@
       data: JSON.stringify({
         sale_id: saleId,
         product_id: productId,
+        variant_id: variantId, 
         amount: jumlah,
         type: type,
       }),
@@ -247,7 +258,7 @@
         alert("Terjadi kesalahan saat membuat pengembalian.");
       }
     });
-  });
+});
 </script>
 
 <script>
