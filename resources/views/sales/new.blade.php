@@ -54,7 +54,7 @@
                         <td>
                             <select class="form-select select-p">
                             @foreach ($products as $product)
-                            @if (!in_array($product->id, session("added")) || ($product->id == $item['id']))
+                            @if (!in_array("product-".$product->id, session("added")) || ($product->id == $item['id']))
                                 <option value="{{$product->id}}" <?= $product->id == $item['id'] ? 'selected' : '' ?>>
                                     {{$product->name}}
                                 </option>
@@ -95,10 +95,6 @@
                         <td class="text-center"><a href=""><i class="bi bi-trash3-fill"></i></a></td>
                     </tr>
                     @endforeach
-                    @if (in_array(21, $activeDetails))
-                        
-                    @endif
-                    
                 </tbody>
             </table>
         </div>
@@ -173,13 +169,13 @@
                     @if ($product->variants->count())
                     <optgroup label="{{ $product->name }}">
                         @foreach ($product->variants as $variant)
-                            <option value="{{ $variant->id }}">
+                            <option data-type="variant" data-value="{{ $variant->id }}">
                                 {{ $product->name }} - {{ $variant->name }}
                             </option>
                         @endforeach
                     </optgroup>
                     @else
-                    <option data-value="{{$product}}">{{$product->name}}</option>
+                    <option data-type="product" data-value="{{$product->id}}">{{$product->name}}</option>
                     @endif
                 @endforeach
             </select>
@@ -188,7 +184,6 @@
         </div>
     </form>
 </div>
-
 @endsection
 
 @section("js")
@@ -209,8 +204,10 @@
     });
 
     $('#tambah').click(function() {
-        let product = $('#add-produk option:selected').data('value');
+        let productId = $('#add-produk option:selected').data('value');
+        let type = $('#add-produk option:selected').data('type');
         $(this).prop('disabled', true).text('Menambahkan...');
+
         $.ajax({
             url: '/sales/setSession',
             method: 'POST',
@@ -220,9 +217,8 @@
             },
             contentType: 'application/json',
             data: JSON.stringify({
-                'id': product.id,
-                'name': product.name,
-                'price': product.price,
+                'type': type,
+                'id': productId,
                 'quantity': 1
             }),
             success: function(data) {

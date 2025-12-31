@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SalesDetail;
 use App\Models\SubFeature;
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use App\Models\ProductReturn;
 use Illuminate\Support\Facades\DB;
@@ -146,6 +147,10 @@ class SaleController extends Controller
         $productFound = false;
         $products = Session::get('sale-products', []);
         $added = Session::get('added', []);
+
+        $type = $request->type;
+        $added[] = $type."-".$request->id;
+
         foreach ($products as &$product) {
             if (isset($product['id']) && $product['id'] === $request->id) {
                 $product['quantity'] += $request->quantity;
@@ -154,17 +159,29 @@ class SaleController extends Controller
             }
         }
 
-        if (!$productFound) {
+
+        if (!$productFound && $type == 'product') {
+            $prod = Product::find($request->id);
             $products[] = [
-                'id' => $request->id,
-                'variants_id' => $request->variants_id ?? null,
-                'name' => $request->name,
-                'price' => $request->price,
+                'id' => $prod->id,
+                'type' => $type,
+                'name' => $prod->name,
+                'price' => $prod->price,
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
                 'discount_type' => $request->discount_type ?? 1,
             ];
-            $added[] = $request->id;
+        } else if (!$productFound && $type == 'variant') {
+            $variant = Variant::find($request->id);
+            $products[] = [
+                'id' => $variant->id,
+                'type' => $type,
+                'name' => $variant->name,
+                'price' => $variant->price,
+                'quantity' => $request->quantity,
+                'discount' => $request->discount ?? 0,
+                'discount_type' => $request->discount_type ?? 1,
+            ];
         }
         Session::put('added', $added);
         Session::put('sale-products', $products);

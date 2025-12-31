@@ -47,16 +47,40 @@
   </form>
 </div>
 
-<div class="container p-3 card">
+@if ($features->contains(12))
+<div class="container p-3 card">    
   <h4><strong>Varian</strong></h4>
   <hr>
-  <a class="btn btn-primary">+ Tambah</a>
-  <ul>
+  <button id="tambahVarian" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahModal">+ Tambah</button>
+  <ul class="list-group mt-3">
     @foreach ($product->variants as $variant )
-      <li>
+      <li class="list-group-item">
         {{ $product->name }} - {{ $variant->name }} : Rp.{{ $variant->price }}
       </li>
     @endforeach
   </ul>
+</div>
+@endif
+
+<div id="tambahModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah Varian</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="{{url('/inventory/addVariant')}}" method="post">
+          @csrf
+          <input type="hidden" name="id" value="{{ $product->id }}">
+          <input type="text" name="name" placeholder="Nama Varian baru" class="form-control m-2">
+          <input type="number" name="price" placeholder="Harga Varian" class="form-control m-2">
+          <input type="number" name="stock" placeholder="Stok Varian" class="form-control m-2">
+          <input type="submit" value="Simpan" class="btn btn-primary m-2">
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
 @endsection

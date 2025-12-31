@@ -14,7 +14,8 @@ class Product extends Model
         'price',
         'stock',
         'categories_id',
-        'photo'
+        'photo',
+        'has_variant'
     ];
 
     public $timestamps = false;

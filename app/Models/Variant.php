@@ -14,7 +14,6 @@ class Variant extends Model
     public $fillable = [
         'products_id',
         'name',
-        'value',
         'price',
         'stock',
         'deleted_at'

@@ -42,6 +42,8 @@ Route::post("/purchases/updatePrice", [\App\Http\Controllers\PurchaseController:
 Route::post("/purchases/updateDebt", [\App\Http\Controllers\PurchaseController::class, "updateDebt"]);
 Route::post("/purchases/return", [\App\Http\Controllers\PurchaseController::class, "returnProduct"]);
 
+Route::post("/inventory/addVariant", [\App\Http\Controllers\InventoryController::class, "addVariant"]);
+
 Route::resource("/", FeatureController::class);
 Route::resource("settings", ConfigurationsController::class);
 Route::resource("pos", PosController::class);

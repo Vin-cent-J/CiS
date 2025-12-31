@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\SubFeature;
+use App\Models\Configuration;
+use App\Models\DetailConfiguration;
 use Storage;
 
 class InventoryController extends Controller
@@ -14,8 +17,24 @@ class InventoryController extends Controller
      */
     public function index()
     {
+        $features = SubFeature::where('features_id', 4)->where('is_active', 1)->get();
+        $activeConfigs = [];  
+        foreach($features as $key=>$feature){
+            $configurations = Configuration::where('sub_features_id', $feature->id)->where('is_active', 1)->get();
+            foreach($configurations as $key=>$config){
+                $activeConfigs[] = $config->id;
+            }
+        }
+        $activeDetails = [];
+        foreach($activeConfigs as $configId){
+            $details = DetailConfiguration::where('configurations_id', $configId)->where('is_active', 1)->get();
+            foreach($details as $key=>$detail){
+                $activeDetails[] = $detail->id;
+            }
+        }
+
         $products = Product::all();
-        return view('inventory.app', compact('products'));
+        return view('inventory.app', compact('products', 'activeDetails', 'features', 'activeConfigs'));
     }
 
     /**
@@ -55,7 +74,22 @@ class InventoryController extends Controller
     public function show(string $id)
     {
         $product = Product::find($id);
-        return view('inventory.detail', compact('product'));
+        return view('inventory.edit', compact('product'));
+    }
+
+    public function addVariant(Request $request)
+    {
+        $product = Product::find($request->id);
+        $product->variants()->create([
+            'name' => $request->name,
+            'price' => $request->price,
+            'stock' => $request->stock,
+        ]);
+        $product->update([
+            'has_variant' => 1,
+        ]);
+        $product->save();
+        return redirect()->back()->with('success', 'Varian produk berhasil ditambahkan');
     }
 
     /**
@@ -63,9 +97,25 @@ class InventoryController extends Controller
      */
     public function edit(string $id)
     {
+        $features = SubFeature::where('features_id', 4)->where('is_active', 1)->get();
+        $activeConfigs = [];  
+        foreach($features as $key=>$feature){
+            $configurations = Configuration::where('sub_features_id', $feature->id)->where('is_active', 1)->get();
+            foreach($configurations as $key=>$config){
+                $activeConfigs[] = $config->id;
+            }
+        }
+        $activeDetails = [];
+        foreach($activeConfigs as $configId){
+            $details = DetailConfiguration::where('configurations_id', $configId)->where('is_active', 1)->get();
+            foreach($details as $key=>$detail){
+                $activeDetails[] = $detail->id;
+            }
+        }
+
         $product = Product::with('variants')->find($id);
         $categories = Category::all();
-        return view('inventory.edit', compact('product', 'categories'));
+        return view('inventory.edit', compact('product', 'categories', 'activeDetails', 'features', 'activeConfigs'));
     }
 
     /**
