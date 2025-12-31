@@ -52,15 +52,8 @@
                     @foreach (session("sale-products", []) as $item)
                     <tr>
                         <td>
-                            <select class="form-select select-p">
-                            @foreach ($products as $product)
-                            @if (!in_array("product-".$product->id, session("added")) || ($product->id == $item['id']))
-                                <option value="{{$product->id}}" <?= $product->id == $item['id'] ? 'selected' : '' ?>>
-                                    {{$product->name}}
-                                </option>
-                            @endif
-                            @endforeach
-                            </select>
+                            <input type="text" class="form-control" value="{{ $item['product'] }} - {{ $item['name'] }}" readonly>
+                            <input type="hidden" value="{{ $item['id'] }}">
                         </td>
                         <td> <input class="form-control qty" type="number" id="qty-{{$item['id']}}" data-value="{{$item['id']}}" value="{{$item['quantity']}}"></td>
                         <td>Rp.{{number_format($item['price'],0, ',', '.')}}</td>

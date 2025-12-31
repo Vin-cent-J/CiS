@@ -177,6 +177,7 @@ class SaleController extends Controller
                 'id' => $variant->id,
                 'type' => $type,
                 'name' => $variant->name,
+                'product' => $variant->product->name,
                 'price' => $variant->price,
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
