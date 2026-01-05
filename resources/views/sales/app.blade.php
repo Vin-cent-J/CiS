@@ -43,10 +43,6 @@
   <label for="DateO">Rentang hari:</label>
   <input type="date" id="DateO" value="{{ $startDate }}"> - <input type="date" id="DateMaxO" value="{{ $endDate }}">
 
-  {{-- <div class="float-end">
-    <input type="text" id="monthPicker" placeholder="yyyy-mm">
-    <button id="downloadLaporan" class="btn btn-warning btn-sm">Laporan</button>
-  </div> --}}
 </div>
 <div class="p-3 container card bg-white" style="min-height: 840px;">
   <table class="table">
@@ -101,16 +97,6 @@
     startView: "months", 
     minViewMode: "months",
     autoclose: true
-  });
-
-  $('#downloadLaporan').click(function() {
-    const date = $('#monthPicker').val();
-    if (!date) {
-      alert('Pilih bulan terlebih dahulu.');
-      return;
-    }
-
-    window.open(`/report/sales/${date}`, '_blank');
   });
 </script>
 @endsection

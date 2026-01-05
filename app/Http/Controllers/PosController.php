@@ -9,6 +9,7 @@ use App\Models\Sale;
 use App\Models\ProductReturn;
 use App\Models\SalesDetail;
 use App\Models\Customer;
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use App\Models\SubFeature;
 use App\Models\DiscountRule;
@@ -42,8 +43,8 @@ class PosController extends Controller
 
         $customers = Customer::whereNot('id', 1)->get();
 
-        $products = Product::all();
-        echo "<script>console.log('Debug Objects: " . $features . "' );</script>";
+        $products = Product::with('variants')->get();
+        
         return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers', 'discountRules'));
     }
 
@@ -51,8 +52,9 @@ class PosController extends Controller
     {
         $productFound = false;
         $products = Session::get('products', []);
+
         foreach ($products as &$product) {
-            if (isset($product['id']) && $product['id'] === $request->id) {
+            if (isset($product['id']) && $product['id'] === $request->id && isset($product['type']) && $product['type'] === $request->type) {
                 $product['quantity'] += $request->quantity;
                 $productFound = true;
                 break;
@@ -60,15 +62,24 @@ class PosController extends Controller
         }
 
         if (!$productFound) {
-            $p = Product::find($request->id); 
+            $catId = null;
+            if($request->type == 'variant') {
+                $v = Variant::find($request->id);
+                $catId = $v ? $v->product->categories_id : null;
+            } else {
+                $p = Product::find($request->id);
+                $catId = $p ? $p->categories_id : null;
+            }
+
             $products[] = [
                 'id' => $request->id,
+                'type' => $request->type,
                 'name' => $request->name,
                 'price' => $request->price,
                 'quantity' => $request->quantity,
                 'discount' => $request->discount ?? 0,
                 'discount_type' => $request->discount_type ?? 1,
-                'categories_id' => $p ? $p->categories_id : null
+                'categories_id' => $catId
             ];
         }
 
@@ -242,54 +253,72 @@ class PosController extends Controller
     {
         $id = $request->sale_id;
         $productId = $request->product_id;
+        $variantId = $request->variant_id;
         $returnAmount = $request->amount ?? 0;
         $returnType = $request->type;
 
-        $sql1= "SELECT * FROM sales_details 
-        WHERE sales_id = ? AND products_id = ?";
-        $detail = DB::select($sql1, [$id, $productId])[0];
+        $query = SalesDetail::where('sales_id', $id)->where('products_id', $productId);
 
-        if(!$detail) {
-            return response()->json('Sale details not found. sale_id: '.$id.' product_id: '.$productId, 200);
+        if ($variantId) {
+            $query->where('variants_id', $variantId);
         }
 
-        if($detail->total_return >= $detail->amount) {
+        $detail = $query->first();
+
+        if (!$detail) {
+            return response()->json('Sale details not found.', 404);
+        }
+
+        if ($detail->total_return >= $detail->amount) {
             return response()->json('All products have been returned.', 200);
         }
 
-        if(!isset($returnAmount) && ($returnAmount <= 0 || $detail->total_return >= $detail->amount)) {
-            return response()->json('Return amount must be greater than zero and less than purchased amount.', 200);
+        if ($returnAmount <= 0 || ($detail->total_return + $returnAmount) > $detail->amount) {
+            return response()->json('Return amount invalid or exceeds purchased amount.', 400);
         }
-        
+
         $returned = ProductReturn::create([
             'sales_id' => $id,
             'products_id' => $productId,
+            'variants_id' => $variantId,
             'amount' => $returnAmount,
             'type' => $returnType,
+            'date' => now(),
         ]);
 
-        $sql2 = "UPDATE sales_details 
-        SET total_return = total_return + ? 
-        WHERE sales_id = ? AND products_id = ?";
+        $isPerpetual = Configuration::where('id', 17)->where('is_active', 1)->first();
 
-        if($returned) {
-            $product = Product::find($productId);
-            $sale = Sale::find($id);
-            if($product) {
-                if($returnType == 'Ganti barang') {
-                    $product->stock -= $returnAmount;
-                    $product->save();
+        if ($returned) {
+            $detail->total_return += $returnAmount;
+            $detail->save();
+
+            if ($returnType == 'Ganti barang') {
+                if ($isPerpetual) {
+                    if ($variantId) {
+                        $variant = Variant::find($variantId);
+                        if ($variant) {
+                            $variant->stock -= $returnAmount;
+                            $variant->save();
+                        }
+                    } else {
+                        $product = Product::find($productId);
+                        if ($product) {
+                            $product->stock -= $returnAmount;
+                            $product->save();
+                        }
+                    }
                 }
-                else if($returnType == 'Kurangi piutang') {
-                    DB::update($sql2, [$returnAmount, $id, $productId]);
-                    $sale->total_debt -= $detail->price * $returnAmount;
+            } 
+            elseif ($returnType == 'Kurangi piutang') {
+                $sale = Sale::find($id);
+                if ($sale) {
+                    $refundValue = $detail->price * $returnAmount;
+                    $sale->total_debt -= $refundValue;
                     $sale->save();
-                }
-                else{
-                    DB::update($sql2, [$returnAmount, $id, $productId]);
                 }
             }
         }
+
         return response()->json('Product returned successfully.', 200);
     }
 
@@ -321,25 +350,43 @@ class PosController extends Controller
             'payment_methods' => $request->payment_method,
             'total_debt' => $request->payment_method == "piutang" ? $total : 0,
         ]);
+        $isPerpetual = Configuration::where('id', 17)->where('is_active', 1)->first();
         foreach($products as $product) {
+            $variantId = null;
+            $productId = $product['id'];
+    
+            if (isset($product['type']) && $product['type'] == 'variant') {
+                $variantId = $product['id'];
+                $variant = Variant::find($variantId);
+                if($variant) {
+                    $productId = $variant->products_id;
+                }
+            }
+    
             SalesDetail::create([
                 'sales_id' => $s->id,
-                'products_id' => $product['id'],
+                'products_id' => $productId,
+                'variants_id' => $variantId,
                 'amount' => $product['quantity'],
                 'price' => $product['price'],
                 'discount' => $product['discount'] ?? 0,
                 'discount_type' => $product['discount_type'] ?? null
-            ]
-            );
-        }
-        foreach($products as $product) {
-            $p = Product::find($product['id']);
-            if($p) {
-                $p->stock -= $product['quantity'];
-                if($p->stock < 0) {
-                    $p->stock = 0;
+            ]);
+    
+            if ($isPerpetual) {
+                if ($variantId) {
+                    $v = Variant::find($variantId);
+                    if ($v) {
+                        $v->stock -= $product['quantity'];
+                        $v->save();
+                    }
+                } else {
+                    $p = Product::find($productId);
+                    if ($p) {
+                        $p->stock -= $product['quantity'];
+                        $p->save();
+                    }
                 }
-                $p->save();
             }
         }
 

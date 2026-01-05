@@ -10,6 +10,7 @@ use App\Models\PurchaseDetail;
 use App\Models\PurchaseReturn;
 use App\Models\SubFeature;
 use App\Models\Supplier;
+use App\Models\Variant;
 use DB;
 use Illuminate\Http\Request;
 use Session;
@@ -19,7 +20,7 @@ class PurchaseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $features = SubFeature::where('features_id', 1)->where('is_active', 1)->get();
         $activeConfigs = [];  
@@ -37,9 +38,27 @@ class PurchaseController extends Controller
             }
         }
 
-        $purchases = Purchase::with(['supplier'])->get();
+        $startDate = "";
+        $endDate = "";
+        $purchases = Purchase::with(['supplier']);
+        if($request->has('status')){
+            $status = $request->query('status');
+            if ($status == 'lunas') {
+                $purchases = $purchases->where('total_debt', 0);
+            } elseif($status == 'belum') {
+                $purchases = $purchases->where('total_debt', '>', 0);
+            }
+        }
 
-        return view('purchase.app', compact('purchases', 'features', 'activeConfigs', 'activeDetails'));
+        if($request->has('start_date') && $request->has('end_date')) {
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+            $purchases = $purchases->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        $purchases = $purchases->orderBy('date', 'desc')->get();
+
+        return view('purchase.app', compact('purchases', 'features', 'activeConfigs', 'activeDetails', 'startDate', 'endDate'));
     }
 
     /**
@@ -64,7 +83,7 @@ class PurchaseController extends Controller
         }
 
         $suppliers = Supplier::all();
-        $products = Product::all();
+        $products = Product::with('variants')->get();
         return view('purchase.new', compact('suppliers', 'products', 'features', 'activeConfigs', 'activeDetails'));
         
     }
@@ -73,9 +92,11 @@ class PurchaseController extends Controller
     {
         $productFound = false;
         $products = Session::get('purchase-products', []);
-        $added = Session::get('p-added', []);
+        
+        $type = $request->type;
+
         foreach ($products as &$product) {
-            if (isset($product['id']) && $product['id'] === $request->id) {
+            if (isset($product['id']) && $product['id'] === $request->id && isset($product['type']) && $product['type'] === $type) {
                 $product['quantity'] += $request->quantity;
                 $productFound = true;
                 break;
@@ -83,16 +104,33 @@ class PurchaseController extends Controller
         }
 
         if (!$productFound) {
-            $products[] = [
-                'id' => $request->id,
-                'name' => $request->name,
-                'price' => $request->price,
-                'quantity' => $request->quantity,
-            ];
-            $added[] = $request->id;
+            if ($type == 'product') {
+                $prod = Product::find($request->id);
+                if ($prod) {
+                    $products[] = [
+                        'id' => $prod->id,
+                        'type' => $type,
+                        'name' => $prod->name,
+                        'price' => $prod->price,
+                        'quantity' => $request->quantity,
+                    ];
+                }
+            } else if ($type == 'variant') {
+                $variant = Variant::find($request->id);
+                if ($variant) {
+                    $products[] = [
+                        'id' => $variant->id,
+                        'type' => $type,
+                        'name' => $variant->name,
+                        'product' => $variant->product->name,
+                        'price' => $variant->price,
+                        'quantity' => $request->quantity,
+                    ];
+                }
+            }
         }
+
         Session::put('purchase-products', $products);
-        Session::put('p-added', $added);
         return response()->json(['message' => 'Session set', 'products' => Session('purchase-products')]);
     }
 
@@ -175,30 +213,45 @@ class PurchaseController extends Controller
             'suppliers_id' => $request->supplier,
             'date' => now(),
             'total' => $total,
-            'discount' => $request->discount,
+            'discount' => $request->discount ?? 0,
             'shipping' => $request->shipping ?? '',
             'shipping_fee' => $request->shipping_fee ?? 0,
             'payment_methods' => $request->payment_method,
             'total_debt' => $request->payment_method == "hutang" ? $total : 0,
         ]);
-        
+        $isPerpetual = Configuration::where('id', 17)->where('is_active', 1)->first();
         foreach ($products as $product) {
+            $variantId = null;
+            $productId = $product['id'];
+
+            if (isset($product['type']) && $product['type'] == 'variant') {
+                $variantId = $product['id'];
+                $v = Variant::find($variantId);
+                if($v) $productId = $v->products_id;
+            }
+
             PurchaseDetail::create([
                 'purchases_id' => $ins->id,
                 'products_id' => $product['id'],
+                'variants_id' => $variantId,
                 'amount' => $product['quantity'],
                 'price' => $product['price'],
             ]);
-        }
 
-        foreach($products as $product) {
-            $p = Product::find($product['id']);
-            if($p) {
-                $p->stock += $product['quantity'];
-                if($p->stock < 0) {
-                    $p->stock = 0;
+            if ($isPerpetual) {
+                if ($variantId) {
+                    $v = Variant::find($variantId);
+                    if($v) {
+                        $v->stock += $product['quantity'];
+                        $v->save();
+                    }
+                } else {
+                    $p = Product::find($productId);
+                    if($p) {
+                        $p->stock += $product['quantity'];
+                        $p->save();
+                    }
                 }
-                $p->save();
             }
         }
 
@@ -257,42 +310,63 @@ class PurchaseController extends Controller
     {
         $id = $request->purchase_id;
         $productId = $request->product_id;
+        $variantId = $request->variant_id;
         $returnAmount = $request->amount ?? 0;
         $returnType = $request->type;
 
-        $detail = DB::table('purchase_details')
-            ->where('purchases_id', $id)
-            ->where('products_id', $productId)
-            ->first();
+        $detail = PurchaseDetail::where('purchases_id', $id)
+            ->where('products_id', $productId);
+
+        if ($variantId) {
+            $detail->where('variants_id', $variantId);
+        }
+
+        $detail = $detail->first();
         
         $returned = PurchaseReturn::create([
             'purchases_id' => $id,
             'products_id' => $productId,
+            'variants_id' => $variantId,
             'amount' => $returnAmount,
             'type' => $returnType,
         ]);
-
+        $isPerpetual = Configuration::where('id', 17)->where('is_active', 1)->first();
         if($returned) {
             $product = Product::find($productId);
             $purchase = Purchase::find($id);
-            if($product) {
-                if($returnType == 'Ganti barang') {
-                    $product->stock -= $returnAmount;
-                    $product->save();
+            if($returnType == 'Ganti barang') {
+                if ($isPerpetual) {
+                    if ($variantId) {
+                        $v = Variant::find($variantId);
+                        if($v) {
+                            $v->stock -= $returnAmount;
+                            $v->save();
+                        }
+                    } else {
+                        $p = Product::find($productId);
+                        if($p) {
+                            $p->stock -= $returnAmount;
+                            $p->save();
+                        }
+                    }
                 }
-                else if($returnType == 'Kurangi piutang') {
-                    DB::table('purchase_details')
-                        ->where('purchases_id', $id)
-                        ->where('products_id', $productId)
-                        ->increment('total_return', $returnAmount);
+            }
+            else {
+                 $updateQuery = PurchaseDetail::where('purchases_id', $id)
+                    ->where('products_id', $productId);
+    
+                if ($variantId) {
+                    $updateQuery->where('variants_id', $variantId);
+                } else {
+                    $updateQuery->whereNull('variants_id');
+                }
+                
+                $updateQuery->increment('total_return', $returnAmount);
+    
+                if($returnType == 'Kurangi piutang') {
+                    $purchase = Purchase::find($id);
                     $purchase->total_debt -= $detail->price * $returnAmount;
                     $purchase->save();
-                }
-                else{
-                    DB::table('purchase_details')
-                        ->where('purchases_id', $id)
-                        ->where('products_id', $productId)
-                        ->increment('total_return', $returnAmount);
                 }
             }
         }

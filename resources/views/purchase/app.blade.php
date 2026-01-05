@@ -32,6 +32,17 @@
     }
   }
 @endphp
+<div class="container">
+  <label for="statusO" class="form-label">Status:</label>
+  <select class="form-select m-1" id="statusO" style="width: 10rem; display: inline;">
+    <option value="">Semua</option>
+    <option value="lunas" {{ $status == 'lunas' ? 'selected' : '' }}>Lunas</option>
+    <option value="belum" {{ $status == 'belum' ? 'selected' : '' }}>Belum Lunas</option>
+  </select>
+
+  <label for="DateO">Rentang hari:</label>
+  <input type="date" id="DateO" value="{{ $startDate }}"> - <input type="date" id="DateMaxO" value="{{ $endDate }}">
+</div>
 <div class="p-3 container card bg-white" style="min-height: 840px;">
   <table class="table">
     <thead>
@@ -77,6 +88,14 @@
     startView: "months", 
     minViewMode: "months",
     autoclose: true
+  });
+
+  $('#statusO, #DateO, #DateMaxO').change(function() {
+    const status = $('#statusO').val();
+    const startDate = $('#DateO').val();
+    const endDate = $('#DateMaxO').val();
+
+    window.location.replace(`/purchase?status=${status}&start_date=${startDate}&end_date=${endDate}`);
   });
 </script>
 @endsection

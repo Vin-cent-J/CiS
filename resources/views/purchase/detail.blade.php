@@ -61,7 +61,13 @@
             <tbody>
                 @foreach ($purchase->purchaseDetails as $detail)
                 <tr>
-                    <td>{{$detail->products->name}}</td>
+                  <td>
+                    @if($detail->variant)
+                        {{ $detail->variant->product->name }} - {{ $detail->variant->name }}
+                    @else
+                        {{ $detail->products->name }}
+                    @endif
+                </td>
                     <td>{{$detail->amount}}</td>
                     <td>Rp.{{ number_format($detail->price, 0, ',', '.') }}</td>
                     <td>
@@ -84,7 +90,9 @@
             @foreach ($returns as $return)
             @if ($return->amount > 0)
             <li class="list-group-item fw-bold">
-            {{ $return->product->name }}: {{ $return->amount }}  <span class="fw-light">({{ $return->type }})</span> <span style="float: right">{{$return->date}}</span>
+              {{ $return->product->name }}
+              {{ $return->variant ? '- ' . $return->variant->name : '' }}: 
+              {{ $return->amount }}  
             </li>
             @endif
             @endforeach
@@ -182,6 +190,7 @@
 
   $('.btn-kembalian').click(function() {
     const productId = detailBarang.products_id;
+    const variantId = detailBarang.variants_id;
     const amount = $('#jumlah').val() 
     const type = $(this).val();
     const purchaseId = {{ $purchase->id }};
@@ -196,6 +205,7 @@
       data: JSON.stringify({
         purchase_id: purchaseId,
         product_id: productId,
+        variant_id: variantId,
         amount: amount,
         type: type,
       }),

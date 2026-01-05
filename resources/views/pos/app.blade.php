@@ -105,26 +105,58 @@
       <Strong><i class="bi bi-box-seam-fill"></i>Katalog:</Strong>
       <div class="row p-2" style="overflow-y: scroll;">
         @foreach ($products as $product)
-        @php
-        $p = [
-          "name" => $product->name, "id" => "$product->id", "price" => "$product->price", "quantity" => 1
-        ];
-        @endphp
-        <div class="col-2 p-2 m-1 card" style="height: 18rem;">
-          <img src="/storage/{{$product->photo}}" style="max-height: 60%;">
-          <div class="p-2">
-            <div>
-              <strong>{{$product->name}}</strong>
+        @if($product->variants->count() > 0)
+          @foreach($product->variants as $variant)
+            @php
+            $p = [
+              "name" => $product->name . " - " . $variant->name, 
+              "id" => "$variant->id", 
+              "type" => "variant",
+              "price" => "$variant->price", 
+              "quantity" => 1
+            ];
+            @endphp
+            <div class="col-2 p-2 m-1 card" style="height: 18rem;">
+                <img src="/storage/{{$product->photo}}" style="max-height: 60%;">
+                <div class="p-2">
+                <div>
+                    <strong>{{$product->name}} - {{$variant->name}}</strong>
+                </div>
+                <div class="text-muted">
+                    <small>Rp. {{number_format($variant->price)}} </small>
+                </div>
+                <button class="btn-sm btn-primary addToCart" style="float: right;" data-value='@json($p)'>
+                    + Tambah
+                </button>
+                </div>
             </div>
-            <div class="text-muted">
-              <small>Rp. {{number_format($product->price)}} </small>
+          @endforeach
+
+        @else
+          @php
+          $p = [
+            "name" => $product->name, 
+            "id" => "$product->id", 
+            "type" => "product",
+            "price" => "$product->price", 
+            "quantity" => 1
+          ];
+          @endphp
+          <div class="col-2 p-2 m-1 card" style="height: 18rem;">
+            <img src="/storage/{{$product->photo}}" style="max-height: 60%;">
+            <div class="p-2">
+              <div>
+                <strong>{{$product->name}}</strong>
+              </div>
+              <div class="text-muted">
+                <small>Rp. {{number_format($product->price)}} </small>
+              </div>
+              <button class="btn-sm btn-primary addToCart" style="float: right;" data-value='@json($p)'>
+                + Tambah
+              </button>
             </div>
-            
-            <button id="addToCart" class="btn-sm btn-primary addToCart" style="float: right;" data-value='@json($p)' >
-              + Tambah
-            </button>
           </div>
-        </div>
+        @endif
         @endforeach
       </div>
     </div>
@@ -344,6 +376,7 @@
       contentType: 'application/json',
       data: JSON.stringify({
         'id': productData.id,
+        'type': productData.type,
         'name': productData.name,
         'price': productData.price,
         'quantity': productData.quantity,

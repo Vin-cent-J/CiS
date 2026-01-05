@@ -68,10 +68,10 @@
                             @endif
                             <select id="type-{{$item['id']}}" class="form-select" style="width: 7rem; display: inline;">
                                 @if (in_array(10, $activeDetails))
-                                <option value="1" <?= $product['discount_type'] == 1 ? 'selected' : ''; ?> >Tunai</option>
+                                <option value="1" <?= $item['discount_type'] == 1 ? 'selected' : ''; ?> >Tunai</option>
                                 @endif
                                 @if (in_array(11, $activeDetails))
-                                <option value="2" <?= $product['discount_type'] == 2 ? 'selected': ''; ?> >%</option>
+                                <option value="2" <?= $item['discount_type'] == 2 ? 'selected': ''; ?> >%</option>
                                 @endif
                             </select> 
                         </td>
@@ -222,32 +222,6 @@
             }
         });
     });
-
-    var idBefore = 0;
-    $('.select-p').on('focus', function(){
-        idBefore = $(this).val();
-    }).change(function(){
-        $.ajax({
-            url: '/sales/changeProduct',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-            contentType: 'application/json',
-            data: JSON.stringify({
-                'productId': idBefore,
-                'newId': $(this).val(),
-                'quantity': $('#qty-' + idBefore).val(),
-                'discount': $('#disc-'+ idBefore).val(),
-                'discount_type': $('#type-'+ idBefore).val()
-            }),
-            success: function(data) {
-                location.reload();
-            }
-            
-        })
-    })
 
     $('.qty').on('change', function(){
         const id = $(this).data('value')

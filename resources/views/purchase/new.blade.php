@@ -44,15 +44,9 @@
                 <tbody id="list">
                     @foreach (session("purchase-products", []) as $item)
                     <tr>
-                        <td><select class="form-select select-p">
-                            @foreach ($products as $product)
-                            @if (!in_array($product->id, session("p-added")) || ($product->id == $item['id']))
-                                <option value="{{$product->id}}" <?= $product->id == $item['id'] ? 'selected' : '' ?>>
-                                    {{$product->name}}
-                                </option>
-                            @endif
-                            @endforeach
-                            </select>
+                        <td>
+                            <input type="text" class="form-control" value="{{ $item['product'] }} - {{ $item['name'] }}" readonly>
+                            <input type="hidden" value="{{ $item['id'] }}">
                         </td>
                         <td> <input class="form-control qty" type="number" id="qty-{{$item['id']}}" data-value="{{$item['id']}}" value={{ $item['quantity'] }}></td>
                         <td>Rp. <input type="number" class="form-control price w-75" style="display: inline" id="price-{{$item['id']}}" data-value="{{$item['id']}}" value="{{$item['price']}}"></td>
@@ -125,7 +119,29 @@
         <div class="mt-3">
             <select name="" id="add-produk" class="form-select m-1" style="width: 12rem; display: inline;">
                 @foreach ($products as $product)
-                    <option data-value="{{$product}}">{{$product->name}}</option>
+                    @if($product->variants->count() > 0)
+                        @foreach($product->variants as $variant)
+                            @php
+                                $vData = [
+                                    'id' => $variant->id,
+                                    'name' => $product->name . ' - ' . $variant->name,
+                                    'price' => $variant->price,
+                                    'type' => 'variant'
+                                ];
+                            @endphp
+                            <option data-value='@json($vData)'>{{$product->name}} - {{$variant->name}}</option>
+                        @endforeach
+                    @else
+                        @php
+                            $pData = [
+                                'id' => $product->id,
+                                'name' => $product->name,
+                                'price' => $product->price,
+                                'type' => 'product'
+                            ];
+                        @endphp
+                        <option data-value='@json($pData)'>{{$product->name}}</option>
+                    @endif
                 @endforeach
             </select>
             <a class="btn btn-warning" id="tambah">Tambah produk</a>
@@ -163,6 +179,7 @@
             contentType: 'application/json',
             data: JSON.stringify({
                 'id': product.id,
+                'type': product.type,
                 'name': product.name,
                 'price': product.price,
                 'quantity': 1
@@ -175,31 +192,6 @@
             }
         });
     });
-
-    var idBefore = 0;
-    $('.select-p').on('focus', function(){
-        idBefore = $(this).val();
-    }).change(function(){
-        $.ajax({
-            url: '/purchase/changeProduct',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-            data: JSON.stringify({
-                'productId': idBefore,
-                'newId': $(this).val(),
-                'quantity': $('#qty-' + idBefore).val(),
-                'discount': $('#disc-'+ idBefore).val(),
-                'discount_type': $('#type-'+ idBefore).val()
-            }),
-            success: function(data) {
-                location.reload();
-            }
-            
-        })
-    })
 
     $('.qty').on('keyup change', function(){
         const id = $(this).data('value')

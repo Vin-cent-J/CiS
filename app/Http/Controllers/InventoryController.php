@@ -33,7 +33,7 @@ class InventoryController extends Controller
             }
         }
 
-        $products = Product::all();
+        $products = Product::with('variants')->get();
         return view('inventory.app', compact('products', 'activeDetails', 'features', 'activeConfigs'));
     }
 

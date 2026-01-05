@@ -55,7 +55,9 @@
   <ul class="list-group mt-3">
     @foreach ($product->variants as $variant )
       <li class="list-group-item">
-        {{ $product->name }} - {{ $variant->name }} : Rp.{{ $variant->price }}
+        <strong>{{ $product->name }}</strong> - {{ $variant->name }} <br>
+        Rp.{{ $variant->price }} <br>
+        Stok: {{ $variant->stock }}
       </li>
     @endforeach
   </ul>

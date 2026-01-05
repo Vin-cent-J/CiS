@@ -52,7 +52,13 @@
       <tbody>
         @foreach ($sale->salesDetails as $detail)
           <tr>
-            <td>{{ $detail->product->name }}</td>
+            <td>
+              @if($detail->variant)
+                  {{ $detail->variant->product->name }} - {{ $detail->variant->name }}
+              @else
+                  {{ $detail->product->name }}
+              @endif
+          </td>
             <td>
               {{ $detail->amount }}  
               @if ($detail->return_amount > 0)
@@ -113,7 +119,7 @@
     @foreach ($returns as $return)
     @if ($return->amount > 0)
     <li class="list-group-item fw-bold">
-      {{ $return->product->name }}: {{ $return->amount }}  <span class="fw-light">({{ $return->type }})</span> <span style="float: right">{{$return->date}}</span>
+      {{ $return->product->name }} - {{ $return->variant ? $return->variant->name : '' }} : {{ $return->amount }}  <span class="fw-light">({{ $return->type }})</span> <span style="float: right">{{$return->date}}</span>
     </li>
     @endif
     @endforeach
@@ -217,6 +223,7 @@
 
   $('.btn-kembalian').click(function() {
     const productId = detailBarang.products_id;
+    const variantId = detailBarang.variants_id;
     const jumlah = $('#jumlah').val() 
     const type = $(this).val();
     const saleId = {{ $sale->id }};
@@ -231,6 +238,7 @@
       data: JSON.stringify({
         sale_id: saleId,
         product_id: productId,
+        variant_id: variantId,
         amount: jumlah,
         type: type,
       }),

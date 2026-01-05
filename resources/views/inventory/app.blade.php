@@ -27,7 +27,12 @@
         </div>
         <div class="fw-bold text-secondary">
           Rp. {{$product->price}} <br>
-          Stok: {{ $product->stock }}
+          Stok: 
+          @if($product->variants->count() > 0)
+            {{ $product->variants->sum('stock') }}
+          @else
+            {{ $product->stock }}
+          @endif
         </div>
         <form action="{{ route('inventory.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Apakah yakin ingin menghapus {{$product->name}}?');">
           @csrf
