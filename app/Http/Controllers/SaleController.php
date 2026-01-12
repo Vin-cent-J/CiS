@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Configuration;
 use App\Models\Customer;
+use App\Models\Debt;
 use App\Models\DetailConfiguration;
 use App\Models\Product;
 use App\Models\Sale;
@@ -269,6 +270,13 @@ class SaleController extends Controller
                 $sale->total_debt = 0;
             }
             $sale->save();
+
+            Debt::create([
+                'sales_id' => $saleId,
+                'paid' => $paid,
+                'date' => now(),
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Debt updated successfully.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Sale not found.'], 404);
@@ -295,7 +303,7 @@ class SaleController extends Controller
                 $activeDetails[] = $detail->id;
             }
         }
-        $sale = Sale::with(['salesDetails.product', 'customer'])->find($id);
+        $sale = Sale::with(['salesDetails.product', 'customer', 'debts'])->find($id);
 
         $returns = ProductReturn::where('sales_id', $id)->get();
 

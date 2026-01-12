@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Configuration;
+use App\Models\Debt;
 use App\Models\DetailConfiguration;
 use App\Models\Product;
 use App\Models\Sale;
@@ -243,6 +244,12 @@ class PosController extends Controller
                 $sale->total_debt = 0;
             }
             $sale->save();
+
+            $debt = Debt::create([
+                'sales_id' => $saleId,
+                'paid' => $paid,
+                'date' => now(),
+            ]);
             return response()->json(['success' => true, 'debt'=>$sale->total_debt, 'message' => 'Debt updated successfully.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Sale not found.'], 404);
@@ -416,7 +423,7 @@ class PosController extends Controller
             }
         }
         
-        $sale = Sale::with(['customer', 'salesDetails.product'])
+        $sale = Sale::with(['customer', 'salesDetails.product', 'debts'])
             ->where('id', $id)
             ->first();
 

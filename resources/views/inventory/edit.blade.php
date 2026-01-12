@@ -75,9 +75,9 @@
         <form action="{{url('/inventory/addVariant')}}" method="post">
           @csrf
           <input type="hidden" name="id" value="{{ $product->id }}">
-          <input type="text" name="name" placeholder="Nama Varian baru" class="form-control m-2">
-          <input type="number" name="price" placeholder="Harga Varian" class="form-control m-2">
-          <input type="number" name="stock" placeholder="Stok Varian" class="form-control m-2">
+          <input type="text" name="name" placeholder="Nama Varian baru" class="form-control m-2" required>
+          <input type="number" name="price" placeholder="Harga Varian" class="form-control m-2" required>
+          <input type="number" name="stock" placeholder="Stok Varian" class="form-control m-2" required>
           <input type="submit" value="Simpan" class="btn btn-primary m-2">
         </form>
       </div>

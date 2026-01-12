@@ -37,7 +37,7 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 3,
-                'name'=> 'Termasuk pajak',
+                'name'=> 'Harga sudah termasuk pajak',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'sub_features_id'=>2
@@ -72,14 +72,14 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 7,
-                'name'=> 'Lunas',
+                'name'=> 'Saat pembayaran sudah lunas',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>5
             ],
             [
                 'id'=> 8,
-                'name'=> 'Hutang',
+                'name'=> 'Saat masih ada piutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>5
@@ -107,7 +107,7 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 11,
-                'name'=> 'Pajak',
+                'name'=> 'Harga sudah termasuk pajak',
                 'mandatory'=>false,
                 'is_active'=> true,
                 'sub_features_id'=>7
@@ -135,14 +135,14 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 15,
-                'name'=> 'Lunas',
+                'name'=> 'Saat pembayaran sudah lunas',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>10
             ],
             [
                 'id'=> 16,
-                'name'=> 'Hutang',
+                'name'=> 'Saat masih ada Hutang',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>10
@@ -236,7 +236,7 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 8,
-                'name'=> 'Pengurangan hutang',
+                'name'=> 'Pengurangan piutang',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>8

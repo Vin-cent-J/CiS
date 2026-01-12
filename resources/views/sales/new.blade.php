@@ -52,7 +52,7 @@
                     @foreach (session("sale-products", []) as $item)
                     <tr>
                         <td>
-                            <input type="text" class="form-control" value="{{ $item['product'] }} - {{ $item['name'] }}" readonly>
+                            <input type="text" class="form-control" value="{{ isset($item['product']) ? $item['product'] . ' - ' : '' }}{{ $item['name'] }}" readonly>
                             <input type="hidden" value="{{ $item['id'] }}">
                         </td>
                         <td> <input class="form-control qty" type="number" id="qty-{{$item['id']}}" data-value="{{$item['id']}}" value="{{$item['quantity']}}"></td>

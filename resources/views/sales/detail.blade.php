@@ -44,21 +44,36 @@
         <div class="m-2">
           @if($sale->total_debt > 0)
           <button class="btn btn-warning" id="btn-hutang">Kurangi piutang</button>
-          
+          <button class="btn btn-warning" id="btn-tampil">Tunjukan pembayaran</button>
+
           {{-- Container Hutang --}}
-          <div class="p-2 bg-light fadein" style="display: none;">
+          <div class="p-2 bg-light fadein" id="cont-piutang" style="display: none;">
             <div id="form-hutang" >
               <div class="mb-3">
-                <label for="jumlah_bayar" class="form-label">Jumlah Bayar: Rp.</label>
-                <input type="number" class="form-control w-50" style="display: inline" id="jumlahBayar" name="jumlahBayar" required>
+                <label for="jumlah_bayar" class="form-label">Jumlah Bayar</label>
+                <input type="number" class="form-control" id="jumlahBayar" name="jumlahBayar" required>
               </div>
               <button class="btn btn-warning" id="btnBayar">Bayar</button>
             </div>
           </div>
           @endif
+
+          <div class="p-2 bg-light fadein" id="cont-tampil" style="display: none;">
+            <table border="1" class="table table-bordered mt-3">
+              <tr class="table-light">
+                <th>Tanggal</th>
+                <th>Jumlah Bayar</th>
+              </tr>
+            @foreach ($sale->debts as $debt)
+              <tr>
+                <td>{{ $debt->date }}</td>
+                <td>Rp. {{ $debt->paid }}</td>
+              </tr>
+            @endforeach
+            </table>
+          </div>
         </div>
     </div>
-
     <hr>
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
@@ -169,7 +184,19 @@
 @section('js')
 <script>
   $("#btn-hutang").click(function(){
-    const box = $(".fadein");
+    const box = $('#cont-piutang');
+    if (box.is(":visible")) {
+      box.animate({ opacity: 0 }, 350, function() {
+        box.slideUp(300);
+      });
+    } else {
+      box.slideDown(300).css("opacity", 0).animate({ opacity: 1 }, 350);
+    }
+  });
+
+  $('#btn-tampil').click(function(){
+    const box = $('#cont-tampil'); 
+
     if (box.is(":visible")) {
       box.animate({ opacity: 0 }, 350, function() {
         box.slideUp(300);
@@ -209,10 +236,7 @@
         paid: jumlahBayar,
       }),
       success: function(data) {
-        $("#hutang").text("Rp. " + formatCurrency(data.debt));
-        if (data.debt === 0) {
-          location.reload();
-        }
+        location.reload();
       },
       error: function(xhr, status, error) {
         alert("Terjadi kesalahan saat memproses pembayaran piutang.");

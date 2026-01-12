@@ -31,4 +31,9 @@ class Purchase extends Model
     {
         return $this->hasMany(PurchaseDetail::class, 'purchases_id');
     }
+
+    public function debts()
+    {
+        return $this->hasMany(Debt::class, 'purchase_id');
+    }
 }

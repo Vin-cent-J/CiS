@@ -38,4 +38,9 @@ class Sale extends Model
     {
         return $this->hasMany(ProductReturn::class, 'sales_id');
     }
+
+    public function debts()
+    {
+        return $this->hasMany(Debt::class, 'sales_id');
+    }
 }

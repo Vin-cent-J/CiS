@@ -67,7 +67,7 @@ class FeatureSeeder extends Seeder
         DB::table("sub_features")->insert([
             [
                 'id'=>1,
-                'name'=> 'Metode pembayaran',
+                'name'=> 'Metode pembayaran yang dapat digunakan',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'features_id'=>1
@@ -88,14 +88,14 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>5,
-                'name'=> 'Pengembalian',
+                'name'=> 'Pengembalian barang',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>1
             ],
             [
                 'id'=>6,
-                'name'=> 'Metode pembayaran',
+                'name'=> 'Metode pembayaran yang dapat digunakan',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'features_id'=>2
@@ -116,14 +116,14 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>10,
-                'name'=> 'Pengembalian',
+                'name'=> 'Pengembalian barang',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>2
             ],
             [
                 'id'=>13,
-                'name'=>'Metode pembayaran',
+                'name'=>'Metode pembayaran yang dapat digunakan',
                 'mandatory'=>true,
                 'is_active'=>true,
                 'features_id'=>3
@@ -137,14 +137,14 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'id'=>11,
-                'name'=> 'Metode',
+                'name'=> 'Metode inventaris yang digunakan',
                 'mandatory'=>true,
                 'is_active'=>false,
                 'features_id'=>4
             ],
             [
                 'id'=>12,
-                'name'=> 'Varian',
+                'name'=> 'Barang dapat memiliki varian',
                 'mandatory'=>false,
                 'is_active'=>false,
                 'features_id'=>4
