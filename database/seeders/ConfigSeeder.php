@@ -65,7 +65,7 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 19,
-                'name'=> 'Bentuk diskon',
+                'name'=> 'Cakupan diskon',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>3
@@ -128,7 +128,7 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 20,
-                'name'=> 'Bentuk diskon',
+                'name'=> 'Cakupan diskon',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'sub_features_id'=>8
@@ -152,13 +152,6 @@ class ConfigSeeder extends Seeder
                 'name'=> 'Perpetual',
                 'mandatory'=>false,
                 'is_active'=> true,
-                'sub_features_id'=>11
-            ],
-            [
-                'id'=> 18,
-                'name'=> 'Periodik',
-                'mandatory'=>false,
-                'is_active'=> false,
                 'sub_features_id'=>11
             ],
             [

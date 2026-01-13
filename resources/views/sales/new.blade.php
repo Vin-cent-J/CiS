@@ -44,6 +44,9 @@
                             Diskon
                         </th>
                         @endif
+                        @if(!in_array(11, $activeConfigs))
+                        <th>Pajak (11%)</th>
+                        @endif
                         <th>Total</th>
                         <th></th>
                     </tr>
@@ -76,16 +79,37 @@
                             </select> 
                         </td>
                         @endif
+                        @php
+                            $taxActive = in_array(11, $activeDetails);
+                            $taxRate = $taxActive ? 0 : 0.11;
+                            $lineTotal = ($item['discount_type'] == 2) 
+                                ? ($item['price'] * $item['quantity']) * (1 - $item['discount'] / 100)
+                                : ($item['price'] * $item['quantity']) - $item['discount'];
+                            $tax = $lineTotal * $taxRate;
+                        @endphp
+                        @if(!in_array(11, $activeConfigs))
+                        <td>
+                            <span id="tax-{{$item['id']}}">Rp.{{ number_format($tax, 0, ',', '.') }}</span>
+                        </td>
+                        @endif
                         <td>
                             <strong id="total-{{$item['id']}}">
-                                @if ($item['discount_type'] == 1)
-                                Rp.{{ number_format(($item['price'] * $item['quantity']) - $item['discount'], 0, ',', '.') }}
-                                @else
-                                Rp.{{ number_format(($item['price'] * $item['quantity']) - (($item['price'] * $item['quantity']) * ($item['discount'] / 100)), 0, ',', '.') }}
-                                @endif
+                                @php
+                                    if ($item['discount_type'] == 1) {
+                                        $subTotal = ($item['price'] * $item['quantity']) - $item['discount'];
+                                    } else {
+                                        $subTotal = ($item['price'] * $item['quantity']) - (($item['price'] * $item['quantity']) * ($item['discount'] / 100));
+                                    }
+                                    $afterTax = $subTotal + $subTotal * $taxRate  ; 
+                                @endphp
+                                Rp.{{ number_format($afterTax, 0, ',', '.') }}
                             </strong>
                         </td>
-                        <td class="text-center"><a href=""><i class="bi bi-trash3-fill"></i></a></td>
+                        <td class="text-center">
+                            <a class="deleteButton btn btn-danger" data-value="{{ $item['id'] }}"">
+                                <i class="bi bi-trash3-fill"></i>
+                            </a>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -137,6 +161,7 @@
                                 $grandTotal += ($item['price'] * $item['quantity']) - $item['discount'];
                             }
                         }
+                        $grandTotal = $grandTotal + $grandTotal * $taxRate;
                     @endphp
                     <p class="fw-bold" id="total-o">Rp. {{ number_format($grandTotal, 0) }}</p>
                 </div>
@@ -185,6 +210,9 @@
         return new Intl.NumberFormat('id-ID').format(amount);
     }
 
+    const useTax = {{ in_array(11, $activeConfigs)}};
+    const taxRate = useTax ? 0 : 0.11;
+
     const products = @json($products);
     $(document).ready(function() {
         let address = $('#kustomer option:selected').data('value');
@@ -220,6 +248,26 @@
             complete: function() {
                 $(this).prop('disabled', false).text('+ Tambah');
             }
+        });
+    });
+
+    $('.deleteButton').click(function() {
+        const productId = $(this).data('value');
+        $.ajax({
+        url: '/sales/deleteSession/'+productId,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        },
+        contentType: 'application/json',
+        success: function(data) {
+            alert(data.products.length);
+            location.reload();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('Terjadi kesalahan. ' + errorThrown);
+        }
         });
     });
 
@@ -259,7 +307,9 @@
                 total += (item.price * item.quantity) - item.discount;
             }
         }
-        $('#total-o').text('Rp.' + formatCurrency(total - discount));
+        beforeTax = total - discount
+        grandTotal = beforeTax + beforeTax * taxRate
+        $('#total-o').text('Rp.' + formatCurrency(grandTotal));
     });
 
     $('.discount').on('keyup',function(){
@@ -297,8 +347,9 @@
                         total += (item.price * item.quantity) - item.discount;
                     }
                 }
+                grandTotal = total + total * taxRate
                 
-                $('#total-o').text('Rp.' + formatCurrency(total));
+                $('#total-o').text('Rp.' + formatCurrency(grandTotal));
             },
         })
     });
@@ -329,23 +380,27 @@
         if (data.success) {
             const product = data.product;
 
+            total1 = 0;
+            afterTax = 0;
             if(type == 1){
-            $('#total-'+id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount ));
+                total = parseInt(product.price) * parseInt(product.quantity) - product.discount;
             } else {
-            $('#total-'+id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
+                total = product.price * product.quantity * (1 - product.discount / 100);
             }
+            afterTax = total + total * taxRate;
+            $('#total-'+id).text('Rp.' + formatCurrency(afterTax));
 
-            let total = 0;
+            let total2 = 0;
             for (const item of data.products) {
                 if(item.discount_type == 2) {
-                    total += (item.price * item.quantity) * (1-item.discount/100);
+                    total2 += (item.price * item.quantity) * (1-item.discount/100);
                 } else {
-                    total += (item.price * item.quantity) - item.discount;
+                    total2 += (item.price * item.quantity) - item.discount;
                 }
             }
             
-            $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
-            $('#total').text('Rp.' + formatCurrency(total));
+            $('#pembayaran #total-m').text('Rp.' + formatCurrency(total2));
+            $('#total').text('Rp.' + formatCurrency(total2));
             
         } else {
             alert('Gagal memperbarui diskon: ' + data.message);
@@ -355,5 +410,6 @@
         alert('Terjadi kesalahan. '+error);
         });
     });
+
 </script>
 @endsection

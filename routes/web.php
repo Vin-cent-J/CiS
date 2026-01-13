@@ -31,12 +31,14 @@ Route::post("/discounts/updateRule", [\App\Http\Controllers\DiscountRuleControll
 
 Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "setSession"]);
 Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);
+Route::get("/sales/deleteSession/{id}", [\App\Http\Controllers\SaleController::class, "deleteSessionProduct"]);
 //Route::post("/sales/changeProduct", [\App\Http\Controllers\SaleController::class, "changeProduct"]);
 Route::post("/sales/updateDiscount", [\App\Http\Controllers\SaleController::class, "updateDiscount"]);
 Route::post("/sales/updateDebt", [\App\Http\Controllers\SaleController::class, "updateDebt"]);
 
 Route::post("/purchases/setSession", [\App\Http\Controllers\PurchaseController::class, "setSession"]);
 Route::post("/purchases/updateQty", [\App\Http\Controllers\PurchaseController::class, "updateQuantity"]);
+route::get("/purchases/deleteSession/{id}", [\App\Http\Controllers\PurchaseController::class, "deleteSessionProduct"]);
 //Route::post("/purchases/changeProduct", [\App\Http\Controllers\PurchaseController::class, "changeProduct"]);
 Route::post("/purchases/updatePrice", [\App\Http\Controllers\PurchaseController::class, "updatePrice"]);
 Route::post("/purchases/updateDebt", [\App\Http\Controllers\PurchaseController::class, "updateDebt"]);

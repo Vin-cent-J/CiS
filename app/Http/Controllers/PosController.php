@@ -334,6 +334,8 @@ class PosController extends Controller
      */
     public function store(Request $request)
     {
+        $hasTaxConfig = Configuration::where('id', 3)->where('is_active', 1)->exists();
+        $taxRate = $hasTaxConfig ? 0 : 0.11;
         $discount = Session("saleTotalDisc", 0); 
         $products = Session('products', []);
         $total = 0;
@@ -344,14 +346,18 @@ class PosController extends Controller
                 $total += $product['price'] * $product['quantity'] - $product['discount'];
             }
         }
+
         $total -= $discount;
+        $tax = $total * $taxRate; 
+        $grandTotal = $total + $tax;
 
         $s = Sale::create([
             'customers_id' => $request->customer_id == "" ? 1: $request->customer_id,
             'sales_type' => 'pos',
             'date' => now(),
             'shipping_date' => now(),
-            'total' => $total,
+            'total' => $grandTotal,
+            'tax' => $tax,
             'discount' => $discount ?? 0,
             'discount_type' => $request->discount_type ?? 1,
             'payment_methods' => $request->payment_method,

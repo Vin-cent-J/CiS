@@ -95,6 +95,8 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $total = 0;
+        $totalTax = 0;
+        $taxRate = 0.11;
         foreach(Session::get('sale-products', []) as $product) {
             if($product['discount_type']== 2){
                 $total += $product['price'] * $product['quantity'] * (1- ($product['discount'] / 100));
@@ -103,17 +105,27 @@ class SaleController extends Controller
             }
         }
 
+        $globalDiscount = $request->discount ?? 0;
+    
+        $taxableAmount = max(0, $total - $globalDiscount);
+
+        $isTaxIncluded = Configuration::where('id', 11)->where('is_active', 1)->exists();
+        $taxRate = $isTaxIncluded ? 0 : 0.11;
+        $totalTax = $taxableAmount * $taxRate; 
+        $grandTotal = $taxableAmount + $totalTax;
+
         $sale = Sale::create([
             'customers_id' => $request->customer == "" ? 1: $request->customer,
             'sales_type' => 'sales',
             'date' => now(),
             'shipping' => $request->shipping ?? '',
             'shipping_fee' => $request->shipping_fee ?? 0,
-            'total' => $total,
+            'total' => $grandTotal,
             'discount' => $request->discount ?? 0,
             'discount_type' => $request->discount_type ?? 1,
             'payment_methods' => $request->payment_method,
             'total_debt' => $request->payment_method == "piutang" ? $total : 0,
+            'tax' => $totalTax ?? 0,
         ]);
         $isPerpetual = Configuration::where('id', 17)->where('is_active', 1)->first();
         foreach (Session::get('sale-products', []) as $product) {
@@ -206,6 +218,22 @@ class SaleController extends Controller
         Session::put('added', $added);
         Session::put('sale-products', $products);
         return response()->json(['message' => 'Session set', 'products' => Session('sale-products')]);
+    }
+
+    public function deleteSessionProduct(Request $request)
+    {
+        $productIdToDelete = (int)$request->id; 
+        $products = Session::get('sale-products', []);
+
+        $updatedProducts = [];
+
+        $updatedProducts = array_filter($products, function ($product) use ($productIdToDelete) {
+            return $product['id'] !== $productIdToDelete;
+        });
+
+        Session::put('sale-products', $updatedProducts);
+
+        return response()->json(['message' => 'Product deleted from session', 'products' => $updatedProducts]);
     }
 
     public function updateDiscount(Request $request)

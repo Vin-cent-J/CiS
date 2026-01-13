@@ -55,7 +55,9 @@
                                 Rp.{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                             </strong>
                         </td>
-                        <td class="text-center"><a href=""><i class="bi bi-trash3-fill"></i></a></td>
+                        <td class="text-center">
+                            <a class="deleteButton btn btn-danger" data-value="{{ $item['id'] }}"><i class="bi bi-trash3-fill"></i></a>
+                        </td>
                     </tr>
                     @endforeach                    
                 </tbody>
@@ -245,9 +247,24 @@
         })
     });
 
-    // $('.price, .qty').on('blur',function(){
-    //     location.reload();
-    // })
+    $('.deleteButton').click(function() {
+        const productId = $(this).data('value');
+        $.ajax({
+        url: '/purchases/deleteSession/'+productId,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        },
+        contentType: 'application/json',
+        success: function(data) {
+            location.reload();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('Terjadi kesalahan. ' + errorThrown);
+        }
+        });
+    });
 
     $('#globalDiscount').on('keyup',function(){
         const discount = $(this).val();

@@ -134,6 +134,25 @@ class PurchaseController extends Controller
         return response()->json(['message' => 'Session set', 'products' => Session('purchase-products')]);
     }
 
+    public function deleteSessionProduct(Request $request)
+    {
+        $productIdToDelete = (int) $request->id; 
+        $products = Session::get('purchase-products', []);
+
+        $updatedProducts = [];
+
+        foreach ($products as $product) {
+            if ($product['id'] !== $productIdToDelete) {
+                $updatedProducts[] = $product;
+            }
+        }
+
+        Session::put('purchase-products', $updatedProducts);
+
+        return response()->json(['message' => 'Product deleted from session', 'products' => $updatedProducts]);
+    }
+
+
     public function changeProduct(Request $request){
         $cart = Session::get('purchase-products', []);
         foreach ($cart as $key => &$item) {

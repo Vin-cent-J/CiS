@@ -23,6 +23,7 @@ class Sale extends Model
         'sales_type',
         'discount',
         'discount_type',
+        'tax'
     ];
     public function customer()
     {
