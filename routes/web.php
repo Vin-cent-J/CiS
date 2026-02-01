@@ -28,6 +28,7 @@ Route::get("/report/sales/{date}", [ReportController::class, "salesReport"])->na
 Route::get('/report/purchases/{date}', [ReportController::class, "purchasesReport"])->name("report.purchases");
 
 Route::post("/discounts/updateRule", [\App\Http\Controllers\DiscountRuleController::class, "updateRule"]);
+Route::post("/discounts/insertRule", [\App\Http\Controllers\DiscountRuleController::class, "insertRule"]);
 
 Route::post("/sales/setSession", [\App\Http\Controllers\SaleController::class, "setSession"]);
 Route::post("/sales/updateQty", [\App\Http\Controllers\SaleController::class, "updateQuantity"]);

@@ -75,6 +75,25 @@ class DiscountRuleController extends Controller
         }
     }
 
+    public function insertRule(Request $request)
+    {
+        foreach ($request->categories as $categoryId) {
+            
+            DiscountRule::updateOrCreate(
+                ['categories_id' => $categoryId],
+                [
+                    'minimum' => $request->minimal,
+                    'categories_id' => $categoryId,
+                ]
+            );
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Rules applied to ' . count($request->categories) . ' categories!'
+        ], 200);
+    }
+
     public function updateRule(Request $request)
     {
         $id = $request->id;

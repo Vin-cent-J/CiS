@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Configuration;
 use App\Models\Debt;
 use App\Models\DetailConfiguration;
@@ -45,8 +46,10 @@ class PosController extends Controller
         $customers = Customer::whereNot('id', 1)->get();
 
         $products = Product::with('variants')->get();
+
+        $categories = Category::all();
         
-        return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers', 'discountRules'));
+        return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers', 'discountRules', 'categories'));
     }
 
     public function setSession(Request $request)

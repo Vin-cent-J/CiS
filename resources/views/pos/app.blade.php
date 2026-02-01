@@ -7,12 +7,18 @@
   <a type="button" class="btn btn-warning" href="{{url('/pos/riwayat')}}">
     Laporan
   </a>
-  <a class="btn btn-warning" href="{{ url('/discounts') }}">
+  @if (in_array(6, $activeConfigs) && $features->contains('id',3))
+  <a class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#syarat">
     Syarat Diskon
   </a>
+  @endif
 </nav>
 @endsection
 @section("isi")
+@php
+  $taxActive = in_array(3, $activeDetails);
+  $taxRate = $taxActive ? 0 : 0.11;
+@endphp
 <div class="container-fluid card" style="min-height: 84vh;">
   <div class="row flex-grow-1">
     <div class="col-3 p-2 card">
@@ -65,10 +71,11 @@
       </div>
       
       @php
+      echo "<script>console.log(".json_encode($activeConfigs).")</script>";
       $total = 0;
       foreach (session('products', []) as $product) {
         $total += $product['price'] * $product['quantity'];
-        echo "<script>console.log(".json_encode($product).")</script>";
+        
         if($product['discount_type'] == 2) {
           $diskon = ($product['price'] * $product['quantity']) * ($product['discount'] / 100);
           $total -= $diskon - session('saleTotalDisc', 0);
@@ -76,9 +83,9 @@
           $total -= $product['discount'];
         }
       }
+      $afterTax = $total + $total * $taxRate;
       @endphp
       <div class="row w-100 position-absolute bottom-0 p-1">
-        @if ($features->contains('id',3))
         <div class="diskontotal">
           @if (in_array(19, $activeDetails) && $features->contains('id',3))
           <div class="m-1">
@@ -87,11 +94,13 @@
           </div>
           @endif
           <div class="text-end">
-            Total: <strong id="total"> Rp.{{ number_format($total)}}</strong>
+            @if ($taxActive)
+            Pajak: <strong id="tax"> Rp. {{ number_format($total*$taxRate) }}</strong> <br>
+            @endif
+            Total: <strong id="total"> Rp.{{ number_format($afterTax)}}</strong>
             <hr>
           </div>
         </div>
-        @endif
         <div class="m-2 text-end">
           <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#pembayaran" <?= session('products', []) == [] ? 'disabled' : '' ?>>
             Bayar
@@ -103,7 +112,7 @@
     <div class="col-8 bg-light p-2">
       <!-- Todo: Filter barang -->
       <Strong><i class="bi bi-box-seam-fill"></i>Katalog:</Strong>
-      <div class="row p-2" style="overflow-y: scroll;">
+      <div class="row p-2" style="overflow-y: scroll">
         @foreach ($products as $product)
         @if($product->variants->count() > 0)
           @foreach($product->variants as $variant)
@@ -200,113 +209,103 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="syarat" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Syarat Diskon</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Minimal Pembelian</label>
+            <input type="number" id="input-minimal" name="minimal" min="0" value="0" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Berlaku Untuk Kategori</label>
+            <select id="select-category" name="categories[]" class="form-control" multiple style="height: 200px;">
+              @foreach ($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}: {{ $category->discountRule->minimum ?? 0 }}</option>
+              @endforeach
+            </select>
+            <div class="form-text text-muted">
+                <i class="fas fa-info-circle"></i> 
+                Tahan tombol <b>CTRL</b> (Windows) atau <b>Command</b> (Mac) untuk memilih lebih dari satu.
+            </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btn-simpan">Simpan</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section("js")
 <script>
+  const useTax = @json( in_array(3, $activeConfigs));
+  const taxRate = useTax ? 0 : 0.11;
+
   const discountRules = @json($discountRules);
 
   $(document).ready(function () {
+    function updateServerDiscount(productId, val, type) {
+      $.ajax({
+        url: '/pos/updateDiscount',
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        contentType: 'application/json',
+        data: JSON.stringify({
+          productId: productId,
+          discount: val,
+          discount_type: type
+        }),
+        success: function(data) {
+          location.reload(); 
+        }
+      });
+    }
+
     @foreach (session('products', []) as $product)
-      (function () {
         const productId = {{ $product['id'] }};
         const categoryId = {{ $product['categories_id'] ?? 'null' }};
         const quantity = {{ $product['quantity'] ?? 1 }};
+        
+        const discountInput = $('#discount-' + productId);
+        const typeSelect = $('.type-' + productId);
 
-        let bestRule = null;
-        let bestPriority = 0;
-
-        for (let rule of discountRules) {
-          const matchesProduct = rule.products_id !== null && rule.products_id === productId;
-          const matchesCategory = rule.categories_id !== null && rule.categories_id === categoryId;
-          const isGlobal = rule.products_id === null && rule.categories_id === null;
-
-          const matchesQuantity = quantity >= rule.minimum;
-          if (!matchesQuantity) {
-            continue
-          };
-
-          if (matchesProduct && bestPriority < 3) {
-            bestRule = rule;
-            bestPriority = 3;
-          } else if (matchesCategory && bestPriority < 2) {
-            bestRule = rule;
-            bestPriority = 2;
-          } else if (isGlobal && bestPriority < 1) {
-            bestRule = rule;
-            bestPriority = 1;
-          }
+        let rule = discountRules.find(r => r.products_id === productId);
+        if (!rule) {
+          rule = discountRules.find(r => r.categories_id === categoryId);
         }
 
-        if (bestRule) {
-          const discountInput = $('#discount-' + productId);
-          const typeSelect = $('.type-' + productId);
+        if (rule) {
+            if (quantity < rule.minimum) {
+              discountInput.prop('disabled', true);
+              typeSelect.prop('disabled', true);
 
-          let discountValue = 0;
-          let discountType = 1;
-
-          if (bestRule.line_discount !== null) {
-            discountValue = bestRule.line_discount;
-          } else {
-            discountValue = 0;
-          }
-
-          discountType = (discountValue < 100) ? 2 : 1;
-
-          discountInput.val(discountValue).prop('disabled', true);
-          typeSelect.val(discountType).prop('disabled', true);
-
-          $.ajax({
-            url: '/pos/updateDiscount',
-            method: 'POST',
-            headers: {
-              'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            contentType: 'application/json',
-            data: JSON.stringify({
-              productId: productId,
-              discount: discountValue,
-              discount_type: discountType
-            }),
-            success: function(data) {
-              const product = data.product;
-              const disc = data.saleTotalDisc;
-
-              if (type == 1) {
-                $('#total-' + id).text('Rp.' + formatCurrency(parseInt(product.price) * parseInt(product.quantity) - product.discount));
-              } else {
-                $('#total-' + id).text('Rp.' + formatCurrency(product.price * product.quantity * (1 - product.discount / 100)));
+              if (parseFloat(discountInput.val()) > 0) {
+                discountInput.val(0);
+                updateServerDiscount(productId, 0, 1);
               }
-
-              let total = 0;
-              for (const item of data.products) {
-                if (item.discount_type == 2) {
-                  total += (item.price * item.quantity) * (1 - item.discount / 100) - disc;
-                } else {
-                  total += (item.price * item.quantity) - item.discount - disc;
-                }
-              }
-
-              if(total < 0){
-                total = 0;
-              }
-
-              $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
-              $('#total').text('Rp.' + formatCurrency(total));
-
-              location.reload();
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-              alert('Terjadi kesalahan. ' + errorThrown);
+            } else {
+              discountInput.prop('disabled', false);
+              typeSelect.prop('disabled', false);
             }
-          });
+        } else {
+          discountInput.prop('disabled', false);
+          typeSelect.prop('disabled', false);
         }
-      })();
+    }
     @endforeach
   });
-</script>
 
-<script>
   let features = @json($features);
   let activeConfigs = {{json_encode($activeDetails)}};
   const productList = $('#keranjang-products');
@@ -429,6 +428,47 @@
         $('#total').text('Rp.' + formatCurrency(totalF));
       },
     })
+  });
+
+  $('#btn-simpan').click(function(e) {
+    e.preventDefault();
+
+    var minimalVal = $('#input-minimal').val();
+    var categoryVal = $('#select-category').val();
+
+    if (!categoryVal || categoryVal.length === 0) {
+      alert("Pilih setidaknya satu kategori!");
+      return;
+    }
+
+    var saveBtn = $(this);
+    saveBtn.text('Menyimpan...').prop('disabled', true);
+
+    $.ajax({
+        url: "/discounts/insertRule",
+        type: "POST",
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        data: {
+            minimal: minimalVal,
+            categories: categoryVal
+        },
+        success: function(response) {
+            if(response.status === 'success') {
+                alert(response.message);
+                $('#syarat').modal('hide');
+                location.reload(); 
+            }
+        },
+        error: function(xhr) {
+            alert('Gagal menyimpan data.');
+            console.log(xhr.responseText);
+        },
+        complete: function() {
+            saveBtn.text('Simpan').prop('disabled', false);
+        }
+    });
   });
 
   $('.discount').on('keyup', function() {

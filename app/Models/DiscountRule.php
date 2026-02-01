@@ -13,10 +13,7 @@ class DiscountRule extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name',
         'minimum',
-        'line_discount',
-        'sales_type',
         'products_id',
         'categories_id'
     ];

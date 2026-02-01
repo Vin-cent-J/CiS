@@ -11,6 +11,10 @@
 @endsection
 
 @section("isi")
+@php
+    $taxActive = in_array(11, $activeDetails);
+    $taxRate = $taxActive ? 0 : 0.11;
+@endphp
 <div class="container card p-3" style="min-height: 82vh">
     <form action="{{url('/sales')}}" method="post">
         @csrf
@@ -80,8 +84,6 @@
                         </td>
                         @endif
                         @php
-                            $taxActive = in_array(11, $activeDetails);
-                            $taxRate = $taxActive ? 0 : 0.11;
                             $lineTotal = ($item['discount_type'] == 2) 
                                 ? ($item['price'] * $item['quantity']) * (1 - $item['discount'] / 100)
                                 : ($item['price'] * $item['quantity']) - $item['discount'];

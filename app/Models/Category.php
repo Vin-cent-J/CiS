@@ -18,9 +18,9 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function discountRules()
+    public function discountRule()
     {
-        return $this->belongsToMany(DiscountRule::class, 'discounted_categories', 'categories_id', 'discount_rules_id');
+        return $this->hasOne(DiscountRule::class, 'categories_id');
     }
 
 }

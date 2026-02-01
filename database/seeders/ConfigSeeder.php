@@ -58,7 +58,7 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 6,
-                'name'=> 'Diskon otomatis',
+                'name'=> 'Syarat Diskon',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'sub_features_id'=>3

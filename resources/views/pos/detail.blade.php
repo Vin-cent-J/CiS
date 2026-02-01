@@ -128,6 +128,7 @@
 </div>
 
 <div class="container card">
+  @if ($features->contains('id',5))
   <ul class="list-group list-group-flush">
     <li class="list-group-item">
       <h4>Pengembalian</h4>
@@ -140,6 +141,7 @@
     @endif
     @endforeach
   </ul>
+  @endif
 </div>
 
 {{-- Modal --}}
