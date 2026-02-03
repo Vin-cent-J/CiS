@@ -77,20 +77,33 @@ class DiscountRuleController extends Controller
 
     public function insertRule(Request $request)
     {
-        foreach ($request->categories as $categoryId) {
-            
-            DiscountRule::updateOrCreate(
-                ['categories_id' => $categoryId],
-                [
-                    'minimum' => $request->minimal,
-                    'categories_id' => $categoryId,
-                ]
-            );
+        if ($request->has('categories')) {
+            foreach ($request->categories as $categoryId) {
+                DiscountRule::updateOrCreate(
+                    ['categories_id' => $categoryId],
+                    [
+                        'minimum' => $request->minimal,
+                        'products_id' => null,
+                    ]
+                );
+            }
+        }
+
+        if ($request->has('products')) {
+            foreach ($request->products as $prodId) {
+                DiscountRule::updateOrCreate(
+                    ['products_id' => $prodId],
+                    [
+                        'minimum' => $request->minimal,
+                        'categories_id' => null
+                    ]
+                );
+            }
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Rules applied to ' . count($request->categories) . ' categories!'
+            'message' => 'Riwayat telah tersimpan.'
         ], 200);
     }
 

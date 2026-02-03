@@ -16,7 +16,8 @@
 @endsection
 @section("isi")
 @php
-  $taxActive = in_array(3, $activeDetails);
+  $taxActive = in_array(3, $activeConfigs);
+  echo $taxActive ? '<script>console.log("Pajak Aktif")</script>' : '<script>console.log("Pajak Non-Aktif")</script>';
   $taxRate = $taxActive ? 0 : 0.11;
 @endphp
 <div class="container-fluid card" style="min-height: 84vh;">
@@ -27,8 +28,9 @@
         @if (session('products', []) == [])
           <div class="text-muted text-center">Keranjang masih kosong</div>
         @else
+        <div class="overflow-auto" style="max-height: 60vh;">
         @foreach ( session('products', []) as $product)
-        <div class="row p-1 bg-light card" id="product-{{$product['id']}}">
+        <div class="row p-1 bg-light card" id="product-{{$product['id']}}" style="max-width: 100%;">
           <div class="col d-flex justify-content-between">
             <div>
               <strong> {{$product['name']}} </strong>
@@ -40,7 +42,6 @@
                 @else
                 Rp.{{number_format($product['price'] * $product['quantity'] * (1-$product['discount']/100))}} 
                 @endif
-                
               </strong>
             </div>
           </div>
@@ -67,11 +68,11 @@
           </div>
         </div>
         @endforeach
+        </div>
         @endif
       </div>
       
       @php
-      echo "<script>console.log(".json_encode($activeConfigs).")</script>";
       $total = 0;
       foreach (session('products', []) as $product) {
         $total += $product['price'] * $product['quantity'];
@@ -94,7 +95,7 @@
           </div>
           @endif
           <div class="text-end">
-            @if ($taxActive)
+            @if (!$taxActive)
             Pajak: <strong id="tax"> Rp. {{ number_format($total*$taxRate) }}</strong> <br>
             @endif
             Total: <strong id="total"> Rp.{{ number_format($afterTax)}}</strong>
@@ -217,25 +218,43 @@
         <h5 class="modal-title">Syarat Diskon</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      
       <div class="modal-body">
         <div class="mb-3">
-            <label class="form-label fw-bold">Minimal Pembelian</label>
-            <input type="number" id="input-minimal" name="minimal" min="0" value="0" class="form-control">
+          <label class="form-label fw-bold">Minimal Pembelian</label>
+          <input type="number" id="input-minimal" name="minimal" min="0" value="0" class="form-control">
         </div>
-
+        @if (in_array(5, $activeDetails))
+        <hr> 
         <div class="mb-3">
-            <label class="form-label fw-bold">Berlaku Untuk Kategori</label>
-            <select id="select-category" name="categories[]" class="form-control" multiple style="height: 200px;">
-              @foreach ($categories as $category)
-                <option value="{{ $category->id }}">{{ $category->name }}: {{ $category->discountRule->minimum ?? 0 }}</option>
-              @endforeach
-            </select>
-            <div class="form-text text-muted">
-                <i class="fas fa-info-circle"></i> 
-                Tahan tombol <b>CTRL</b> (Windows) atau <b>Command</b> (Mac) untuk memilih lebih dari satu.
-            </div>
+          <label class="form-label fw-bold">Berlaku Untuk Kategori</label>
+          <select id="select-category" name="categories[]" class="form-control" multiple style="height: 200px;">
+            @foreach ($categories as $category)
+              <option value="{{ $category->id }}">{{ $category->name }} (Min: {{ $category->discountRule->minimum ?? 0 }})</option>
+            @endforeach
+          </select>
         </div>
+        @endif
+        <hr> 
+        <div class="mb-3">
+          <label class="form-label fw-bold">Berlaku Untuk Produk Spesifik</label>
+          <select id="select-product" name="products[]" class="form-control" multiple style="height: 150px;">
+            @foreach ($products as $product)
+              <option value="{{ $product->id }}">{{ $product->name }} (Min: {{ $product->discountRule->minimum ?? 0 }})</option>
+            @endforeach
+          </select>
+        </div>
+        <small class="text-muted">Pilih Produk (Ctrl/Command untuk multiple)</small>
+      </div>
+      <hr>
+      <div class="mb-3 p-2">
+          <label class="form-label fw-bold text-warning-emphasis"><i class="bi bi-gift-fill"></i> Hadiah Bonus (Opsional)</label>
+          <select name="bonus_product_id" id="select-bonus" class="form-control">
+              <option value="">-- Tidak Ada Bonus --</option>
+              @foreach ($products as $product)
+              <option value="{{ $product->id }}">{{ $product->name }}</option>
+              @endforeach
+          </select>
+          <small class="text-muted">Jika syarat terpenuhi, pelanggan dapat gratis barang ini.</small>
       </div>
 
       <div class="modal-footer">
@@ -273,35 +292,37 @@
     }
 
     @foreach (session('products', []) as $product)
-        const productId = {{ $product['id'] }};
-        const categoryId = {{ $product['categories_id'] ?? 'null' }};
-        const quantity = {{ $product['quantity'] ?? 1 }};
-        
-        const discountInput = $('#discount-' + productId);
-        const typeSelect = $('.type-' + productId);
+    {
+      const productId = {{ $product['id'] }};
+      const categoryId = {{ $product['categories_id'] ?? 'null' }};
+      const quantity = {{ $product['quantity'] ?? 1 }};
+      
+      const discountInput = $('#discount-' + productId);
+      const typeSelect = $('.type-' + productId);
 
-        let rule = discountRules.find(r => r.products_id === productId);
-        if (!rule) {
-          rule = discountRules.find(r => r.categories_id === categoryId);
-        }
+      let rule = discountRules.find(r => r.products_id == productId);
+      
+      if (!rule && categoryId) {
+        rule = discountRules.find(r => r.categories_id == categoryId && r.products_id == null);
+      }
 
-        if (rule) {
-            if (quantity < rule.minimum) {
-              discountInput.prop('disabled', true);
-              typeSelect.prop('disabled', true);
+      if (rule) {
+          if (quantity < rule.minimum) {
+            discountInput.prop('disabled', true);
+            typeSelect.prop('disabled', true);
 
-              if (parseFloat(discountInput.val()) > 0) {
-                discountInput.val(0);
-                updateServerDiscount(productId, 0, 1);
-              }
-            } else {
-              discountInput.prop('disabled', false);
-              typeSelect.prop('disabled', false);
+            if (parseFloat(discountInput.val()) > 0) {
+              discountInput.val(0);
+              updateServerDiscount(productId, 0, 1);
             }
-        } else {
-          discountInput.prop('disabled', false);
-          typeSelect.prop('disabled', false);
-        }
+          } else {
+            discountInput.prop('disabled', false);
+            typeSelect.prop('disabled', false);
+          }
+      } else {
+        discountInput.prop('disabled', false);
+        typeSelect.prop('disabled', false);
+      }
     }
     @endforeach
   });
@@ -325,13 +346,13 @@
       discountSectionHtml =
       `<div class="text-gray-600 flex justify-between items-center mt-1">
         <p class="text-sm">Diskon: <input type="number" class="w-16 p-1 border border-gray-300 rounded-md text-sm discount" data-value="${product.id}" min="0" max="100">%</p>
-        <a class="btn btn-danger text-red-500 hover:text-red-700 focus:outline-none" data-product-id="${product.id}">
+        <a class="btn btn-danger text-red-500 hover:text-red-700 focus:outline-none deleteButton" data-product-id="${product.id}">
           <i class="bi bi-trash m-0"></i> </a>
       </div>`;
     } else {
       discountSectionHtml =
       `<div class="text-gray-600 flex justify-end items-center mt-1">
-        <a class="btn btn-danger py-0 text-red-500 hover:text-red-700 focus:outline-none" data-product-id="${product.id}">
+        <a class="btn btn-danger py-0 text-red-500 hover:text-red-700 focus:outline-none deleteButton" data-product-id="${product.id}">
           <i class="bi bi-trash m-0"></i> </a>
       </div>`;
     }
@@ -435,9 +456,10 @@
 
     var minimalVal = $('#input-minimal').val();
     var categoryVal = $('#select-category').val();
+    var productVal = $('#select-product').val();
 
-    if (!categoryVal || categoryVal.length === 0) {
-      alert("Pilih setidaknya satu kategori!");
+    if ((!categoryVal || categoryVal.length === 0) && (!productVal || productVal.length === 0)) {
+      alert("Pilih setidaknya satu kategori atau produk.");
       return;
     }
 
@@ -445,29 +467,30 @@
     saveBtn.text('Menyimpan...').prop('disabled', true);
 
     $.ajax({
-        url: "/discounts/insertRule",
-        type: "POST",
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        data: {
-            minimal: minimalVal,
-            categories: categoryVal
-        },
-        success: function(response) {
-            if(response.status === 'success') {
-                alert(response.message);
-                $('#syarat').modal('hide');
-                location.reload(); 
-            }
-        },
-        error: function(xhr) {
-            alert('Gagal menyimpan data.');
-            console.log(xhr.responseText);
-        },
-        complete: function() {
-            saveBtn.text('Simpan').prop('disabled', false);
+      url: "/discounts/insertRule",
+      type: "POST",
+      headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      },
+      data: {
+        minimal: minimalVal,
+        categories: categoryVal,
+        products: productVal
+      },
+      success: function(response) {
+        if(response.status === 'success') {
+          alert(response.message);
+          $('#syarat').modal('hide');
+          location.reload(); 
         }
+      },
+      error: function(xhr) {
+        alert('Gagal menyimpan data.');
+        console.log(xhr.responseText);
+      },
+      complete: function() {
+        saveBtn.text('Simpan').prop('disabled', false);
+      }
     });
   });
 

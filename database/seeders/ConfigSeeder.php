@@ -194,21 +194,21 @@ class ConfigSeeder extends Seeder
             ],
             [
                 'id'=> 3,
-                'name'=> 'Minimal',
+                'name'=> 'Minimal pembelian',
                 'mandatory'=>true,
                 'is_active'=> true,
                 'configurations_id'=>6
             ],
             [
                 'id'=> 4,
-                'name'=> 'Jenis',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'name'=> 'Barang Tertentu',
+                'mandatory'=>true,
+                'is_active'=> true,
                 'configurations_id'=>6
             ],
             [
                 'id'=> 5,
-                'name'=> 'Barang',
+                'name'=> 'Kategori tertentu',
                 'mandatory'=>false,
                 'is_active'=> false,
                 'configurations_id'=>6

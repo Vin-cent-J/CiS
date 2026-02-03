@@ -14,8 +14,10 @@ class DiscountRule extends Model
 
     protected $fillable = [
         'minimum',
+        'bonus_quantity',
         'products_id',
-        'categories_id'
+        'categories_id',
+        'bonus_product_id'
     ];
 
     public function category()
@@ -25,5 +27,9 @@ class DiscountRule extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'products_id');
+    }
+    public function bonusProduct()
+    {
+        return $this->belongsTo(Product::class, 'bonus_product_id');
     }
 }

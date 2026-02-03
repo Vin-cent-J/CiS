@@ -40,9 +40,9 @@ class Product extends Model
         return $this->hasMany(PurchaseDetail::class, 'products_id');
     }
 
-    public function discountRules()
+    public function discountRule()
     {
-        return $this->belongsToMany(DiscountRule::class, 'discounted_products', 'products_id', 'discount_rules_id');
+        return $this->hasOne(DiscountRule::class, 'products_id');
     }
 
     public function variants()
