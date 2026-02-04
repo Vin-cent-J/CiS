@@ -96,7 +96,7 @@
           @endif
           <div class="text-end">
             @if (!$taxActive)
-            Pajak: <strong id="tax"> Rp. {{ number_format($total*$taxRate) }}</strong> <br>
+            Pajak: <strong id="tax"> Rp. {{ number_format($total * $taxRate) }}</strong> <br>
             @endif
             Total: <strong id="total"> Rp.{{ number_format($afterTax)}}</strong>
             <hr>
@@ -111,7 +111,6 @@
     </div>
 
     <div class="col-8 bg-light p-2">
-      <!-- Todo: Filter barang -->
       <Strong><i class="bi bi-box-seam-fill"></i>Katalog:</Strong>
       <div class="row p-2" style="overflow-y: scroll">
         @foreach ($products as $product)
@@ -229,7 +228,11 @@
           <label class="form-label fw-bold">Berlaku Untuk Kategori</label>
           <select id="select-category" name="categories[]" class="form-control" multiple style="height: 200px;">
             @foreach ($categories as $category)
-              <option value="{{ $category->id }}">{{ $category->name }} (Min: {{ $category->discountRule->minimum ?? 0 }})</option>
+              <option value="{{ $category->id }}">{{ $category->name }} (Min: {{ $category->discountRule->minimum ?? 0 }})
+                @if (isset($category->discountRule->bonusProduct))
+                Bonus: {{ $category->discountRule->bonusProduct->name ?? ""}} (Min: {{ $product->discountRule->bonus_minimum ?? "" }})
+                @endif
+              </option>
             @endforeach
           </select>
         </div>
@@ -239,7 +242,11 @@
           <label class="form-label fw-bold">Berlaku Untuk Produk Spesifik</label>
           <select id="select-product" name="products[]" class="form-control" multiple style="height: 150px;">
             @foreach ($products as $product)
-              <option value="{{ $product->id }}">{{ $product->name }} (Min: {{ $product->discountRule->minimum ?? 0 }}) | Bonus: {{ $product->discountRule->bonusProduct->name ?? ""}} (Min: {{ $product->discountRule->bonus_minimum ?? "" }})</option>
+              <option value="{{ $product->id }}">{{ $product->name }} (Min: {{ $product->discountRule->minimum ?? 0 }}) | 
+                @if (isset($product->discountRule->bonusProduct))
+                Bonus: {{ $product->discountRule->bonusProduct->name ?? ""}} (Min: {{ $product->discountRule->bonus_minimum ?? "" }})
+                @endif
+              </option>
             @endforeach
           </select>
         </div>
@@ -449,7 +456,7 @@
           totalF = 0;
         }
         $('#pembayaran #total-m').text('Rp.' + formatCurrency(totalF));
-        $('#total').text('Rp.' + formatCurrency(totalF));
+        $('#total').text('Rp.' + formatCurrency(totalF * taxRate));
       },
     })
   });
@@ -461,6 +468,7 @@
     category = $('#select-category').val();
     product = $('#select-product').val();
     bonusQuantity = 1;
+    bonusMinimum = $('#bonus-min').val();
     bonusProductId = $('#select-bonus').val();
 
     if ((!category || category.length === 0) && (!product || product.length === 0)) {
@@ -481,6 +489,7 @@
         minimal: minimal,
         categories: category,
         products: product,
+        bonus_minimum: bonusMinimum,
         bonus_product_id: bonusProductId,
         bonus_quantity: bonusQuantity
       },
@@ -541,8 +550,9 @@
           total = 0;
         }
 
+        $('#tax').text('Rp.' + formatCurrency(total * taxRate));
         $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
-        $('#total').text('Rp.' + formatCurrency(total));
+        $('#total').text('Rp.' + formatCurrency(total * ( 1 + taxRate)));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         alert('Terjadi kesalahan. ' + errorThrown);
@@ -588,7 +598,7 @@
         }
         
         $('#pembayaran #total-m').text('Rp.' + formatCurrency(total));
-        $('#total').text('Rp.' + formatCurrency(total));
+        $('#total').text('Rp.' + formatCurrency(total * ( 1 + taxRate)));
       },
     })
   });

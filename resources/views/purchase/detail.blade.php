@@ -74,7 +74,7 @@
                         {{ number_format(($detail->price * $detail->amount) - $detail->discount, 0, ',', '.') }}
                     </td>
                     <td>
-                        <button class="btn-pengembalian btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#pengembalian" data-value="{{ $detail }}" <?= ($detail->amount - $detail->total_return == 0) ? 'disabled' : '' ?>>Pengembalian</button>
+                        <button class="btn-pengembalian btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#pengembalian" data-value="{{ $detail }}">Pengembalian</button>
                     </td>
                 </tr>
                 @endforeach
@@ -116,7 +116,9 @@
               <div class="modal-footer">
                 <input type="submit" value="Kembalikan uang" class="btn btn-sm btn-warning btn-kembalian"></input>
                 <input type="submit" value="Ganti barang" class="btn btn-sm btn-warning btn-kembalian"></input>
-                <input type="submit" value="Kurangi piutang" class="btn btn-sm btn-warning btn-kembalian"></input>
+                @if ($purchase->total_debt > 0)
+                <input type="submit" value="Kurangi hutang" class="btn btn-sm btn-warning btn-kembalian"></input>
+                @endif
               </div>
           </div>
         </div>

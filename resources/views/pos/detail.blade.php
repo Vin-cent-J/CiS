@@ -70,11 +70,14 @@
           <tr>
             <td>
               @if($detail->variant)
-                  {{ $detail->variant->product->name }} - {{ $detail->variant->name }}
+                @if ($detail->price <= 0)
+                  <strong>[BONUS]</strong>
+                @endif
+                {{ $detail->variant->product->name }} - {{ $detail->variant->name }}
               @else
-                  {{ $detail->product->name }}
+                {{ $detail->product->name }}
               @endif
-          </td>
+            </td>
             <td>
               {{ $detail->amount }}  
               @if ($detail->return_amount > 0)
@@ -99,7 +102,19 @@
             </td>
             @if ($features->contains('id',5))
               <td>
-                <button class="btn-pengembalian btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#pengembalian" data-value="{{ $detail }}" <?= ($detail->amount - $detail->total_return == 0) ? 'disabled' : '' ?>>Pengembalian</button>
+                @php
+                  $total_return = $returns->where('products_id', $detail->products_id)->where('variants_id', $detail->variants_id)->sum('amount');
+                  $remaining = $detail->amount - $total_return;
+                @endphp
+                <button 
+                  class="btn-pengembalian btn btn-warning" 
+                  type="button" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#pengembalian" 
+                  data-value="{{ $detail }}" 
+                  {{ ($remaining <= 0) ? 'disabled' : '' }}>
+                  Pengembalian
+                </button>
               </td>
             @endif
           </tr>
@@ -119,9 +134,15 @@
     </tbody>
   </table>
   <table style="width: 25%; float: right;">
+    @if ($sale->tax > 0)
+    <tr>
+      <th>Pajak</th>
+      <th>Rp.{{ number_format($sale->tax, 0, ',', '.') }}</th>
+    </tr>
+    @endif
     <tr>
       <th>Total Akhir</th>
-      <th>Rp.{{number_format($sale->total, 0, ',', '.')}}</th>
+      <th>Rp.{{ number_format($sale->total, 0, ',', '.') }}</th>
     </tr>
   </table>
   </div>

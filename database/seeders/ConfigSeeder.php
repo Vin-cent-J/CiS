@@ -206,13 +206,13 @@ class ConfigSeeder extends Seeder
                 'is_active'=> true,
                 'configurations_id'=>6
             ],
-            [
-                'id'=> 5,
-                'name'=> 'Kategori tertentu',
-                'mandatory'=>false,
-                'is_active'=> false,
-                'configurations_id'=>6
-            ],
+            // [
+            //     'id'=> 5,
+            //     'name'=> 'Kategori tertentu',
+            //     'mandatory'=>false,
+            //     'is_active'=> false,
+            //     'configurations_id'=>6
+            // ],
             [
                 'id'=> 6,
                 'name'=> 'Ganti barang',

@@ -81,6 +81,7 @@ class DiscountRuleController extends Controller
     public function insertRule(Request $request)
     {
         $bonusQuantity = $request->bonus_quantity;
+        $bonusMinimum = $request->bonus_minimum;
         $bonusId = $request->bonus_product_id;
         $min = $request->minimal;
         if ($request->has('categories')) {
@@ -89,6 +90,7 @@ class DiscountRuleController extends Controller
                     ['categories_id' => $categoryId],
                     [
                         'minimum' => $min,
+                        'bonus_minimum' => $bonusMinimum ? $bonusMinimum : 1,
                         'products_id' => null,
                         'bonus_quantity'=> 1,
                         'bonus_product_id'=> $bonusId ? $bonusId : null
@@ -103,6 +105,7 @@ class DiscountRuleController extends Controller
                     ['products_id' => $prodId],
                     [
                         'minimum' => $min,
+                        'bonus_minimum' => $bonusMinimum ? $bonusMinimum : 1,
                         'categories_id' => null,
                         'bonus_quantity'=> 1,
                         'bonus_product_id'=> $bonusId ? $bonusId : null

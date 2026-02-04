@@ -128,13 +128,13 @@ class FeatureSeeder extends Seeder
                 'is_active'=>true,
                 'features_id'=>3
             ],
-            [
-                'id'=>14,
-                'name'=>'Diskon',
-                'mandatory'=>false,
-                'is_active'=>false,
-                'features_id'=>3
-            ],
+            // [
+            //     'id'=>14,
+            //     'name'=>'Diskon',
+            //     'mandatory'=>false,
+            //     'is_active'=>false,
+            //     'features_id'=>3
+            // ],
             [
                 'id'=>11,
                 'name'=> 'Metode inventaris yang digunakan',

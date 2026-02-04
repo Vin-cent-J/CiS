@@ -82,7 +82,9 @@
                     <th>Produk</th>
                     <th>Jumlah</th>
                     <th>Harga Unit</th>
+                    @if ($features->contains('id',8) || $sale->salesDetails->where('discount','>',0)->count() > 0)
                     <th>Diskon</th>
+                    @endif
                     <th>Total</th>
                     @if ($features->contains('id',9) || $features->contains('id',10))
                     <th>Garansi & Pengembalian</th>
@@ -110,8 +112,6 @@
                     %
                     @endif
                     </td>
-                    @else
-                    <td>-</td>
                     @endif
                     <td>
                     @if ($detail->discount_type == 1)
@@ -129,25 +129,37 @@
                 @endforeach
             </tbody>
         </table>
+        <table style="width: 25%; float: right; margin-bottom: 10px;">
+          @if ( $sale->tax > 0)
+          <tr>
+            <th>Pajak</th>
+            <th>Rp.{{ number_format($sale->tax, 0, ',', '.') }}</th>
+          </tr>
+          @endif
+          <tr>
+            <th>Total Akhir</th>
+            <th>Rp.{{ number_format($sale->total, 0, ',', '.') }}</th>
+          </tr>
+        </table>
     </div>
-
+    <hr>
     <div class="container card">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-            <h4 class="text-primary fw-bold">Pengembalian</h4>
-            </li>
-            @foreach ($returns as $return)
-            @if ($return->amount > 0)
-            <li class="list-group-item fw-bold">
-              {{ $return->product->name }}
-              {{ $return->variant ? '- ' . $return->variant->name : '' }}: 
-              {{ $return->amount }}  
-              <span class="fw-light">({{ $return->type }})</span> 
-              <span style="float: right">{{$return->date}}</span>
-          </li>
-            @endif
-            @endforeach
-        </ul>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+        <h4 class="text-primary fw-bold">Pengembalian</h4>
+        </li>
+        @foreach ($returns as $return)
+        @if ($return->amount > 0)
+        <li class="list-group-item fw-bold">
+          {{ $return->product->name }}
+          {{ $return->variant ? '- ' . $return->variant->name : '' }}: 
+          {{ $return->amount }}  
+          <span class="fw-light">({{ $return->type }})</span> 
+          <span style="float: right">{{$return->date}}</span>
+        </li>
+        @endif
+        @endforeach
+      </ul>
     </div>
 
     {{-- Modal --}}

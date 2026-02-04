@@ -53,51 +53,51 @@ class PosController extends Controller
     }
 
     private function checkAndApplyBonus($cart)
-        {
-            $cleanCart = [];
-            foreach ($cart as $key => $item) {
-                if (!isset($item['is_bonus']) || $item['is_bonus'] !== true) {
-                    $cleanCart[$key] = $item;
-                }
+    {
+        $cleanCart = [];
+        foreach ($cart as $key => $item) {
+            if (!isset($item['is_bonus']) || $item['is_bonus'] !== true) {
+                $cleanCart[$key] = $item;
             }
-            $cart = $cleanCart;
-
-            $rules = DiscountRule::whereNotNull('bonus_product_id')->get();
-
-            foreach ($cart as $item) {
-                $qty = $item['quantity'];
-                $prodId = $item['id'];
-                $catId = $item['categories_id'] ?? null;
-
-                $matchedRule = $rules->filter(function($rule) use ($prodId, $catId, $qty) {
-                    $isProductMatch = ($rule->products_id == $prodId);
-                    $isCategoryMatch = ($rule->categories_id == $catId);
-                    return ($isProductMatch || $isCategoryMatch) && $qty >= $rule->bonus_minimum;
-                })->first();
-
-                if ($matchedRule) {
-                    $bonusProd = Product::find($matchedRule->bonus_product_id);
-                    
-                    if ($bonusProd) {
-                        $bonusId = "bonus-" . $bonusProd->id; 
-                        
-                        $cart[$bonusId] = [
-                            "id" => $bonusProd->id,
-                            "name" => "[BONUS] " . $bonusProd->name,
-                            "price" => 0,
-                            "quantity" => $matchedRule->bonus_quantity,
-                            "type" => "product",
-                            "discount" => 0,
-                            "discount_type" => 1,
-                            "is_bonus" => true,
-                            "categories_id" => $bonusProd->categories_id
-                        ];
-                    }
-                }
-            }
-
-            return $cart;
         }
+        $cart = $cleanCart;
+
+        $rules = DiscountRule::whereNotNull('bonus_product_id')->get();
+
+        foreach ($cart as $item) {
+            $qty = $item['quantity'];
+            $prodId = $item['id'];
+            $catId = $item['categories_id'] ?? null;
+
+            $matchedRule = $rules->filter(function($rule) use ($prodId, $catId, $qty) {
+                $isProductMatch = ($rule->products_id == $prodId);
+                $isCategoryMatch = ($rule->categories_id == $catId);
+                return ($isProductMatch || $isCategoryMatch) && $qty >= $rule->bonus_minimum;
+            })->first();
+
+            if ($matchedRule) {
+                $bonusProd = Product::find($matchedRule->bonus_product_id);
+                
+                if ($bonusProd) {
+                    $bonusId = "bonus-" . $bonusProd->id; 
+                    
+                    $cart[$bonusId] = [
+                        "id" => $bonusProd->id,
+                        "name" => "[BONUS] " . $bonusProd->name,
+                        "price" => 0,
+                        "quantity" => $matchedRule->bonus_quantity,
+                        "type" => "product",
+                        "discount" => 0,
+                        "discount_type" => 1,
+                        "is_bonus" => true,
+                        "categories_id" => $bonusProd->categories_id
+                    ];
+                }
+            }
+        }
+
+        return $cart;
+    }
 
     public function setSession(Request $request)
     {
@@ -328,11 +328,18 @@ class PosController extends Controller
             return response()->json('Sale details not found.', 404);
         }
 
-        if ($detail->total_return >= $detail->amount) {
+        $currentReturned = ProductReturn::where('sales_id', $id)
+            ->where('products_id', $productId)
+            ->when($variantId, function ($q) use ($variantId) {
+                return $q->where('variants_id', $variantId);
+            })
+            ->sum('amount');
+
+        if ($currentReturned >= $detail->amount) {
             return response()->json('All products have been returned.', 200);
         }
 
-        if ($returnAmount <= 0 || ($detail->total_return + $returnAmount) > $detail->amount) {
+        if ($returnAmount <= 0 || ($currentReturned + $returnAmount) > $detail->amount) {
             return response()->json('Return amount invalid or exceeds purchased amount.', 400);
         }
 

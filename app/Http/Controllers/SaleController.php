@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Configuration;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\DetailConfiguration;
+use App\Models\DiscountRule;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SalesDetail;
@@ -59,8 +61,12 @@ class SaleController extends Controller
             $sales = $sales->whereBetween('date', [$startDate, $endDate]);
         }
         $sales = $sales->orderBy('id', 'desc')->get();
+
+        $products = Product::with('variants')->get();
+
+        $categories = Category::all();
         
-        return view('sales.app', compact( 'sales', 'activeConfigs', 'activeDetails', 'features', 'status', 'startDate', 'endDate'));
+        return view('sales.app', compact( 'sales', 'activeConfigs', 'activeDetails', 'features', 'status', 'startDate', 'endDate', 'products', 'categories'));
     }
 
     /**
@@ -174,6 +180,53 @@ class SaleController extends Controller
         return redirect()->route('sales.index');
     }
 
+    private function checkAndApplyBonus($cart)
+    {
+        $cleanCart = [];
+        foreach ($cart as $key => $item) {
+            if (!isset($item['is_bonus']) || $item['is_bonus'] !== true) {
+                $cleanCart[$key] = $item;
+            }
+        }
+        $cart = $cleanCart;
+
+        $rules = DiscountRule::whereNotNull('bonus_product_id')->get();
+
+        foreach ($cart as $item) {
+            $qty = $item['quantity'];
+            $prodId = $item['id'];
+            $catId = $item['categories_id'] ?? null;
+
+            $matchedRule = $rules->filter(function($rule) use ($prodId, $catId, $qty) {
+                $isProductMatch = ($rule->products_id == $prodId);
+                $isCategoryMatch = ($rule->categories_id == $catId);
+                return ($isProductMatch || $isCategoryMatch) && $qty >= $rule->bonus_minimum;
+            })->first();
+
+            if ($matchedRule) {
+                $bonusProd = Product::find($matchedRule->bonus_product_id);
+                
+                if ($bonusProd) {
+                    $bonusId = "bonus-" . $bonusProd->id; 
+                    
+                    $cart[$bonusId] = [
+                        "id" => $bonusProd->id,
+                        "name" => "[BONUS] " . $bonusProd->name,
+                        "price" => 0,
+                        "quantity" => $matchedRule->bonus_quantity,
+                        "type" => "product",
+                        "discount" => 0,
+                        "discount_type" => 1,
+                        "is_bonus" => true,
+                        "categories_id" => $bonusProd->categories_id
+                    ];
+                }
+            }
+        }
+
+        return $cart;
+    }
+
     public function setSession(Request $request)
     {
         $productFound = false;
@@ -215,8 +268,9 @@ class SaleController extends Controller
                 'discount_type' => $request->discount_type ?? 1,
             ];
         }
+        $cart = $this->checkAndApplyBonus($products);
         Session::put('added', $added);
-        Session::put('sale-products', $products);
+        Session::put('sale-products', $cart);
         return response()->json(['message' => 'Session set', 'products' => Session('sale-products')]);
     }
 

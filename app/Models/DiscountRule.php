@@ -15,6 +15,7 @@ class DiscountRule extends Model
     protected $fillable = [
         'minimum',
         'bonus_quantity',
+        'bonus_minimum',
         'products_id',
         'categories_id',
         'bonus_product_id'

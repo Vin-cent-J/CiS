@@ -199,7 +199,7 @@
                     @endif
                 @endforeach
             </select>
-            <button class="btn btn-warning" id="tambah">Tambah produk</button>
+            <button type="button" class="btn btn-warning" id="tambah">Tambah produk</button>
             <input class="btn btn-warning mx-2" type="submit" style="float: right" value="Simpan" <?= session('sale-products') == [] ? 'disabled' : '' ?>>
         </div>
     </form>
@@ -212,7 +212,7 @@
         return new Intl.NumberFormat('id-ID').format(amount);
     }
 
-    const useTax = {{ in_array(11, $activeConfigs)}};
+    const useTax = @json(in_array(11, $activeConfigs));
     const taxRate = useTax ? 0 : 0.11;
 
     const products = @json($products);
