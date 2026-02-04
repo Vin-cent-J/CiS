@@ -239,24 +239,27 @@
           <label class="form-label fw-bold">Berlaku Untuk Produk Spesifik</label>
           <select id="select-product" name="products[]" class="form-control" multiple style="height: 150px;">
             @foreach ($products as $product)
-              <option value="{{ $product->id }}">{{ $product->name }} (Min: {{ $product->discountRule->minimum ?? 0 }})</option>
+              <option value="{{ $product->id }}">{{ $product->name }} (Min: {{ $product->discountRule->minimum ?? 0 }}) | Bonus: {{ $product->discountRule->bonusProduct->name ?? ""}} (Min: {{ $product->discountRule->bonus_minimum ?? "" }})</option>
             @endforeach
           </select>
         </div>
         <small class="text-muted">Pilih Produk (Ctrl/Command untuk multiple)</small>
       </div>
+      @if (in_array(5, $activeConfigs))
       <hr>
       <div class="mb-3 p-2">
-          <label class="form-label fw-bold text-warning-emphasis"><i class="bi bi-gift-fill"></i> Hadiah Bonus (Opsional)</label>
-          <select name="bonus_product_id" id="select-bonus" class="form-control">
-              <option value="">-- Tidak Ada Bonus --</option>
-              @foreach ($products as $product)
-              <option value="{{ $product->id }}">{{ $product->name }}</option>
-              @endforeach
-          </select>
-          <small class="text-muted">Jika syarat terpenuhi, pelanggan dapat gratis barang ini.</small>
+        <label for="bonus-min" class="form-label fw-bold text-warning-emphasis">Minimal pembelian untuk bonus:</label>
+        <input type="number" id="bonus-min" name="bonus_quantity" min="1" value="1" class="form-control">
+        <label class="form-label fw-bold text-warning-emphasis"> Hadiah Bonus (Opsional)</label>
+        <select name="bonus_product_id" id="select-bonus" class="form-control">
+          <option value="">-- Tidak Ada Bonus --</option>
+          @foreach ($products as $product)
+          <option value="{{ $product->id }}">{{ $product->name }}</option>
+          @endforeach
+        </select>
+        <small class="text-muted">Jika syarat terpenuhi, pelanggan dapat gratis barang ini.</small>
       </div>
-
+      @endif
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="btn-simpan">Simpan</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -454,16 +457,18 @@
   $('#btn-simpan').click(function(e) {
     e.preventDefault();
 
-    var minimalVal = $('#input-minimal').val();
-    var categoryVal = $('#select-category').val();
-    var productVal = $('#select-product').val();
+    minimal = $('#input-minimal').val();
+    category = $('#select-category').val();
+    product = $('#select-product').val();
+    bonusQuantity = 1;
+    bonusProductId = $('#select-bonus').val();
 
-    if ((!categoryVal || categoryVal.length === 0) && (!productVal || productVal.length === 0)) {
+    if ((!category || category.length === 0) && (!product || product.length === 0)) {
       alert("Pilih setidaknya satu kategori atau produk.");
       return;
     }
 
-    var saveBtn = $(this);
+    saveBtn = $(this);
     saveBtn.text('Menyimpan...').prop('disabled', true);
 
     $.ajax({
@@ -473,9 +478,11 @@
         'X-CSRF-TOKEN': '{{ csrf_token() }}'
       },
       data: {
-        minimal: minimalVal,
-        categories: categoryVal,
-        products: productVal
+        minimal: minimal,
+        categories: category,
+        products: product,
+        bonus_product_id: bonusProductId,
+        bonus_quantity: bonusQuantity
       },
       success: function(response) {
         if(response.status === 'success') {

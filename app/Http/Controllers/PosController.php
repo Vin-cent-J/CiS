@@ -52,6 +52,53 @@ class PosController extends Controller
         return view('pos.app', compact('features','activeConfigs', 'activeDetails', 'products', 'customers', 'discountRules', 'categories'));
     }
 
+    private function checkAndApplyBonus($cart)
+        {
+            $cleanCart = [];
+            foreach ($cart as $key => $item) {
+                if (!isset($item['is_bonus']) || $item['is_bonus'] !== true) {
+                    $cleanCart[$key] = $item;
+                }
+            }
+            $cart = $cleanCart;
+
+            $rules = DiscountRule::whereNotNull('bonus_product_id')->get();
+
+            foreach ($cart as $item) {
+                $qty = $item['quantity'];
+                $prodId = $item['id'];
+                $catId = $item['categories_id'] ?? null;
+
+                $matchedRule = $rules->filter(function($rule) use ($prodId, $catId, $qty) {
+                    $isProductMatch = ($rule->products_id == $prodId);
+                    $isCategoryMatch = ($rule->categories_id == $catId);
+                    return ($isProductMatch || $isCategoryMatch) && $qty >= $rule->bonus_minimum;
+                })->first();
+
+                if ($matchedRule) {
+                    $bonusProd = Product::find($matchedRule->bonus_product_id);
+                    
+                    if ($bonusProd) {
+                        $bonusId = "bonus-" . $bonusProd->id; 
+                        
+                        $cart[$bonusId] = [
+                            "id" => $bonusProd->id,
+                            "name" => "[BONUS] " . $bonusProd->name,
+                            "price" => 0,
+                            "quantity" => $matchedRule->bonus_quantity,
+                            "type" => "product",
+                            "discount" => 0,
+                            "discount_type" => 1,
+                            "is_bonus" => true,
+                            "categories_id" => $bonusProd->categories_id
+                        ];
+                    }
+                }
+            }
+
+            return $cart;
+        }
+
     public function setSession(Request $request)
     {
         $productFound = false;
@@ -90,8 +137,10 @@ class PosController extends Controller
         if (!Session::has('saleTotalDisc')) {
             Session::put('saleTotalDisc', 0);
         }
+
+        $cart = $this->checkAndApplyBonus($products);
         
-        Session::put('products', $products);
+        Session::put('products', $cart);
 
         return response()->json([
             'message'=>'Session set', 

@@ -50,5 +50,8 @@ class Product extends Model
         return $this->hasMany(Variant::class, 'products_id');
     }
 
-    
+    public function bonusDiscountRules()
+    {
+        return $this->hasMany(DiscountRule::class, 'bonus_product_id');
+    }
 }

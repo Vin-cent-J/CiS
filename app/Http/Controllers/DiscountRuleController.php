@@ -38,10 +38,13 @@ class DiscountRuleController extends Controller
     {
         try {
             $minimum = $request->minimum;
+            $bonusQuantity = $request->bonus_quantity;
             $saleType = $request->sale_type;
             $lineDiscount = $request->line_discount;
             $categoryIds = $request->category_ids;
             $productIds = $request->product_ids;
+            $bonusId = $request->bonus_product_id;
+
 
             if($categoryIds == null and $productIds == null){
                 $rule = DiscountRule::where('minimum', $minimum)
@@ -77,13 +80,18 @@ class DiscountRuleController extends Controller
 
     public function insertRule(Request $request)
     {
+        $bonusQuantity = $request->bonus_quantity;
+        $bonusId = $request->bonus_product_id;
+        $min = $request->minimal;
         if ($request->has('categories')) {
             foreach ($request->categories as $categoryId) {
                 DiscountRule::updateOrCreate(
                     ['categories_id' => $categoryId],
                     [
-                        'minimum' => $request->minimal,
+                        'minimum' => $min,
                         'products_id' => null,
+                        'bonus_quantity'=> 1,
+                        'bonus_product_id'=> $bonusId ? $bonusId : null
                     ]
                 );
             }
@@ -94,8 +102,10 @@ class DiscountRuleController extends Controller
                 DiscountRule::updateOrCreate(
                     ['products_id' => $prodId],
                     [
-                        'minimum' => $request->minimal,
-                        'categories_id' => null
+                        'minimum' => $min,
+                        'categories_id' => null,
+                        'bonus_quantity'=> 1,
+                        'bonus_product_id'=> $bonusId ? $bonusId : null
                     ]
                 );
             }
