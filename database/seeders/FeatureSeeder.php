@@ -82,8 +82,8 @@ class FeatureSeeder extends Seeder
             [
                 'id'=>3,
                 'name'=> 'Diskon',
-                'mandatory'=>false,
-                'is_active'=>false,
+                'mandatory'=>true,
+                'is_active'=>true,
                 'features_id'=>1
             ],
             [

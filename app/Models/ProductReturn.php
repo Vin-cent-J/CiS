@@ -18,6 +18,7 @@ class ProductReturn extends Model
         'date',
         'type',
         'variants_id',
+        'keterangan'
     ];
 
     public function sale()

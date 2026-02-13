@@ -20,6 +20,7 @@
     <strong>Piutang: </strong> <span id="hutang">Rp. {{ number_format($sale->total_debt, 0, ',', '.') }}</span> <br>
       @if($sale->total_debt > 0)
       <button class="btn btn-warning" id="btn-hutang">Kurangi piutang</button>
+      @endif
       <button class="btn btn-warning" id="btn-tampil">Tunjukan pembayaran</button>
 
       {{-- Container Hutang --}}
@@ -32,7 +33,7 @@
           <button class="btn btn-warning" id="btnBayar">Bayar</button>
         </div>
       </div>
-      @endif
+      
     @endif
 
     <div class="p-2 bg-light fadein" id="cont-tampil" style="display: none;">
@@ -158,6 +159,8 @@
     @if ($return->amount > 0)
     <li class="list-group-item fw-bold">
       {{ $return->product->name }} - {{ $return->variant ? $return->variant->name : '' }} : {{ $return->amount }}  <span class="fw-light">({{ $return->type }})</span> <span style="float: right">{{$return->date}}</span>
+      <br>
+      {{ $return->keterangan }}
     </li>
     @endif
     @endforeach
@@ -178,6 +181,8 @@
             <p class="fw-bold" id="pJumlah"></p>
             <label for="jumlah" id="labelJumlah" class="form-label">Jumlah Pengembalian</label>
             <input type="number" class="form-control" id="jumlah" name="jumlah" min="1" pattern="[0-9]" required>
+            <label for="keterangan"></label>
+            <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan pengembalian">
         </div>
         <div class="modal-footer">
           @if (in_array(7, $activeDetails) && $sale->total_debt == 0)
@@ -249,6 +254,7 @@
       data: JSON.stringify({
         id: {{ $sale->id }},
         paid: jumlahBayar,
+        keterangan: keterangan,
       }),
       success: function(data) {
         location.reload();
@@ -275,6 +281,7 @@
     const jumlah = $('#jumlah').val() 
     const type = $(this).val();
     const saleId = {{ $sale->id }};
+    const keterangan = $("#keterangan").val();
 
     $.ajax({
       url: "{{ url('/pos/return') }}",
@@ -289,6 +296,7 @@
         variant_id: variantId,
         amount: jumlah,
         type: type,
+        keterangan: keterangan
       }),
       success: function(data) {
         location.reload();

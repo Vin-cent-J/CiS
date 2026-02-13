@@ -287,7 +287,7 @@ class PosController extends Controller
     public function updateDebt(Request $request)
     {
         $saleId = $request->id;
-        $paid = $request->paid;
+        $paid = $request->paid; 
 
         $sale = Sale::find($saleId);
         if ($sale) {
@@ -315,6 +315,7 @@ class PosController extends Controller
         $variantId = $request->variant_id;
         $returnAmount = $request->amount ?? 0;
         $returnType = $request->type;
+        $keterangan = $request->keterangan;
 
         $query = SalesDetail::where('sales_id', $id)->where('products_id', $productId);
 
@@ -349,6 +350,7 @@ class PosController extends Controller
             'variants_id' => $variantId,
             'amount' => $returnAmount,
             'type' => $returnType,
+            'keterangan' => $keterangan,
             'date' => now(),
         ]);
 

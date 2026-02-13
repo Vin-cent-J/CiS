@@ -24,8 +24,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 2,
                 'name'=> 'Transfer',
-                'mandatory'=>false,
-                'is_active'=> false,
+                'mandatory'=>true,
+                'is_active'=> true,
                 'sub_features_id'=>1
             ],
             [
@@ -202,8 +202,8 @@ class ConfigSeeder extends Seeder
             [
                 'id'=> 4,
                 'name'=> 'Barang Tertentu',
-                'mandatory'=>true,
-                'is_active'=> true,
+                'mandatory'=>false,
+                'is_active'=> false,
                 'configurations_id'=>6
             ],
             // [
